@@ -4,7 +4,7 @@ BET (Business English Exam) is an Astro 6 SSR app with React 19 islands, Tailwin
 
 ## Hard Rules
 
-- **No Next.js directives.** Never write `"use client"` or `"use server"` — they are not applicable in Astro.
+- **No Next.js directives.** Never write `"use client"` or `"use server"`.
 - **Tailwind class merging.** Always use `cn()` from `@/lib/utils` for conditional or merged class names; never concatenate class strings manually.
 - **React only for interactivity.** Use Astro components for layout and static content; React islands only when client-side state or event handling is required.
 - **API routes.** Export uppercase `GET` / `POST` handlers; validate all input with zod; export `const prerender = false` on every API file.
@@ -31,7 +31,7 @@ New React hooks → `src/components/hooks/`. Install new shadcn components with 
 - `npm run lint:fix` — auto-fix lint issues
 - `npm run format` — Prettier with astro and Tailwind plugins
 
-Pre-commit (husky + lint-staged): eslint on `*.{ts,tsx,astro}`, prettier on `*.{json,css,md}`.
+Pre-commit hooks configured in `@package.json` (lint-staged).
 
 ## CI
 
@@ -39,4 +39,4 @@ Pre-commit (husky + lint-staged): eslint on `*.{ts,tsx,astro}`, prettier on `*.{
 
 ## Commits
 
-One commit in history; no prefix convention established yet. Use imperative mood (`Add lesson page`, `Fix middleware redirect`) until a team convention is adopted.
+Use imperative present tense (`Add`, `Fix`, `Remove`). No scope prefix until a team convention is agreed.

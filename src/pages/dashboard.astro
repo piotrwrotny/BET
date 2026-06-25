@@ -1,27 +1,117 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
 
 const { user } = Astro.locals;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+type BookRow = { id: string; title: string; description: string | null };
+type LessonRef = { id: string; ord: number };
+type ChapterRow = { id: string; book_id: string; ord: number; lessons: LessonRef[] };
+
+let books: BookRow[] = [];
+let chapters: ChapterRow[] = [];
+let completedIds = new Set<string>();
+
+if (supabase) {
+  // 1. Books the student has access to (RLS: own rows only)
+  const { data: bookAccess } = await supabase
+    .from("user_book_access")
+    .select("books(id, title, description)");
+
+  books = (bookAccess ?? [])
+    .map((row) => row.books as BookRow | null)
+    .filter((b): b is BookRow => b !== null);
+
+  // 2. All chapters + their lessons ordered by chapter.ord
+  //    RLS on chapters filters to accessible books automatically
+  //    TODO S-04: replace with single aggregating query
+  const { data: chaptersData } = await supabase
+    .from("chapters")
+    .select("id, book_id, ord, lessons(id, ord)")
+    .order("ord", { ascending: true });
+
+  chapters = (chaptersData ?? []) as ChapterRow[];
+
+  // 3. Completed lesson IDs for this user (RLS: own progress only)
+  const { data: progressRows } = await supabase
+    .from("lesson_progress")
+    .select("lesson_id");
+
+  completedIds = new Set((progressRows ?? []).map((p) => p.lesson_id));
+}
+
+// Compute first unfinished lesson ID per book
+const bookData = books.map((book) => {
+  const bookChapters = chapters
+    .filter((c) => c.book_id === book.id)
+    .sort((a, b) => a.ord - b.ord);
+
+  let firstUnfinishedId: string | null = null;
+  outer: for (const chapter of bookChapters) {
+    const lessons = [...(chapter.lessons ?? [])].sort((a, b) => a.ord - b.ord);
+    for (const lesson of lessons) {
+      if (!completedIds.has(lesson.id)) {
+        firstUnfinishedId = lesson.id;
+        break outer;
+      }
+    }
+  }
+
+  return { ...book, firstUnfinishedId };
+});
 ---
 
-<Layout title="Dashboard">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl">
-      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-        Dashboard
-      </h1>
-      <p class="text-blue-100/80">
-        Welcome, <span class="font-semibold text-white">{user?.email}</span>
-      </p>
-      <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
-      <form method="POST" action="/api/auth/signout" class="mt-6">
-        <button
-          type="submit"
-          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-        >
-          Sign out
-        </button>
-      </form>
+<Layout title="Dashboard — BET">
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+    <div class="mx-auto max-w-3xl">
+      <!-- Header -->
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+          <p class="text-sm text-slate-400">{user?.email}</p>
+        </div>
+        <form method="POST" action="/api/auth/signout">
+          <button
+            type="submit"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+          >
+            Sign out
+          </button>
+        </form>
+      </div>
+
+      <!-- Book list -->
+      {
+        bookData.length === 0 ? (
+          <div class="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-slate-400">
+            Nie masz jeszcze przypisanych książek.
+          </div>
+        ) : (
+          <ul class="space-y-4">
+            {bookData.map((book) => (
+              <li class="rounded-xl border border-white/10 bg-white/5 p-6">
+                <h2 class="mb-1 text-lg font-semibold text-white">{book.title}</h2>
+                {book.description && (
+                  <p class="mb-4 text-sm text-slate-400">{book.description}</p>
+                )}
+                {book.firstUnfinishedId ? (
+                  <a
+                    href={`/lessons/${book.firstUnfinishedId}`}
+                    class="inline-block rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500"
+                  >
+                    Kontynuuj naukę →
+                  </a>
+                ) : (
+                  <p class="text-sm font-medium text-emerald-400">
+                    ✓ Gratulacje, książka ukończona!
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )
+      }
     </div>
   </div>
 </Layout>

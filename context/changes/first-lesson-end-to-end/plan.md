@@ -438,26 +438,26 @@ curl -X POST http://127.0.0.1:4321/api/lessons/00000000-0000-0000-0000-000000000
 
 #### Automatyczne
 
-- [x] 1.1 `npm install` instaluje `zod` i `marked` bez błędów
-- [x] 1.2 `npx tsc --noEmit` przechodzi z nowym polem `role` w `Locals`
-- [x] 1.3 `npm run build` przechodzi
+- [x] 1.1 `npm install` instaluje `zod` i `marked` bez błędów — 4539ac0
+- [x] 1.2 `npx tsc --noEmit` przechodzi z nowym polem `role` w `Locals` — 4539ac0
+- [x] 1.3 `npm run build` przechodzi — 4539ac0
 
 #### Ręczne
 
-- [x] 1.4 Zalogowany jako `student@bet.local` → `Astro.locals.role === 'student'` potwierdzone w dev (console.log lub debugger)
+- [x] 1.4 Zalogowany jako `student@bet.local` → `Astro.locals.role === 'student'` potwierdzone w dev (console.log lub debugger) — 4539ac0
 
 ### Faza 2: Dashboard rework — lista książek i „Kontynuuj naukę"
 
 #### Automatyczne
 
-- [ ] 2.1 `npx tsc --noEmit` przechodzi
-- [ ] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npx tsc --noEmit` przechodzi
+- [x] 2.2 `npm run build` przechodzi
 
 #### Ręczne
 
-- [ ] 2.3 Zalogowany jako `student@bet.local` → dashboard pokazuje „FCE Practice Book 1" z przyciskiem „Kontynuuj naukę"
-- [ ] 2.4 Przycisk „Kontynuuj naukę" linkuje do `/lessons/00000000-0000-0000-0000-000000000030`
-- [ ] 2.5 Zalogowany jako `admin@bet.local` → dashboard pokazuje stan pusty (brak książek w `user_book_access`)
+- [x] 2.3 Zalogowany jako `student@bet.local` → dashboard pokazuje „FCE Practice Book 1" z przyciskiem „Kontynuuj naukę"
+- [x] 2.4 Przycisk „Kontynuuj naukę" linkuje do `/lessons/00000000-0000-0000-0000-000000000030`
+- [x] 2.5 Zalogowany jako `admin@bet.local` → dashboard pokazuje stan pusty (brak książek w `user_book_access`)
 
 ### Faza 3: Lesson page SSR — trasa, treść, dane dla wyspy
 

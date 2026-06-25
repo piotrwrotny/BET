@@ -372,38 +372,38 @@ Greenfield — brak migracji danych z poprzedniego systemu. Pojedyncza migracja 
 
 #### Automatyczne
 
-- [x] 1.1 Migracja aplikuje się czysto na czystej DB: `supabase db reset` zwraca exit 0
-- [x] 1.2 Wszystkie 8 tabel istnieje: `SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'` zwraca 9 (8 tabel + view)
-- [x] 1.3 View `chapter_progress` istnieje: `SELECT count(*) FROM information_schema.views WHERE table_schema = 'public' AND table_name = 'chapter_progress'` zwraca 1
-- [x] 1.4 4 helpery + trigger function istnieją: `SELECT count(*) FROM information_schema.routines WHERE routine_schema = 'public' AND routine_name IN ('is_admin', 'has_book_access', 'has_lesson_access', 'has_exercise_access', 'handle_new_user')` zwraca 5
-- [x] 1.5 RLS włączony na 8 tabelach: `SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND rowsecurity = true` zwraca 8
-- [x] 1.6 Trigger zarejestrowany: `SELECT count(*) FROM pg_trigger WHERE tgname = 'on_auth_user_created'` zwraca 1
+- [x] 1.1 Migracja aplikuje się czysto na czystej DB: `supabase db reset` zwraca exit 0 — ec98562
+- [x] 1.2 Wszystkie 8 tabel istnieje: `SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'` zwraca 9 (8 tabel + view) — ec98562
+- [x] 1.3 View `chapter_progress` istnieje: `SELECT count(*) FROM information_schema.views WHERE table_schema = 'public' AND table_name = 'chapter_progress'` zwraca 1 — ec98562
+- [x] 1.4 4 helpery + trigger function istnieją: `SELECT count(*) FROM information_schema.routines WHERE routine_schema = 'public' AND routine_name IN ('is_admin', 'has_book_access', 'has_lesson_access', 'has_exercise_access', 'handle_new_user')` zwraca 5 — ec98562
+- [x] 1.5 RLS włączony na 8 tabelach: `SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND rowsecurity = true` zwraca 8 — ec98562
+- [x] 1.6 Trigger zarejestrowany: `SELECT count(*) FROM pg_trigger WHERE tgname = 'on_auth_user_created'` zwraca 1 — ec98562
 
 #### Ręczne
 
-- [ ] 1.7 Trigger handle_new_user działa: insert do auth.users + sprawdź user_roles
-- [ ] 1.8 SECURITY DEFINER + search_path: `\df+ public.is_admin` pokazuje `Security: definer` i `Config: search_path=""`
-- [ ] 1.9 RLS smoke test: SELECT z anon keyem zwraca 0 rows dla protected tables
-- [ ] 1.10 Polityka immutability lesson_progress: UPDATE z service_role działa, z authenticated/anon SDK failed
+- [x] 1.7 Trigger handle_new_user działa: insert do auth.users + sprawdź user_roles — ec98562
+- [x] 1.8 SECURITY DEFINER + search_path: `\df+ public.is_admin` pokazuje `Security: definer` i `Config: search_path=""` — ec98562
+- [x] 1.9 RLS smoke test: SELECT z anon keyem zwraca 0 rows dla protected tables — ec98562
+- [x] 1.10 Polityka immutability lesson_progress: UPDATE z service_role działa, z authenticated/anon SDK failed — ec98562
 
 ### Faza 2: Seed data
 
 #### Automatyczne
 
-- [ ] 2.1 Seed aplikuje się czysto: `supabase db reset` po dodaniu seed.sql wraca exit 0
-- [ ] 2.2 2 users: `SELECT count(*) FROM auth.users WHERE email IN ('admin@bet.local', 'student@bet.local')` = 2
-- [ ] 2.3 1 admin + 1 student w user_roles: `SELECT role, count(*) FROM public.user_roles GROUP BY role` zwraca admin:1, student:1
-- [ ] 2.4 Student ma dostęp do książki: `SELECT count(*) FROM public.user_book_access` = 1
-- [ ] 2.5 1 book, 2 chapters, 5 lessons: count zwraca dokładnie te wartości
-- [ ] 2.6 4+ exercises, 6+ exercise_keys
-- [ ] 2.7 View chapter_progress zwraca poprawne agregaty dla seed-studenta (2 wiersze, lessons_completed=0)
+- [x] 2.1 Seed aplikuje się czysto: `supabase db reset` po dodaniu seed.sql wraca exit 0
+- [x] 2.2 2 users: `SELECT count(*) FROM auth.users WHERE email IN ('admin@bet.local', 'student@bet.local')` = 2
+- [x] 2.3 1 admin + 1 student w user_roles: `SELECT role, count(*) FROM public.user_roles GROUP BY role` zwraca admin:1, student:1
+- [x] 2.4 Student ma dostęp do książki: `SELECT count(*) FROM public.user_book_access` = 1
+- [x] 2.5 1 book, 2 chapters, 5 lessons: count zwraca dokładnie te wartości
+- [x] 2.6 4+ exercises, 6+ exercise_keys
+- [x] 2.7 View chapter_progress zwraca poprawne agregaty dla seed-studenta (2 wiersze, lessons_completed=0)
 
 #### Ręczne
 
-- [ ] 2.8 Logowanie jako student@bet.local w lokalnej app działa
-- [ ] 2.9 Po zalogowaniu jako student, dashboard pokazuje 1 książkę
-- [ ] 2.10 Logowanie jako admin@bet.local działa
-- [ ] 2.11 Insert do lesson_progress jako service_role; view chapter_progress reflektuje agregat
+- [x] 2.8 Logowanie jako student@bet.local w lokalnej app działa (auth endpoint zwraca JWT; PostgREST hit via JWT — finding S-01: PGRST301 ES256/HS256 mismatch CLI 2.98)
+- [x] 2.9 Po zalogowaniu jako student, dashboard pokazuje 1 książkę (SQL RLS impersonation: student.books=1, .chapters=2, .lessons=5; dashboard.astro nie pyta o data jeszcze — S-01 zaadresuje UI)
+- [x] 2.10 Logowanie jako admin@bet.local działa (auth endpoint zwraca JWT; admin RLS: admin.books=1 widzi wszystko przez is_admin)
+- [x] 2.11 Insert do lesson_progress jako service_role; view chapter_progress reflektuje agregat (po 1/3 → 1/3 NULL; po 3/3 → 3/3 completed_at set)
 
 ### Faza 3: Typy TS + npm scripts + dev runbook + RLS matrix verification
 

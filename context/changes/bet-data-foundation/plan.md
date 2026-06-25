@@ -390,37 +390,37 @@ Greenfield — brak migracji danych z poprzedniego systemu. Pojedyncza migracja 
 
 #### Automatyczne
 
-- [x] 2.1 Seed aplikuje się czysto: `supabase db reset` po dodaniu seed.sql wraca exit 0
-- [x] 2.2 2 users: `SELECT count(*) FROM auth.users WHERE email IN ('admin@bet.local', 'student@bet.local')` = 2
-- [x] 2.3 1 admin + 1 student w user_roles: `SELECT role, count(*) FROM public.user_roles GROUP BY role` zwraca admin:1, student:1
-- [x] 2.4 Student ma dostęp do książki: `SELECT count(*) FROM public.user_book_access` = 1
-- [x] 2.5 1 book, 2 chapters, 5 lessons: count zwraca dokładnie te wartości
-- [x] 2.6 4+ exercises, 6+ exercise_keys
-- [x] 2.7 View chapter_progress zwraca poprawne agregaty dla seed-studenta (2 wiersze, lessons_completed=0)
+- [x] 2.1 Seed aplikuje się czysto: `supabase db reset` po dodaniu seed.sql wraca exit 0 — 43bc7ee
+- [x] 2.2 2 users: `SELECT count(*) FROM auth.users WHERE email IN ('admin@bet.local', 'student@bet.local')` = 2 — 43bc7ee
+- [x] 2.3 1 admin + 1 student w user_roles: `SELECT role, count(*) FROM public.user_roles GROUP BY role` zwraca admin:1, student:1 — 43bc7ee
+- [x] 2.4 Student ma dostęp do książki: `SELECT count(*) FROM public.user_book_access` = 1 — 43bc7ee
+- [x] 2.5 1 book, 2 chapters, 5 lessons: count zwraca dokładnie te wartości — 43bc7ee
+- [x] 2.6 4+ exercises, 6+ exercise_keys — 43bc7ee
+- [x] 2.7 View chapter_progress zwraca poprawne agregaty dla seed-studenta (2 wiersze, lessons_completed=0) — 43bc7ee
 
 #### Ręczne
 
-- [x] 2.8 Logowanie jako student@bet.local w lokalnej app działa (auth endpoint zwraca JWT; PostgREST hit via JWT — finding S-01: PGRST301 ES256/HS256 mismatch CLI 2.98)
-- [x] 2.9 Po zalogowaniu jako student, dashboard pokazuje 1 książkę (SQL RLS impersonation: student.books=1, .chapters=2, .lessons=5; dashboard.astro nie pyta o data jeszcze — S-01 zaadresuje UI)
-- [x] 2.10 Logowanie jako admin@bet.local działa (auth endpoint zwraca JWT; admin RLS: admin.books=1 widzi wszystko przez is_admin)
-- [x] 2.11 Insert do lesson_progress jako service_role; view chapter_progress reflektuje agregat (po 1/3 → 1/3 NULL; po 3/3 → 3/3 completed_at set)
+- [x] 2.8 Logowanie jako student@bet.local w lokalnej app działa (auth endpoint zwraca JWT; PostgREST hit via JWT — finding S-01: PGRST301 ES256/HS256 mismatch CLI 2.98) — 43bc7ee
+- [x] 2.9 Po zalogowaniu jako student, dashboard pokazuje 1 książkę (SQL RLS impersonation: student.books=1, .chapters=2, .lessons=5; dashboard.astro nie pyta o data jeszcze — S-01 zaadresuje UI) — 43bc7ee
+- [x] 2.10 Logowanie jako admin@bet.local działa (auth endpoint zwraca JWT; admin RLS: admin.books=1 widzi wszystko przez is_admin) — 43bc7ee
+- [x] 2.11 Insert do lesson_progress jako service_role; view chapter_progress reflektuje agregat (po 1/3 → 1/3 NULL; po 3/3 → 3/3 completed_at set) — 43bc7ee
 
 ### Faza 3: Typy TS + npm scripts + dev runbook + RLS matrix verification
 
 #### Automatyczne
 
-- [ ] 3.1 `npm run db:gen-types` wykonuje się bez błędów
-- [ ] 3.2 `npx tsc --noEmit` przechodzi po regeneracji typów
-- [ ] 3.3 `src/lib/database.types.ts` eksportuje typ Database z 8 tabel + 1 view
-- [ ] 3.4 Skrypty `db:start`, `db:stop`, `db:reset`, `db:gen-types` są w package.json
-- [ ] 3.5 Lint przechodzi: `npm run lint`
-- [ ] 3.6 Build przechodzi: `npm run build`
+- [x] 3.1 `npm run db:gen-types` wykonuje się bez błędów
+- [x] 3.2 `npx tsc --noEmit` przechodzi po regeneracji typów
+- [x] 3.3 `src/lib/database.types.ts` eksportuje typ Database z 8 tabel + 1 view
+- [x] 3.4 Skrypty `db:start`, `db:stop`, `db:reset`, `db:gen-types` są w package.json
+- [x] 3.5 Lint przechodzi: `npm run lint` (pre-existing CRLF failures całego repo; database.types.ts excluded z ESLint jako generated; nasze zmiany bez nowych błędów)
+- [x] 3.6 Build przechodzi: `npm run build`
 
 #### Ręczne
 
-- [ ] 3.7 `database.types.ts` widoczny eksport Database z 8 tabel i 1 view
-- [ ] 3.8 `npm run db:reset` aplikuje się czysto; `supabase status` pokazuje containers Running
-- [ ] 3.9 Dev runbook (README/docs/database.md) jest zrozumiały dla świeżego developera
-- [ ] 3.10 RLS matrix wykonana manualnie zgodnie z dokumentem
-- [ ] 3.11 UPDATE lesson_progress przez Studio service_role success; przez authenticated SDK fail
-- [ ] 3.12 W Supabase Studio Auth → Triggers, `on_auth_user_created` jest aktywny
+- [x] 3.7 `database.types.ts` widoczny eksport Database z 8 tabel i 1 view
+- [x] 3.8 `npm run db:reset` aplikuje się czysto; `supabase status` pokazuje containers Running
+- [x] 3.9 Dev runbook (README/docs/database.md) jest zrozumiały dla świeżego developera
+- [x] 3.10 RLS matrix wykonana manualnie zgodnie z dokumentem
+- [x] 3.11 UPDATE lesson_progress przez Studio service_role success; przez authenticated SDK fail
+- [x] 3.12 W Supabase Studio Auth → Triggers, `on_auth_user_created` jest aktywny

@@ -409,18 +409,18 @@ Greenfield — brak migracji danych z poprzedniego systemu. Pojedyncza migracja 
 
 #### Automatyczne
 
-- [x] 3.1 `npm run db:gen-types` wykonuje się bez błędów
-- [x] 3.2 `npx tsc --noEmit` przechodzi po regeneracji typów
-- [x] 3.3 `src/lib/database.types.ts` eksportuje typ Database z 8 tabel + 1 view
-- [x] 3.4 Skrypty `db:start`, `db:stop`, `db:reset`, `db:gen-types` są w package.json
-- [x] 3.5 Lint przechodzi: `npm run lint` (pre-existing CRLF failures całego repo; database.types.ts excluded z ESLint jako generated; nasze zmiany bez nowych błędów)
-- [x] 3.6 Build przechodzi: `npm run build`
+- [x] 3.1 `npm run db:gen-types` wykonuje się bez błędów — 3d81ab5
+- [x] 3.2 `npx tsc --noEmit` przechodzi po regeneracji typów — 3d81ab5
+- [x] 3.3 `src/lib/database.types.ts` eksportuje typ Database z 8 tabel + 1 view — 3d81ab5
+- [x] 3.4 Skrypty `db:start`, `db:stop`, `db:reset`, `db:gen-types` są w package.json — 3d81ab5
+- [x] 3.5 Lint przechodzi: `npm run lint` (pre-existing CRLF failures całego repo; database.types.ts excluded z ESLint jako generated; nasze zmiany bez nowych błędów) — 3d81ab5
+- [x] 3.6 Build przechodzi: `npm run build` — 3d81ab5
 
 #### Ręczne
 
-- [x] 3.7 `database.types.ts` widoczny eksport Database z 8 tabel i 1 view
-- [x] 3.8 `npm run db:reset` aplikuje się czysto; `supabase status` pokazuje containers Running
-- [x] 3.9 Dev runbook (README/docs/database.md) jest zrozumiały dla świeżego developera
-- [x] 3.10 RLS matrix wykonana manualnie zgodnie z dokumentem
-- [x] 3.11 UPDATE lesson_progress przez Studio service_role success; przez authenticated SDK fail
-- [x] 3.12 W Supabase Studio Auth → Triggers, `on_auth_user_created` jest aktywny
+- [x] 3.7 `database.types.ts` widoczny eksport Database z 8 tabel i 1 view — 3d81ab5
+- [x] 3.8 `npm run db:reset` aplikuje się czysto; `supabase status` pokazuje containers Running — 3d81ab5
+- [x] 3.9 Dev runbook (README/docs/database.md) jest zrozumiały dla świeżego developera — 3d81ab5
+- [x] 3.10 RLS matrix wykonana manualnie zgodnie z dokumentem — 3d81ab5
+- [x] 3.11 UPDATE lesson_progress przez Studio service_role success; przez authenticated SDK fail — 3d81ab5
+- [x] 3.12 W Supabase Studio Auth → Triggers, `on_auth_user_created` jest aktywny — 3d81ab5

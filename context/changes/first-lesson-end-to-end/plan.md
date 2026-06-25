@@ -450,27 +450,27 @@ curl -X POST http://127.0.0.1:4321/api/lessons/00000000-0000-0000-0000-000000000
 
 #### Automatyczne
 
-- [x] 2.1 `npx tsc --noEmit` przechodzi
-- [x] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npx tsc --noEmit` przechodzi — 01a6f6e
+- [x] 2.2 `npm run build` przechodzi — 01a6f6e
 
 #### Ręczne
 
-- [x] 2.3 Zalogowany jako `student@bet.local` → dashboard pokazuje „FCE Practice Book 1" z przyciskiem „Kontynuuj naukę"
-- [x] 2.4 Przycisk „Kontynuuj naukę" linkuje do `/lessons/00000000-0000-0000-0000-000000000030`
-- [x] 2.5 Zalogowany jako `admin@bet.local` → dashboard pokazuje stan pusty (brak książek w `user_book_access`)
+- [x] 2.3 Zalogowany jako `student@bet.local` → dashboard pokazuje „FCE Practice Book 1" z przyciskiem „Kontynuuj naukę" — 01a6f6e
+- [x] 2.4 Przycisk „Kontynuuj naukę" linkuje do `/lessons/00000000-0000-0000-0000-000000000030` — 01a6f6e
+- [x] 2.5 Zalogowany jako `admin@bet.local` → dashboard pokazuje stan pusty (brak książek w `user_book_access`) — 01a6f6e
 
 ### Faza 3: Lesson page SSR — trasa, treść, dane dla wyspy
 
 #### Automatyczne
 
-- [ ] 3.1 `npx tsc --noEmit` przechodzi
-- [ ] 3.2 `npm run build` przechodzi
-- [ ] 3.3 GET `/lessons/00000000-0000-0000-0000-000000000099` (nieistniejący UUID) jako zalogowany student → redirect 302 do `/dashboard`
+- [x] 3.1 `npx tsc --noEmit` przechodzi
+- [x] 3.2 `npm run build` przechodzi
+- [x] 3.3 GET `/lessons/00000000-0000-0000-0000-000000000099` (nieistniejący UUID) jako zalogowany student → redirect 302 do `/dashboard`
 
 #### Ręczne
 
-- [ ] 3.4 `/lessons/00000000-0000-0000-0000-000000000030` jako `student@bet.local` → tytuł „Past Simple vs Present Perfect", treść wyrenderowana jako HTML (nagłówki, pogrubienie — nie surowy Markdown)
-- [ ] 3.5 `/lessons/00000000-0000-0000-0000-000000000030` jako niezalogowany użytkownik → redirect do `/auth/signin`
+- [x] 3.4 `/lessons/00000000-0000-0000-0000-000000000030` jako `student@bet.local` → tytuł „Past Simple vs Present Perfect", treść wyrenderowana jako HTML (nagłówki, pogrubienie — nie surowy Markdown)
+- [x] 3.5 `/lessons/00000000-0000-0000-0000-000000000030` jako niezalogowany użytkownik → redirect do `/auth/signin`
 
 ### Faza 4: Exercise & Completion — React island, verify API, complete API
 

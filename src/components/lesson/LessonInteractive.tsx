@@ -14,13 +14,14 @@ interface Props {
   exercises: Exercise[];
   isAlreadyCompleted: boolean;
   closedExerciseCount: number;
+  correctAnswers?: Record<string, string>;
 }
-
 export default function LessonInteractive({
   lessonId,
   exercises,
   isAlreadyCompleted,
   closedExerciseCount,
+  correctAnswers = {},
 }: Props) {
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [isCompleted, setIsCompleted] = useState(isAlreadyCompleted);
@@ -68,6 +69,7 @@ export default function LessonInteractive({
                   }
                   onCorrect={handleCorrect}
                   disabled={isCompleted}
+                  initialCorrectAnswer={correctAnswers[ex.id]}
                 />
               );
             }

@@ -58,6 +58,25 @@ const { data: progressRow } = await supabase
 
 const isAlreadyCompleted = progressRow !== null;
 
+// For review mode: fetch correct answers server-side so completed MC exercises
+// can highlight the correct option. Keys never reach the client before completion.
+let correctAnswers: Record<string, string> = {};
+if (isAlreadyCompleted) {
+  const mcIds = exercises.filter((e) => e.type === "multiple_choice").map((e) => e.id);
+  if (mcIds.length > 0) {
+    const { data: keys } = await supabase
+      .from("exercise_keys")
+      .select("exercise_id, key_text, key_metadata")
+      .in("exercise_id", mcIds);
+    for (const k of keys ?? []) {
+      const isRefOnly = (k.key_metadata as Record<string, unknown> | null)?.is_reference_only === true;
+      if (!isRefOnly && !correctAnswers[k.exercise_id as string]) {
+        correctAnswers[k.exercise_id as string] = k.key_text as string;
+      }
+    }
+  }
+}
+
 // Chapter info for breadcrumb
 const chapter = lesson.chapters as { id: string; title: string; book_id: string } | null;
 ---
@@ -97,6 +116,7 @@ const chapter = lesson.chapters as { id: string; title: string; book_id: string 
         exercises={exercises}
         isAlreadyCompleted={isAlreadyCompleted}
         closedExerciseCount={closedExerciseCount}
+        correctAnswers={correctAnswers}
       />
     </main>
   </div>

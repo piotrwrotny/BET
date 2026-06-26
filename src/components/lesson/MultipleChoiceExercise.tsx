@@ -8,14 +8,20 @@ interface Props {
   };
   onCorrect: (exerciseId: string) => void;
   disabled?: boolean;
+  initialCorrectAnswer?: string;
 }
-
-export default function MultipleChoiceExercise({ exercise, onCorrect, disabled = false }: Props) {
-  const [selected, setSelected] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<null | "correct" | "incorrect">(null);
-  const [locked, setLocked] = useState(false);
+export default function MultipleChoiceExercise({
+  exercise,
+  onCorrect,
+  disabled = false,
+  initialCorrectAnswer,
+}: Props) {
+  const [selected, setSelected] = useState<string | null>(initialCorrectAnswer ?? null);
+  const [feedback, setFeedback] = useState<null | "correct" | "incorrect">(
+    initialCorrectAnswer ? "correct" : null,
+  );
+  const [locked, setLocked] = useState(!!initialCorrectAnswer);
   const [loading, setLoading] = useState(false);
-
   const isDisabled = disabled || locked;
 
   async function handleSubmit() {

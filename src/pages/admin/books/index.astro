@@ -35,6 +35,7 @@ if (error) console.error("books list error:", error.message);
         <table class="w-full text-sm">
           <thead class="border-b border-border bg-muted/30">
             <tr>
+              <th class="px-4 py-3 text-left font-medium">Okładka</th>
               <th class="px-4 py-3 text-left font-medium">Tytuł</th>
               <th class="px-4 py-3 text-left font-medium">Opis</th>
               <th class="px-4 py-3 text-right font-medium">Akcje</th>
@@ -43,17 +44,21 @@ if (error) console.error("books list error:", error.message);
           <tbody>
             {books.map((book) => (
               <tr class="border-b border-border last:border-0 hover:bg-muted/20">
-                <td class="px-4 py-3 font-medium">
-                  {book.cover_url && (
+                <td class="px-4 py-3">
+                  {book.cover_url ? (
                     <img
                       src={book.cover_url}
                       alt=""
-                      class="mb-1 h-8 w-8 rounded object-cover"
+                      class="h-14 w-10 rounded object-cover"
                       onerror="this.style.display='none'"
                     />
+                  ) : (
+                    <div class="h-14 w-10 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">
+                      —
+                    </div>
                   )}
-                  {book.title}
                 </td>
+                <td class="px-4 py-3 font-medium">{book.title}</td>
                 <td class="px-4 py-3 text-muted-foreground">
                   {book.description ? book.description.slice(0, 60) + (book.description.length > 60 ? "…" : "") : "—"}
                 </td>

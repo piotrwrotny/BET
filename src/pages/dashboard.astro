@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase";
 const { user } = Astro.locals;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
-type BookRow = { id: string; title: string; description: string | null };
+type BookRow = { id: string; title: string; description: string | null; cover_url: string | null };
 type LessonRef = { id: string; ord: number };
 type ChapterRow = { id: string; book_id: string; ord: number; title: string; lessons: LessonRef[] };
 type ChapterProgressRow = {
@@ -24,7 +24,7 @@ if (supabase) {
   // 1. Books the student has access to (RLS: own rows only)
   const { data: bookAccess } = await supabase
     .from("user_book_access")
-    .select("books(id, title, description)");
+    .select("books(id, title, description, cover_url)");
 
   books = (bookAccess ?? [])
     .map((row) => row.books as BookRow | null)
@@ -110,11 +110,23 @@ const chapterProgressMap = Object.fromEntries(
         ) : (
           <ul class="space-y-4">
             {bookData.map((book) => (
-              <li class="rounded-xl border border-white/10 bg-white/5 p-6">
-                <h2 class="mb-1 text-lg font-semibold text-white">{book.title}</h2>
-                {book.description && (
-                  <p class="mb-4 text-sm text-slate-400">{book.description}</p>
-                )}
+            <li class="rounded-xl border border-white/10 bg-white/5 p-6">
+                <div class="mb-3 flex items-start gap-4">
+                  {book.cover_url && (
+                    <img
+                      src={book.cover_url}
+                      alt={book.title}
+                      class="h-20 w-14 shrink-0 rounded object-cover"
+                      onerror="this.style.display='none'"
+                    />
+                  )}
+                  <div class="min-w-0">
+                    <h2 class="mb-1 text-lg font-semibold text-white">{book.title}</h2>
+                    {book.description && (
+                      <p class="text-sm text-slate-400">{book.description}</p>
+                    )}
+                  </div>
+                </div>
                 {/* Chapter list with progress */}
                 {(() => {
                   const bookChapters = chapters

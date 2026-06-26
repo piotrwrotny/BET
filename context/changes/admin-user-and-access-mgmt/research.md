@@ -9,6 +9,7 @@ tags: [research, codebase, admin, user-management, access-control, tanstack-tabl
 status: complete
 last_updated: 2026-06-26
 last_updated_by: AI Researcher
+last_updated_note: "Dodano badania uzupełniające dla multi-book assignment UX/API"
 ---
 
 # Badanie: Implementacja S-03 admin-user-and-access-mgmt
@@ -288,3 +289,62 @@ Supabase `auth.users` jest chronione RLS na poziomie platformy. Zwykły SSR clie
 2. **Czy wprowadzić soft-delete na `user_book_access`** zamiast hard DELETE? Prostsze z punktu widzenia RLS, ale wymaga kolumny `revoked_at`.
 3. **Czy admin może zmieniać hasła studentów?** Auth Admin API to umożliwia (`updateUserById`), ale czy to wymaganie FR-002?
 4. **Czy lista "oczekujących" to po prostu wszyscy studenci bez `user_book_access`, czy oddzielny status?** OQ-1 sugeruje pierwsze.
+
+## Badania uzupełniające 2026-06-26T15:10:00+02:00
+
+### Problem potwierdzony w kodzie
+
+- `src/components/admin/UsersTable.tsx:61-70` nadpisuje `row.books` na tablicę z **jedną** książką po każdym wyborze.
+- `src/components/admin/UsersTable.tsx:154` UI korzysta z `row.books[0]` jako pojedynczej wartości `Select`.
+- `src/pages/api/admin/users/[id]/revoke.ts:31` usuwa **wszystkie** książki użytkownika (`delete().eq("user_id", ...)`) zamiast konkretnej pary `(user_id, book_id)`.
+
+To daje efekt: wybór nowej książki "chwilowo" wygląda jak single-book, a pełna lista wraca dopiero po refetch/odświeżeniu.
+
+### Context7 + web research (Exa fallback)
+
+W tej sesji nie było aktywnego narzędzia Exa, więc użyto `web_search` jako zamiennika + Context7 do weryfikacji API bibliotek.
+
+#### 1) Shadcn UI Combobox (multiple) — REKOMENDACJA dla BET
+
+- Źródło: Context7 `/shadcn-ui/ui`.
+- Potwierdzony wzorzec: `Combobox` z `multiple`, chips/tags i wyszukiwaniem.
+- Dlaczego pasuje:
+  - zgodne z istniejącym stackiem shadcn + Tailwind,
+  - brak ciężkiego dodatkowego dependency,
+  - naturalny UX do wielu książek per user.
+
+#### 2) React Select (`isMulti`) — dobra opcja, szybka implementacja
+
+- Źródło: Context7 `/websites/react-select` + web docs.
+- Potwierdzone: `isMulti`, kontrolowany `value`, stabilny `onChange` (tablica wartości).
+- Tradeoff: dodatkowy dependency i stylowanie poza obecnym wzorcem shadcn.
+
+#### 3) Downshift (`useCombobox` + `useMultipleSelection`) — maksymalna kontrola
+
+- Źródło: Context7 `/downshift-js/downshift`.
+- Potwierdzone: prymitywy do wielokrotnego wyboru + usuwania tagów.
+- Tradeoff: najwięcej kodu i logiki a11y do utrzymania.
+
+#### 4) TanStack Query do optimistic update + rollback (opcjonalne)
+
+- Źródło: Context7 `/tanstack/query`.
+- Potwierdzone: `onMutate` + rollback w `onError` + `invalidateQueries`.
+- Wniosek: przydatne, jeśli panel users urośnie; dla MVP można zostać przy local state + refetch.
+
+### Najlepsze podejście architektoniczne dla tej funkcji
+
+1. **Model danych zostaje many-to-many** (`user_book_access`), bez zmian schematu.
+2. **UI zmienia się z single-select na multi-assign**:
+   - pokazuj wszystkie przypisane książki jako chips,
+   - dodawanie: wybór kolejnej książki z combobox,
+   - usuwanie: akcja „x” na konkretnym chipie.
+3. **API revoke musi być granularne**:
+   - `DELETE /api/admin/users/:id/revoke?book_id=<uuid>`
+   - usuwa tylko `(user_id, book_id)`, nie całość.
+4. **Optimistic UI musi append/remove, nie replace**:
+   - add: `books = [...books, newBook]` jeśli nie istnieje,
+   - remove: `books = books.filter(b => b.book_id !== bookId)`.
+
+### Wniosek implementacyjny
+
+Obecny bug nie wynika z RLS ani Supabase, tylko z kontraktu UI/API ustawionego jako single-book. Najbezpieczniejsza korekta dla BET: **shadcn multi-combobox + granular revoke(book_id)**, bez zmiany schematu DB.

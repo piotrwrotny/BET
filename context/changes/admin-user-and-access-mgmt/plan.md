@@ -275,31 +275,31 @@ const handleGrant = async (userId: string, bookId: string) => {
 ### Faza 1: Backend
 
 #### Automatyczne
-- [x] 1.1 `SUPABASE_SERVICE_ROLE_KEY` dodany do `.dev.vars` i `.env.example`
-- [x] 1.2 `createAdminClient()` w `src/lib/supabase.ts` (lub osobny plik)
-- [x] 1.3 `src/lib/services/user-admin.ts` z `getAllUsersWithAccess()`
-- [x] 1.4 `GET /api/admin/users.ts` zwraca JSON listy użytkowników
-- [x] 1.5 `POST /api/admin/users/[id]/grant.ts` z Zod validation
-- [x] 1.6 `DELETE /api/admin/users/[id]/revoke.ts`
-- [x] 1.7 AdminLayout z linkiem "Użytkownicy"
-- [x] 1.8 `npm run lint` i `npm run build` przechodzą
+- [x] 1.1 `SUPABASE_SERVICE_ROLE_KEY` dodany do `.dev.vars` i `.env.example` — 2fadf07
+- [x] 1.2 `createAdminClient()` w `src/lib/supabase.ts` (lub osobny plik) — 2fadf07
+- [x] 1.3 `src/lib/services/user-admin.ts` z `getAllUsersWithAccess()` — 2fadf07
+- [x] 1.4 `GET /api/admin/users.ts` zwraca JSON listy użytkowników — 2fadf07
+- [x] 1.5 `POST /api/admin/users/[id]/grant.ts` z Zod validation — 2fadf07
+- [x] 1.6 `DELETE /api/admin/users/[id]/revoke.ts` — 2fadf07
+- [x] 1.7 AdminLayout z linkiem "Użytkownicy" — 2fadf07
+- [x] 1.8 `npm run lint` i `npm run build` przechodzą — 2fadf07
 
 #### Ręczne
-- [x] 1.9 Admin widzi JSON z `GET /api/admin/users` w przeglądarce
-- [x] 1.10 Nie-admin dostaje 403 na `/api/admin/users`
+- [x] 1.9 Admin widzi JSON z `GET /api/admin/users` w przeglądarce — 2fadf07
+- [x] 1.10 Nie-admin dostaje 403 na `/api/admin/users` — 2fadf07
 
 ### Faza 2: Frontend
 
 #### Automatyczne
-- [ ] 2.1 `@tanstack/react-table` zainstalowany
-- [ ] 2.2 `src/pages/admin/users.astro` renderuje się bez błędów build
-- [ ] 2.3 `src/components/admin/UsersTable.tsx` bez błędów TypeScript
-- [ ] 2.4 `npm run lint` i `npm run build` przechodzą
+- [x] 2.1 `@tanstack/react-table` zainstalowany
+- [x] 2.2 `src/pages/admin/users.astro` renderuje się bez błędów build
+- [x] 2.3 `src/components/admin/UsersTable.tsx` bez błędów TypeScript
+- [x] 2.4 `npm run lint` i `npm run build` przechodzą
 
 #### Ręczne
-- [ ] 2.5 Tabela wyświetla email, rolę, książki i datę rejestracji
-- [ ] 2.6 Sortowanie kolumn (kliknięcie w nagłówek) działa
-- [ ] 2.7 Filtr "Tylko oczekujący" pokazuje studentów bez książki
-- [ ] 2.8 Inline Select przyznaje książkę — student widzi ją na dashboardzie
-- [ ] 2.9 Inline Select na `"—"` odbiera książkę — książka znika z dashboardu
-- [ ] 2.10 Nie-admin redirectowany z `/admin/users` do `/dashboard`
+- [x] 2.5 Tabela wyświetla email, rolę, książki i datę rejestracji
+- [x] 2.6 Sortowanie kolumn (kliknięcie w nagłówek) działa
+- [x] 2.7 Filtr "Tylko oczekujący" pokazuje studentów bez książki
+- [x] 2.8 Inline Select przyznaje książkę — student widzi ją na dashboardzie
+- [x] 2.9 Inline Select na `"—"` odbiera książkę — książka znika z dashboardu
+- [x] 2.10 Nie-admin redirectowany z `/admin/users` do `/dashboard`

@@ -3,7 +3,7 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
 import { ServerError } from "@/components/auth/ServerError";
 import { UsersTable } from "@/components/admin/UsersTable";
 import { createClient } from "@/lib/supabase";
-import { getAllUsersWithAccess, type UserWithAccess } from "@/lib/services/user-admin";
+import { getStudentsWithAccess, type UserWithAccess } from "@/lib/services/user-admin";
 
 interface BookOption {
   id: string;
@@ -24,7 +24,7 @@ let books: BookOption[] = [];
 let errorMessage: string | null = null;
 
 try {
-  users = await getAllUsersWithAccess();
+  users = await getStudentsWithAccess();
 } catch (error) {
   errorMessage = error instanceof Error ? error.message : "Nie udało się pobrać użytkowników";
 }

@@ -32,15 +32,40 @@ export interface UserWithAccess {
   books: UserBookAccess[];
 }
 
-export async function getAllUsersWithAccess(): Promise<UserWithAccess[]> {
-  const supabaseAdmin = createAdminClient();
+const AUTH_USERS_PAGE_SIZE = 200;
 
-  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.listUsers();
-  if (authError) {
-    throw new Error(`Failed to list auth users: ${authError.message}`);
+async function listAllAuthUsersWithEmail(supabaseAdmin: ReturnType<typeof createAdminClient>) {
+  const users: (User & { email: string })[] = [];
+  let page = 1;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({
+      page,
+      perPage: AUTH_USERS_PAGE_SIZE,
+    });
+
+    if (error) {
+      throw new Error(`Failed to list auth users page ${page}: ${error.message}`);
+    }
+
+    const pageUsers = data.users;
+    if (pageUsers.length === 0) {
+      break;
+    }
+
+    users.push(...pageUsers.filter((user): user is User & { email: string } => Boolean(user.email)));
+
+    hasMore = pageUsers.length === AUTH_USERS_PAGE_SIZE;
+    page += 1;
   }
 
-  const users = authData.users.filter((user): user is User & { email: string } => Boolean(user.email));
+  return users;
+}
+
+export async function getStudentsWithAccess(): Promise<UserWithAccess[]> {
+  const supabaseAdmin = createAdminClient();
+  const users = await listAllAuthUsersWithEmail(supabaseAdmin);
   const userIds = users.map((user) => user.id);
 
   if (userIds.length === 0) {
@@ -68,6 +93,11 @@ export async function getAllUsersWithAccess(): Promise<UserWithAccess[]> {
     roleByUserId.set(row.user_id, row.role);
   });
 
+  const usersMissingRole = users.filter((user) => !roleByUserId.has(user.id));
+  if (usersMissingRole.length > 0) {
+    throw new Error(`Missing role rows for ${usersMissingRole.length} auth users`);
+  }
+
   const accessByUserId = new Map<string, UserBookAccess[]>();
   (accessRows as UserBookAccessRow[]).forEach((row) => {
     const book = row.books === null ? null : Array.isArray(row.books) ? (row.books[0] ?? null) : row.books;
@@ -82,13 +112,26 @@ export async function getAllUsersWithAccess(): Promise<UserWithAccess[]> {
     accessByUserId.set(row.user_id, current);
   });
 
-  return users
-    .map((user) => ({
+  const studentUsers = users.reduce<UserWithAccess[]>((acc, user) => {
+    const role = roleByUserId.get(user.id);
+    if (!role) {
+      throw new Error(`Missing role row for auth user ${user.id}`);
+    }
+
+    if (role !== "student") {
+      return acc;
+    }
+
+    acc.push({
       id: user.id,
       email: user.email,
-      role: roleByUserId.get(user.id) ?? "student",
+      role,
       created_at: user.created_at,
       books: accessByUserId.get(user.id) ?? [],
-    }))
-    .sort((a, b) => a.email.localeCompare(b.email));
+    });
+
+    return acc;
+  }, []);
+
+  return studentUsers.sort((a, b) => a.email.localeCompare(b.email));
 }

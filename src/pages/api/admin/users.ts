@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getAllUsersWithAccess } from "@/lib/services/user-admin";
+import { getStudentsWithAccess } from "@/lib/services/user-admin";
 
 export const prerender = false;
 
@@ -9,11 +9,7 @@ export const GET: APIRoute = async ({ locals }) => {
   }
 
   try {
-    const users = await getAllUsersWithAccess();
-
-    if (users.length >= 50) {
-      console.warn("GET /api/admin/users reached default listUsers page size (50)");
-    }
+    const users = await getStudentsWithAccess();
 
     return new Response(JSON.stringify({ users }), {
       status: 200,

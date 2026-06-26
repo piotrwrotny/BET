@@ -463,33 +463,33 @@ curl -X POST http://127.0.0.1:4321/api/lessons/00000000-0000-0000-0000-000000000
 
 #### Automatyczne
 
-- [x] 3.1 `npx tsc --noEmit` przechodzi
-- [x] 3.2 `npm run build` przechodzi
-- [x] 3.3 GET `/lessons/00000000-0000-0000-0000-000000000099` (nieistniejący UUID) jako zalogowany student → redirect 302 do `/dashboard`
+- [x] 3.1 `npx tsc --noEmit` przechodzi — 8f04659
+- [x] 3.2 `npm run build` przechodzi — 8f04659
+- [x] 3.3 GET `/lessons/00000000-0000-0000-0000-000000000099` (nieistniejący UUID) jako zalogowany student → redirect 302 do `/dashboard` — 8f04659
 
 #### Ręczne
 
-- [x] 3.4 `/lessons/00000000-0000-0000-0000-000000000030` jako `student@bet.local` → tytuł „Past Simple vs Present Perfect", treść wyrenderowana jako HTML (nagłówki, pogrubienie — nie surowy Markdown)
-- [x] 3.5 `/lessons/00000000-0000-0000-0000-000000000030` jako niezalogowany użytkownik → redirect do `/auth/signin`
+- [x] 3.4 `/lessons/00000000-0000-0000-0000-000000000030` jako `student@bet.local` → tytuł „Past Simple vs Present Perfect", treść wyrenderowana jako HTML (nagłówki, pogrubienie — nie surowy Markdown) — 8f04659
+- [x] 3.5 `/lessons/00000000-0000-0000-0000-000000000030` jako niezalogowany użytkownik → redirect do `/auth/signin` — 8f04659
 
 ### Faza 4: Exercise & Completion — React island, verify API, complete API
 
 #### Automatyczne
 
-- [ ] 4.1 `npx tsc --noEmit` przechodzi
-- [ ] 4.2 `npm run build` przechodzi
-- [ ] 4.3 POST `/api/exercises/verify` bez sesji → 401
-- [ ] 4.4 POST `/api/exercises/verify` z `answer: "went"` dla MC exercise → `{ correct: true }`
-- [ ] 4.5 POST `/api/exercises/verify` z `answer: "have gone"` → `{ correct: false }`
-- [ ] 4.6 POST `/api/lessons/00000000-0000-0000-0000-000000000030/complete` jako `student@bet.local` → `{ success: true }`
-- [ ] 4.7 Powtórny POST do complete → `{ success: true }` (idempotentny)
+- [x] 4.1 `npx tsc --noEmit` przechodzi
+- [x] 4.2 `npm run build` przechodzi
+- [x] 4.3 POST `/api/exercises/verify` bez sesji → 401
+- [x] 4.4 POST `/api/exercises/verify` z `answer: "went"` dla MC exercise → `{ correct: true }`
+- [x] 4.5 POST `/api/exercises/verify` z `answer: "have gone"` → `{ correct: false }`
+- [x] 4.6 POST `/api/lessons/00000000-0000-0000-0000-000000000030/complete` jako `student@bet.local` → `{ success: true }`
+- [x] 4.7 Powtórny POST do complete → `{ success: true }` (idempotentny)
 
 #### Ręczne
 
-- [ ] 4.8 Na stronie lekcji: „Przeczytano" bez zaliczonego ćwiczenia → komunikat o błędzie
-- [ ] 4.9 Wybierz błędną odpowiedź MC → „Sprawdź" → feedback „Niepoprawnie — spróbuj ponownie"
-- [ ] 4.10 Wybierz „went" → „Sprawdź" → feedback „Poprawnie ✓", ćwiczenie zablokowane
-- [ ] 4.11 Kliknij „Przeczytano" po poprawnym ćwiczeniu → badge „Ukończona ✓", przycisk disabled
-- [ ] 4.12 Odśwież stronę lekcji → lekcja nadal pokazuje się jako ukończona (z DB)
-- [ ] 4.13 Studio SQL: `SELECT * FROM lesson_progress WHERE user_id = '00000000-0000-0000-0000-000000000002'` → wiersz dla lekcji `…0030`
-- [ ] 4.14 Dashboard po ukończeniu lekcji 1 → „Kontynuuj naukę" wskazuje lekcję 2 (`…0031`)
+- [x] 4.8 Na stronie lekcji: „Przeczytano" bez zaliczonego ćwiczenia → komunikat o błędzie
+- [x] 4.9 Wybierz błędną odpowiedź MC → „Sprawdź" → feedback „Niepoprawnie — spróbuj ponownie"
+- [x] 4.10 Wybierz „went" → „Sprawdź" → feedback „Poprawnie ✓", ćwiczenie zablokowane
+- [x] 4.11 Kliknij „Przeczytano" po poprawnym ćwiczeniu → badge „Ukończona ✓", przycisk disabled
+- [x] 4.12 Odśwież stronę lekcji → lekcja nadal pokazuje się jako ukończona (z DB)
+- [x] 4.13 Studio SQL: `SELECT * FROM lesson_progress WHERE user_id = '00000000-0000-0000-0000-000000000002'` → wiersz dla lekcji `…0030`
+- [x] 4.14 Dashboard po ukończeniu lekcji 1 → „Kontynuuj naukę" wskazuje lekcję 2 (`…0031`)

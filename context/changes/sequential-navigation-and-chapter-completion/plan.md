@@ -379,29 +379,29 @@ Brak zmian schematu DB. `chapter_progress` view istnieje od F-01. Jeśli pojawi 
 
 #### Automatyczne
 
-- [x] 1.1 `npx tsc --noEmit` przechodzi
-- [x] 1.2 `npm run build` przechodzi
+- [x] 1.1 `npx tsc --noEmit` przechodzi — 62f650e
+- [x] 1.2 `npm run build` przechodzi — 62f650e
 
 #### Ręczne
 
-- [x] 1.3 Lekcja środkowa (`...0031`): prev wskazuje na `...0030`, next na `...0032`
-- [x] 1.4 Pierwsza lekcja rozdziału 1 (`...0030`): brak przycisku ← (tylko `← Dashboard`)
-- [x] 1.5 Ostatnia lekcja rozdziału 1 (`...0032`): next wskazuje `Rozdział 2: Sentence Transformations →`
-- [x] 1.6 Pierwsza lekcja rozdziału 2 (`...0033`): prev wskazuje ostatnią lekcję rozdziału 1 (`...0032`)
-- [x] 1.7 Ostatnia lekcja książki (`...0034`): brak przycisku →
-- [x] 1.8 Kliknięcie prev/next przenosi do właściwej lekcji
-- [x] 1.9 Badge `✓ Rozdział ukończony!` widoczny na lekcji ukończonego rozdziału
+- [x] 1.3 Lekcja środkowa (`...0031`): prev wskazuje na `...0030`, next na `...0032` — 62f650e
+- [x] 1.4 Pierwsza lekcja rozdziału 1 (`...0030`): brak przycisku ← (tylko `← Dashboard`) — 62f650e
+- [x] 1.5 Ostatnia lekcja rozdziału 1 (`...0032`): next wskazuje `Rozdział 2: Sentence Transformations →` — 62f650e
+- [x] 1.6 Pierwsza lekcja rozdziału 2 (`...0033`): prev wskazuje ostatnią lekcję rozdziału 1 (`...0032`) — 62f650e
+- [x] 1.7 Ostatnia lekcja książki (`...0034`): brak przycisku → — 62f650e
+- [x] 1.8 Kliknięcie prev/next przenosi do właściwej lekcji — 62f650e
+- [x] 1.9 Badge `✓ Rozdział ukończony!` widoczny na lekcji ukończonego rozdziału — 62f650e
 
 ### Faza 2: Dashboard — lista rozdziałów z progress
 
 #### Automatyczne
 
-- [ ] 2.1 `npx tsc --noEmit` przechodzi
-- [ ] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npx tsc --noEmit` przechodzi
+- [x] 2.2 `npm run build` przechodzi
 
 #### Ręczne
 
-- [ ] 2.3 Dashboard pokazuje listę rozdziałów pod tytułem książki z licznikami `x/y lekcji`
-- [ ] 2.4 Ukończony rozdział pokazuje `✓` obok licznika
-- [ ] 2.5 Przycisk "Kontynuuj naukę" nadal kieruje do pierwszej nieukończonej lekcji
-- [ ] 2.6 "✓ Gratulacje, książka ukończona!" nadal wyświetla się przy pełnym ukończeniu
+- [x] 2.3 Dashboard pokazuje listę rozdziałów pod tytułem książki z licznikami `x/y lekcji`
+- [x] 2.4 Ukończony rozdział pokazuje `✓` obok licznika
+- [x] 2.5 Przycisk "Kontynuuj naukę" nadal kieruje do pierwszej nieukończonej lekcji
+- [x] 2.6 "✓ Gratulacje, książka ukończona!" nadal wyświetla się przy pełnym ukończeniu

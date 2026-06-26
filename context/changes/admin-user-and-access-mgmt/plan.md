@@ -291,15 +291,15 @@ const handleGrant = async (userId: string, bookId: string) => {
 ### Faza 2: Frontend
 
 #### Automatyczne
-- [x] 2.1 `@tanstack/react-table` zainstalowany
-- [x] 2.2 `src/pages/admin/users.astro` renderuje się bez błędów build
-- [x] 2.3 `src/components/admin/UsersTable.tsx` bez błędów TypeScript
-- [x] 2.4 `npm run lint` i `npm run build` przechodzą
+- [x] 2.1 `@tanstack/react-table` zainstalowany — 46de5b5
+- [x] 2.2 `src/pages/admin/users.astro` renderuje się bez błędów build — 46de5b5
+- [x] 2.3 `src/components/admin/UsersTable.tsx` bez błędów TypeScript — 46de5b5
+- [x] 2.4 `npm run lint` i `npm run build` przechodzą — 46de5b5
 
 #### Ręczne
-- [x] 2.5 Tabela wyświetla email, rolę, książki i datę rejestracji
-- [x] 2.6 Sortowanie kolumn (kliknięcie w nagłówek) działa
-- [x] 2.7 Filtr "Tylko oczekujący" pokazuje studentów bez książki
-- [x] 2.8 Inline Select przyznaje książkę — student widzi ją na dashboardzie
-- [x] 2.9 Inline Select na `"—"` odbiera książkę — książka znika z dashboardu
-- [x] 2.10 Nie-admin redirectowany z `/admin/users` do `/dashboard`
+- [x] 2.5 Tabela wyświetla email, rolę, książki i datę rejestracji — 46de5b5
+- [x] 2.6 Sortowanie kolumn (kliknięcie w nagłówek) działa — 46de5b5
+- [x] 2.7 Filtr "Tylko oczekujący" pokazuje studentów bez książki — 46de5b5
+- [x] 2.8 Inline Select przyznaje książkę — student widzi ją na dashboardzie — 46de5b5
+- [x] 2.9 Inline Select na `"—"` odbiera książkę — książka znika z dashboardu — 46de5b5
+- [x] 2.10 Nie-admin redirectowany z `/admin/users` do `/dashboard` — 46de5b5

@@ -21,7 +21,7 @@ const { data: lesson } = await supabase
   .select(
     `
     id, title, content, ord,
-    chapters ( id, title, book_id ),
+    chapters ( id, title, book_id, ord ),
     exercises ( id, type, prompt, payload, ord )
   `,
   )
@@ -78,26 +78,155 @@ if (isAlreadyCompleted) {
 }
 
 // Chapter info for breadcrumb
-const chapter = lesson.chapters as { id: string; title: string; book_id: string } | null;
+const chapter = lesson.chapters as {
+  id: string;
+  title: string;
+  book_id: string;
+  ord: number;
+} | null;
+
+// --- S-05: Sequential navigation ---
+// Fetch all lessons in this chapter to determine prev/next within chapter
+const { data: siblings } = chapter
+  ? await supabase
+      .from("lessons")
+      .select("id, title, ord")
+      .eq("chapter_id", chapter.id)
+      .order("ord", { ascending: true })
+  : { data: [] };
+
+const sibs = siblings ?? [];
+const currentIdx = sibs.findIndex((s) => s.id === lesson.id);
+
+type NavLesson = { id: string; title: string; crossChapterTitle?: string } | null;
+
+let prevLesson: NavLesson =
+  currentIdx > 0 ? { id: sibs[currentIdx - 1].id, title: sibs[currentIdx - 1].title } : null;
+
+let nextLesson: NavLesson =
+  currentIdx < sibs.length - 1
+    ? { id: sibs[currentIdx + 1].id, title: sibs[currentIdx + 1].title }
+    : null;
+
+// Cross-chapter boundary: only query when at first/last lesson of chapter
+if (!prevLesson && chapter) {
+  const { data: prevCh } = await supabase
+    .from("chapters")
+    .select("id, title, lessons(id, title, ord)")
+    .eq("book_id", chapter.book_id)
+    .lt("ord", chapter.ord)
+    .order("ord", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (prevCh) {
+    const sorted = ((prevCh.lessons ?? []) as { id: string; title: string; ord: number }[]).sort(
+      (a, b) => b.ord - a.ord,
+    );
+    if (sorted[0])
+      prevLesson = { id: sorted[0].id, title: sorted[0].title, crossChapterTitle: prevCh.title };
+  }
+}
+
+if (!nextLesson && chapter) {
+  const { data: nextCh } = await supabase
+    .from("chapters")
+    .select("id, title, lessons(id, title, ord)")
+    .eq("book_id", chapter.book_id)
+    .gt("ord", chapter.ord)
+    .order("ord", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (nextCh) {
+    const sorted = ((nextCh.lessons ?? []) as { id: string; title: string; ord: number }[]).sort(
+      (a, b) => a.ord - b.ord,
+    );
+    if (sorted[0])
+      nextLesson = { id: sorted[0].id, title: sorted[0].title, crossChapterTitle: nextCh.title };
+  }
+}
+
+// Chapter completion badge (FR-016) — query chapter_progress view
+const { data: chapterProgress } = chapter
+  ? await supabase
+      .from("chapter_progress")
+      .select("lessons_total, lessons_completed, completed_at")
+      .eq("chapter_id", chapter.id)
+      .maybeSingle()
+  : { data: null };
+
+const isChapterCompleted = !!(chapterProgress?.completed_at);
 ---
 
 <Layout title={`${lesson.title} — BET`}>
   <div class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-    <!-- Top bar -->
-    <header class="border-b border-white/10 bg-white/5 px-6 py-4">
+    <!-- Zone 1: slim top bar — Dashboard back + lesson/chapter status -->
+    <header class="border-b border-white/10 bg-white/5 px-6 py-3">
       <div class="mx-auto flex max-w-3xl items-center justify-between">
-        <a href="/dashboard" class="text-sm text-slate-400 hover:text-white">
-          ← Dashboard
+        <a href="/dashboard" class="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors">
+          ‹ Dashboard
         </a>
-        {
-          isAlreadyCompleted && (
-            <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-medium text-emerald-400">
+        <div class="flex items-center gap-3">
+          {isChapterCompleted && (
+            <span class="flex items-center gap-1 text-xs text-blue-400">
+              <span>✓</span><span>Rozdział ukończony</span>
+            </span>
+          )}
+          {isAlreadyCompleted && (
+            <span class="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
               ✓ Ukończona
             </span>
-          )
-        }
+          )}
+        </div>
       </div>
     </header>
+
+    <!-- Zone 2: lesson nav bar — prev / next with truncated titles -->
+    {(prevLesson || nextLesson) && (
+      <nav class="border-b border-white/5 bg-slate-900/40 px-6 py-2">
+        <div class="mx-auto flex max-w-3xl items-center justify-between gap-4">
+          <!-- Prev -->
+          <div class="min-w-0 flex-1">
+            {prevLesson ? (
+              <a
+                href={`/lessons/${prevLesson.id}`}
+                class="group flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <span class="shrink-0 text-xl leading-none">‹</span>
+                <div class="min-w-0">
+                  {prevLesson.crossChapterTitle && (
+                    <p class="truncate text-[10px] text-slate-600 group-hover:text-slate-500 leading-tight">
+                      {prevLesson.crossChapterTitle}
+                    </p>
+                  )}
+                  <p class="truncate text-xs leading-tight">{prevLesson.title}</p>
+                </div>
+              </a>
+            ) : <span />}
+          </div>
+          <!-- Divider -->
+          <div class="h-6 w-px shrink-0 bg-white/10" />
+          <!-- Next -->
+          <div class="min-w-0 flex-1 text-right">
+            {nextLesson ? (
+              <a
+                href={`/lessons/${nextLesson.id}`}
+                class="group flex items-center justify-end gap-2 text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <div class="min-w-0">
+                  {nextLesson.crossChapterTitle && (
+                    <p class="truncate text-[10px] text-slate-600 group-hover:text-slate-500 leading-tight">
+                      {nextLesson.crossChapterTitle}
+                    </p>
+                  )}
+                  <p class="truncate text-xs leading-tight">{nextLesson.title}</p>
+                </div>
+                <span class="shrink-0 text-xl leading-none">›</span>
+              </a>
+            ) : <span />}
+          </div>
+        </div>
+      </nav>
+    )}
 
     <main class="mx-auto max-w-3xl px-6 py-10">
       <!-- Breadcrumb -->

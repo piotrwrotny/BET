@@ -572,8 +572,8 @@ Brak zmian w schema DB — wszystkie tabele i RLS policies gotowe. Istniejące s
 ### Faza 4: Ćwiczenia i Klucze
 
 #### Automatyczne
-- [x] 4.1 `npm run build` przechodzi
-- [x] 4.2 `npm run typecheck` bez błędów
+- [x] 4.1 `npm run build` przechodzi — 0259e73
+- [x] 4.2 `npm run typecheck` bez błędów — 0259e73
 
 #### Ręczne
 - [ ] 4.3 Admin tworzy ćwiczenie MC → student może je rozwiązać poprawnie

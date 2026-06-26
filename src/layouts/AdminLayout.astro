@@ -16,6 +16,7 @@ const navLinks = [
   { href: "/admin/chapters", label: "Rozdziały" },
   { href: "/admin/lessons", label: "Lekcje" },
   { href: "/admin/exercises", label: "Ćwiczenia" },
+  { href: "/admin/users", label: "Użytkownicy" },
 ];
 ---
 
@@ -47,9 +48,9 @@ const navLinks = [
 
     <div class="flex min-h-screen">
       <!-- Sidebar -->
-      <aside class="w-56 shrink-0 border-r border-border bg-muted/30">
-        <div class="flex h-14 items-center border-b border-border px-4">
-          <span class="text-sm font-semibold text-foreground">Panel admina</span>
+      <aside class="border-border bg-muted/30 w-56 shrink-0 border-r">
+        <div class="border-border flex h-14 items-center border-b px-4">
+          <span class="text-foreground text-sm font-semibold">Panel admina</span>
         </div>
         <nav class="flex flex-col gap-1 p-2">
           {
@@ -73,7 +74,7 @@ const navLinks = [
         <div class="absolute bottom-4 left-0 w-56 px-2">
           <a
             href="/dashboard"
-            class="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            class="text-muted-foreground hover:bg-accent hover:text-accent-foreground block rounded-md px-3 py-2 text-sm transition-colors"
           >
             ← Wróć do kursu
           </a>
@@ -83,9 +84,9 @@ const navLinks = [
       <!-- Main content -->
       <div class="flex flex-1 flex-col">
         <!-- Topbar -->
-        <header class="flex h-14 items-center justify-between border-b border-border px-6">
+        <header class="border-border flex h-14 items-center justify-between border-b px-6">
           <h1 class="text-base font-semibold">{title}</h1>
-          <span class="text-sm text-muted-foreground">{user?.email}</span>
+          <span class="text-muted-foreground text-sm">{user?.email}</span>
         </header>
 
         <!-- Page content -->

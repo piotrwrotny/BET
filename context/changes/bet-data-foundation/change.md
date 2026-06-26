@@ -1,9 +1,8 @@
 ---
 change_id: bet-data-foundation
 title: Model danych + role-aware RLS + seed pierwszej książki
-status: implemented
-created: 2026-06-25
-updated: 2026-06-25
+updated: 2026-06-26
+status: impl_reviewed
 archived_at: null
 ---
 

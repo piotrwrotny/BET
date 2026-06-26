@@ -21,8 +21,10 @@
 -- =========================================================================
 -- pgcrypto provides crypt() and gen_salt() used by seed.sql when hashing
 -- local-dev passwords on direct inserts into auth.users.
+-- moddatetime auto-maintains updated_at columns.
 -- gen_random_uuid() is built into PG13+, no extension needed for it.
 create extension if not exists pgcrypto;
+create extension if not exists moddatetime;
 
 -- =========================================================================
 -- Section 2: Enums
@@ -60,6 +62,11 @@ create table public.books (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+create trigger books_updated_at
+  before update on public.books
+  for each row
+  execute function moddatetime(updated_at);
 
 -- 3.3 user_book_access — granted access per (FR-003). Composite PK on
 -- (user_id, book_id) makes per-user lookup cheap; a reverse-lookup index on
@@ -135,12 +142,15 @@ create table public.lesson_progress (
 -- =========================================================================
 -- Section 4: Helper functions (RLS predicates)
 -- =========================================================================
--- All helpers are SECURITY DEFINER + STABLE + SET search_path = '' per
--- Supabase guidance. Bodies use fully-qualified names (`public.user_roles`,
--- `auth.uid()`) so search_path can't be hijacked.
+-- Helpers live in an un-exposed `private` schema to avoid exposing them as
+-- PostgREST RPC endpoints. All helpers are SECURITY DEFINER + STABLE +
+-- SET search_path = '' per Supabase guidance. Bodies use fully-qualified
+-- names (`public.user_roles`, `auth.uid()`) so search_path can't be hijacked.
 -- =========================================================================
 
-create or replace function public.is_admin()
+create schema if not exists private;
+
+create or replace function private.is_admin()
 returns boolean
 language sql
 security definer
@@ -155,14 +165,14 @@ as $$
   );
 $$;
 
-create or replace function public.has_book_access(_book_id uuid)
+create or replace function private.has_book_access(_book_id uuid)
 returns boolean
 language sql
 security definer
 stable
 set search_path = ''
 as $$
-  select public.is_admin() or exists (
+  select private.is_admin() or exists (
     select 1
     from public.user_book_access
     where user_id = auth.uid()
@@ -170,14 +180,14 @@ as $$
   );
 $$;
 
-create or replace function public.has_lesson_access(_lesson_id uuid)
+create or replace function private.has_lesson_access(_lesson_id uuid)
 returns boolean
 language sql
 security definer
 stable
 set search_path = ''
 as $$
-  select public.is_admin() or exists (
+  select private.is_admin() or exists (
     select 1
     from public.lessons l
     join public.chapters c on c.id = l.chapter_id
@@ -187,18 +197,18 @@ as $$
   );
 $$;
 
-create or replace function public.has_exercise_access(_exercise_id uuid)
+create or replace function private.has_exercise_access(_exercise_id uuid)
 returns boolean
 language sql
 security definer
 stable
 set search_path = ''
 as $$
-  select public.is_admin() or exists (
+  select private.is_admin() or exists (
     select 1
     from public.exercises e
     where e.id = _exercise_id
-      and public.has_lesson_access(e.lesson_id)
+      and private.has_lesson_access(e.lesson_id)
   );
 $$;
 
@@ -243,10 +253,7 @@ group by c.id, c.book_id, uba.user_id;
 -- After every new auth.users row (signup, admin invite, seed insert),
 -- automatically insert a corresponding user_roles row with role='student'.
 -- SECURITY DEFINER bypasses RLS on user_roles for this single insert (the
--- new user has no session yet, so auth.uid() would be NULL inside policies).
--- =========================================================================
-
-create or replace function public.handle_new_user()
+create or replace function private.handle_new_user()
 returns trigger
 language plpgsql
 security definer
@@ -261,15 +268,15 @@ $$;
 
 create trigger on_auth_user_created
 after insert on auth.users
-for each row execute function public.handle_new_user();
+for each row execute function private.handle_new_user();
 
 -- =========================================================================
 -- Section 7: RLS enable + policies
 -- =========================================================================
 -- Pattern per table:
---   - select: caller owns the row OR public.is_admin() OR
---             (caller has access via helper)
---   - insert/update/delete: admin-only (public.is_admin()),
+--   - select: caller owns the row OR (select private.is_admin()) OR
+--             (caller has access via helper wrapped in SELECT for initPlan)
+--   - insert/update/delete: admin-only ((select private.is_admin())),
 --             with two exceptions:
 --               * user_roles INSERT — handled by SECURITY DEFINER trigger;
 --                 client-side INSERT is admin-only
@@ -282,125 +289,125 @@ for each row execute function public.handle_new_user();
 alter table public.user_roles enable row level security;
 
 create policy user_roles_select on public.user_roles
-  for select using (user_id = auth.uid() or public.is_admin());
+  for select to authenticated using (user_id = (select auth.uid()) or (select private.is_admin()));
 
 create policy user_roles_insert on public.user_roles
-  for insert with check (public.is_admin());
+  for insert to authenticated with check ((select private.is_admin()));
 
 create policy user_roles_update on public.user_roles
-  for update using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy user_roles_delete on public.user_roles
-  for delete using (public.is_admin());
+  for delete to authenticated using ((select private.is_admin()));
 
 -- 7.2 books
 alter table public.books enable row level security;
 
 create policy books_select on public.books
-  for select using (
-    public.is_admin()
+  for select to authenticated using (
+    (select private.is_admin())
     or exists (
       select 1
       from public.user_book_access
       where book_id = books.id
-        and user_id = auth.uid()
+        and user_id = (select auth.uid())
     )
   );
 
 create policy books_insert on public.books
-  for insert with check (public.is_admin());
+  for insert to authenticated with check ((select private.is_admin()));
 
 create policy books_update on public.books
-  for update using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy books_delete on public.books
-  for delete using (public.is_admin());
+  for delete to authenticated using ((select private.is_admin()));
 
 -- 7.3 user_book_access
 alter table public.user_book_access enable row level security;
 
 create policy user_book_access_select on public.user_book_access
-  for select using (user_id = auth.uid() or public.is_admin());
+  for select to authenticated using (user_id = (select auth.uid()) or (select private.is_admin()));
 
 create policy user_book_access_insert on public.user_book_access
-  for insert with check (public.is_admin());
+  for insert to authenticated with check ((select private.is_admin()));
 
 create policy user_book_access_update on public.user_book_access
-  for update using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy user_book_access_delete on public.user_book_access
-  for delete using (public.is_admin());
+  for delete to authenticated using ((select private.is_admin()));
 
 -- 7.4 chapters
 alter table public.chapters enable row level security;
 
 create policy chapters_select on public.chapters
-  for select using (public.is_admin() or public.has_book_access(book_id));
+  for select to authenticated using ((select private.is_admin()) or (select private.has_book_access(book_id)));
 
 create policy chapters_insert on public.chapters
-  for insert with check (public.is_admin());
+  for insert to authenticated with check ((select private.is_admin()));
 
 create policy chapters_update on public.chapters
-  for update using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy chapters_delete on public.chapters
-  for delete using (public.is_admin());
+  for delete to authenticated using ((select private.is_admin()));
 
 -- 7.5 lessons
 alter table public.lessons enable row level security;
 
 create policy lessons_select on public.lessons
-  for select using (public.is_admin() or public.has_lesson_access(id));
+  for select to authenticated using ((select private.is_admin()) or (select private.has_lesson_access(id)));
 
 create policy lessons_insert on public.lessons
-  for insert with check (public.is_admin());
+  for insert to authenticated with check ((select private.is_admin()));
 
 create policy lessons_update on public.lessons
-  for update using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy lessons_delete on public.lessons
-  for delete using (public.is_admin());
+  for delete to authenticated using ((select private.is_admin()));
 
 -- 7.6 exercises
 alter table public.exercises enable row level security;
 
 create policy exercises_select on public.exercises
-  for select using (public.is_admin() or public.has_lesson_access(lesson_id));
+  for select to authenticated using ((select private.is_admin()) or (select private.has_lesson_access(lesson_id)));
 
 create policy exercises_insert on public.exercises
-  for insert with check (public.is_admin());
+  for insert to authenticated with check ((select private.is_admin()));
 
 create policy exercises_update on public.exercises
-  for update using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy exercises_delete on public.exercises
-  for delete using (public.is_admin());
+  for delete to authenticated using ((select private.is_admin()));
 
 -- 7.7 exercise_keys
 alter table public.exercise_keys enable row level security;
 
 create policy exercise_keys_select on public.exercise_keys
-  for select using (public.is_admin() or public.has_exercise_access(exercise_id));
+  for select to authenticated using ((select private.is_admin()) or (select private.has_exercise_access(exercise_id)));
 
 create policy exercise_keys_insert on public.exercise_keys
-  for insert with check (public.is_admin());
+  for insert to authenticated with check ((select private.is_admin()));
 
 create policy exercise_keys_update on public.exercise_keys
-  for update using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy exercise_keys_delete on public.exercise_keys
-  for delete using (public.is_admin());
+  for delete to authenticated using ((select private.is_admin()));
 
 -- 7.8 lesson_progress — immutable (no UPDATE/DELETE policies)
 alter table public.lesson_progress enable row level security;
 
 create policy lesson_progress_select on public.lesson_progress
-  for select using (user_id = auth.uid() or public.is_admin());
+  for select to authenticated using (user_id = (select auth.uid()) or (select private.is_admin()));
 
 create policy lesson_progress_insert on public.lesson_progress
-  for insert with check (
-    user_id = auth.uid()
-    and public.has_lesson_access(lesson_id)
+  for insert to authenticated with check (
+    user_id = (select auth.uid())
+    and (select private.has_lesson_access(lesson_id))
   );
 
 -- Intentionally NO update or delete policies on lesson_progress.

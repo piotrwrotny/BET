@@ -298,10 +298,7 @@ export type Database = {
       }
     }
     Functions: {
-      has_book_access: { Args: { _book_id: string }; Returns: boolean }
-      has_exercise_access: { Args: { _exercise_id: string }; Returns: boolean }
-      has_lesson_access: { Args: { _lesson_id: string }; Returns: boolean }
-      is_admin: { Args: never; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       exercise_type:

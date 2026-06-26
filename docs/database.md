@@ -149,7 +149,7 @@ Access chain: `has_lesson_access(id)` → lesson → chapter → book → `user_
 | UPDATE | ❌ (no policy, even service_role via SDK) | ❌ | ❌ | ❌ |
 | DELETE | ❌ (no policy, even service_role via SDK) | ❌ | ❌ | ❌ |
 
-**Critical:** No UPDATE or DELETE policies exist on `lesson_progress`. This is intentional — enforces NFR "progress is not lost". `service_role` bypasses RLS at the Postgres level (direct psql/Studio SQL editor) but the Supabase SDK with service_role key still goes through PostgREST which respects RLS unless the query explicitly sets `role = 'service_role'`.
+**Critical:** No UPDATE or DELETE policies exist on `lesson_progress`. This is intentional — enforces NFR "progress is not lost" for `authenticated` users. `service_role` bypasses RLS completely, both through direct SQL/Studio and through the Supabase SDK/PostgREST. Immutability must be enforced at the application layer for service-role callers if ever needed.
 
 ### VIEW: chapter_progress
 

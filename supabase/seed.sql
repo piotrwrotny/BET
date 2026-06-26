@@ -186,23 +186,23 @@ insert into public.exercises (id, lesson_id, type, prompt, payload, ord) values
   ('00000000-0000-0000-0000-000000000040',
    '00000000-0000-0000-0000-000000000030',
    'multiple_choice',
-   'Yesterday I ___ to the cinema with my friends.',
-   '{"options": ["went", "have gone", "going", "gone"]}'::jsonb,
+   'Choose the correct form.',
+   '{"options": ["A: went", "B: gone", "C: going", "D: go"]}'::jsonb,
    0),
 
   -- 3.2 Fill-in-blank (FR-018) — lesson_1_2
   ('00000000-0000-0000-0000-000000000041',
    '00000000-0000-0000-0000-000000000031',
    'fill_in_blank',
-   'Complete the sentence: She has lived in London ___ five years.',
-   '{"template": "She has lived in London ___ five years."}'::jsonb,
+   'Complete the sentence.',
+   '{"template": "Yesterday I ___ to the cinema."}'::jsonb,
    0),
 
   -- 3.3 True/false (FR-023) — lesson_2_1
   ('00000000-0000-0000-0000-000000000042',
    '00000000-0000-0000-0000-000000000033',
    'true_false',
-   'The Present Perfect is used for completed actions at a specific past time.',
+   'The Present Perfect describes actions that started in the past and continue into the present.',
    '{}'::jsonb,
    0),
 
@@ -210,8 +210,8 @@ insert into public.exercises (id, lesson_id, type, prompt, payload, ord) values
   ('00000000-0000-0000-0000-000000000043',
    '00000000-0000-0000-0000-000000000034',
    'sentence_transformation',
-   'Transform the sentence keeping the meaning the same. Original: "She didn''t have enough money to buy the car." Begin with: "She had too..."',
-   '{"original": "She didn''t have enough money to buy the car.", "begin_with": "She had too"}'::jsonb,
+   'Transform the sentence keeping the meaning the same.',
+   '{"original": "She doesn''t have enough money."}'::jsonb,
    0),
 
   -- 3.5 Open-ended (FR-021) — lesson_2_2, ord 1
@@ -227,35 +227,28 @@ insert into public.exercise_keys (id, exercise_id, key_text, key_metadata, ord) 
   -- 3.1 MC: single correct option
   ('00000000-0000-0000-0000-000000000050',
    '00000000-0000-0000-0000-000000000040',
-   'went', null, 0),
+   'A: went', null, 0),
 
-  -- 3.2 fill_in_blank: 3 acceptable variants
+  -- 3.2 fill_in_blank: 2 acceptable variants
   ('00000000-0000-0000-0000-000000000051',
    '00000000-0000-0000-0000-000000000041',
-   'for', null, 0),
+   'went', null, 0),
   ('00000000-0000-0000-0000-000000000052',
    '00000000-0000-0000-0000-000000000041',
-   'for the last', null, 1),
-  ('00000000-0000-0000-0000-000000000053',
-   '00000000-0000-0000-0000-000000000041',
-   'for the past', null, 2),
-
-  -- 3.3 true_false: correct answer is false (Past Simple, not Present Perfect)
+   'have gone', null, 1),
   ('00000000-0000-0000-0000-000000000054',
    '00000000-0000-0000-0000-000000000042',
-   'false', null, 0),
+   'true', null, 0),
 
   -- 3.4 sentence_transformation: 2 acceptable variants
   ('00000000-0000-0000-0000-000000000055',
    '00000000-0000-0000-0000-000000000043',
-   'She had too little money to buy the car.', null, 0),
+   'She has too little money.', null, 0),
   ('00000000-0000-0000-0000-000000000056',
    '00000000-0000-0000-0000-000000000043',
-   'She had so little money that she couldn''t buy the car.', null, 1),
+   'She lacks enough money.', null, 1),
 
   -- 3.5 open_ended: reference answer for self-assessment (not a variant; FR-025)
   ('00000000-0000-0000-0000-000000000057',
    '00000000-0000-0000-0000-000000000044',
-   'Sample answer: I usually wake up at 7 AM, take a shower, and make breakfast. Then I read the news while drinking coffee before leaving for work around 8:30.',
-   '{"is_reference_only": true}'::jsonb,
-   0);
+   'Sample model answer for self-assessment.', '{"is_reference_only": true}'::jsonb, 0);

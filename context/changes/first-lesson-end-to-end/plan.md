@@ -476,8 +476,8 @@ curl -X POST http://127.0.0.1:4321/api/lessons/00000000-0000-0000-0000-000000000
 
 #### Automatyczne
 
-- [x] 4.1 `npx tsc --noEmit` przechodzi
-- [x] 4.2 `npm run build` przechodzi
+- [x] 4.1 `npx tsc --noEmit` przechodzi — 47f97dd
+- [x] 4.2 `npm run build` przechodzi — 47f97dd
 - [x] 4.3 POST `/api/exercises/verify` bez sesji → 401
 - [x] 4.4 POST `/api/exercises/verify` z `answer: "went"` dla MC exercise → `{ correct: true }`
 - [x] 4.5 POST `/api/exercises/verify` z `answer: "have gone"` → `{ correct: false }`

@@ -1,0 +1,63 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ServerError } from "@/components/auth/ServerError";
+import { createClient } from "@/lib/supabase";
+
+const bookId = Astro.url.searchParams.get("book_id") ?? "";
+const errorParam = Astro.url.searchParams.get("error");
+
+let bookTitle = "";
+if (bookId) {
+  const supabase = createClient(Astro.request.headers, Astro.cookies);
+  if (supabase) {
+    const { data: book } = await supabase.from("books").select("title").eq("id", bookId).single();
+    bookTitle = book?.title ?? "";
+  }
+}
+---
+
+<AdminLayout title="Nowy rozdział">
+  <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+    <a href="/admin/books" class="hover:underline">Książki</a>
+    {
+      bookId && bookTitle && (
+        <>
+          <span>›</span>
+          <a href={`/admin/chapters?book_id=${bookId}`} class="hover:underline">
+            {bookTitle}
+          </a>
+        </>
+      )
+    }
+    <span>›</span>
+    <span class="text-foreground font-medium">Nowy rozdział</span>
+  </div>
+
+  {errorParam && <ServerError client:load message={decodeURIComponent(errorParam)} />}
+
+  <form method="post" action="/api/admin/chapters" class="max-w-lg space-y-4">
+    <input type="hidden" name="book_id" value={bookId} />
+
+    <div class="space-y-1">
+      <Label htmlFor="title">Tytuł rozdziału *</Label>
+      <Input id="title" name="title" type="text" required placeholder="Tytuł rozdziału" />
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        type="submit"
+        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        Utwórz rozdział
+      </button>
+      <a
+        href={bookId ? `/admin/chapters?book_id=${bookId}` : "/admin/books"}
+        class="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted"
+      >
+        Anuluj
+      </a>
+    </div>
+  </form>
+</AdminLayout>

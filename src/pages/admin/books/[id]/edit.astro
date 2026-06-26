@@ -1,0 +1,68 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ServerError } from "@/components/auth/ServerError";
+import { createClient } from "@/lib/supabase";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/auth/signin");
+
+const { id } = Astro.params;
+const { data: book, error } = await supabase
+  .from("books")
+  .select("id, title, cover_url, description")
+  .eq("id", id!)
+  .single();
+
+if (error || !book) return new Response(null, { status: 404 });
+
+const errorParam = Astro.url.searchParams.get("error");
+---
+
+<AdminLayout title="Edytuj książkę">
+  <div class="mb-4">
+    <a href="/admin/books" class="text-sm text-muted-foreground hover:underline">← Książki</a>
+  </div>
+
+  {errorParam && <ServerError client:load message={decodeURIComponent(errorParam)} />}
+
+  <form method="post" action={`/api/admin/books/${book.id}`} class="max-w-lg space-y-4">
+    <div class="space-y-1">
+      <Label htmlFor="title">Tytuł *</Label>
+      <Input id="title" name="title" type="text" required value={book.title} />
+    </div>
+
+    <div class="space-y-1">
+      <Label htmlFor="cover_url">URL okładki</Label>
+      <Input
+        id="cover_url"
+        name="cover_url"
+        type="url"
+        value={book.cover_url ?? ""}
+        placeholder="https://example.com/cover.jpg"
+      />
+    </div>
+
+    <div class="space-y-1">
+      <Label htmlFor="description">Opis</Label>
+      <Textarea id="description" name="description" rows={3} value={book.description ?? ""} />
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        type="submit"
+        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        Zapisz zmiany
+      </button>
+      <a
+        href="/admin/books"
+        class="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted"
+      >
+        Anuluj
+      </a>
+    </div>
+  </form>
+</AdminLayout>

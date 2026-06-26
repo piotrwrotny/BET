@@ -1,0 +1,90 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { createClient } from "@/lib/supabase";
+import { ServerError } from "@/components/auth/ServerError";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/auth/signin");
+
+const { data: books, error } = await supabase
+  .from("books")
+  .select("id, title, cover_url, description, created_at")
+  .order("created_at", { ascending: true });
+
+if (error) console.error("books list error:", error.message);
+---
+
+<AdminLayout title="Książki">
+  <div class="mb-4 flex items-center justify-between">
+    <p class="text-sm text-muted-foreground">
+      {books?.length ?? 0} {books?.length === 1 ? "książka" : "książek"}
+    </p>
+    <a
+      href="/admin/books/new"
+      class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+    >
+      + Nowa książka
+    </a>
+  </div>
+
+  {
+    !books || books.length === 0 ? (
+      <p class="text-sm text-muted-foreground">Brak książek. Stwórz pierwszą.</p>
+    ) : (
+      <div class="rounded-lg border border-border">
+        <table class="w-full text-sm">
+          <thead class="border-b border-border bg-muted/30">
+            <tr>
+              <th class="px-4 py-3 text-left font-medium">Tytuł</th>
+              <th class="px-4 py-3 text-left font-medium">Opis</th>
+              <th class="px-4 py-3 text-right font-medium">Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {books.map((book) => (
+              <tr class="border-b border-border last:border-0 hover:bg-muted/20">
+                <td class="px-4 py-3 font-medium">
+                  {book.cover_url && (
+                    <img
+                      src={book.cover_url}
+                      alt=""
+                      class="mb-1 h-8 w-8 rounded object-cover"
+                      onerror="this.style.display='none'"
+                    />
+                  )}
+                  {book.title}
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                  {book.description ? book.description.slice(0, 60) + (book.description.length > 60 ? "…" : "") : "—"}
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a
+                      href={`/admin/chapters?book_id=${book.id}`}
+                      class="text-xs text-blue-600 hover:underline"
+                    >
+                      Rozdziały
+                    </a>
+                    <a
+                      href={`/admin/books/${book.id}/edit`}
+                      class="text-xs text-muted-foreground hover:underline"
+                    >
+                      Edytuj
+                    </a>
+                    <button
+                      type="button"
+                      class="text-xs text-destructive hover:underline"
+                      onclick={`if(confirm('Usunąć książkę "${book.title}"? Kaskadowo usunięte zostaną rozdziały, lekcje i ćwiczenia.')) fetch('/api/admin/books/${book.id}',{method:'DELETE'}).then(r=>r.ok?location.href='/admin/books':alert('Błąd usuwania'))`}
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+</AdminLayout>

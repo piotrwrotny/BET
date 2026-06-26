@@ -1,0 +1,90 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { createClient } from "@/lib/supabase";
+
+const bookId = Astro.url.searchParams.get("book_id");
+if (!bookId) return Astro.redirect("/admin/books");
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/auth/signin");
+
+const [{ data: book }, { data: chapters }] = await Promise.all([
+  supabase.from("books").select("id, title").eq("id", bookId).single(),
+  supabase
+    .from("chapters")
+    .select("id, title, ord")
+    .eq("book_id", bookId)
+    .order("ord", { ascending: true }),
+]);
+
+if (!book) return Astro.redirect("/admin/books");
+---
+
+<AdminLayout title="Rozdziały">
+  <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+    <a href="/admin/books" class="hover:underline">Książki</a>
+    <span>›</span>
+    <span class="text-foreground font-medium">{book.title}</span>
+  </div>
+
+  <div class="mb-4 flex items-center justify-between">
+    <p class="text-sm text-muted-foreground">
+      {chapters?.length ?? 0} {chapters?.length === 1 ? "rozdział" : "rozdziałów"}
+    </p>
+    <a
+      href={`/admin/chapters/new?book_id=${bookId}`}
+      class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+    >
+      + Nowy rozdział
+    </a>
+  </div>
+
+  {
+    !chapters || chapters.length === 0 ? (
+      <p class="text-sm text-muted-foreground">Brak rozdziałów. Stwórz pierwszy.</p>
+    ) : (
+      <div class="rounded-lg border border-border">
+        <table class="w-full text-sm">
+          <thead class="border-b border-border bg-muted/30">
+            <tr>
+              <th class="px-4 py-3 text-left font-medium">Nr</th>
+              <th class="px-4 py-3 text-left font-medium">Tytuł</th>
+              <th class="px-4 py-3 text-right font-medium">Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {chapters.map((chapter) => (
+              <tr class="border-b border-border last:border-0 hover:bg-muted/20">
+                <td class="px-4 py-3 text-muted-foreground">{chapter.ord + 1}</td>
+                <td class="px-4 py-3 font-medium">{chapter.title}</td>
+                <td class="px-4 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a
+                      href={`/admin/lessons?chapter_id=${chapter.id}`}
+                      class="text-xs text-blue-600 hover:underline"
+                    >
+                      Lekcje
+                    </a>
+                    <a
+                      href={`/admin/chapters/${chapter.id}/edit?book_id=${bookId}`}
+                      class="text-xs text-muted-foreground hover:underline"
+                    >
+                      Edytuj
+                    </a>
+                    <button
+                      type="button"
+                      class="text-xs text-destructive hover:underline"
+                      onclick={`if(confirm('Usunąć rozdział "${chapter.title}"? Kaskadowo usunięte zostaną lekcje i ćwiczenia.')) fetch('/api/admin/chapters/${chapter.id}',{method:'DELETE'}).then(r=>r.ok?location.href='/admin/chapters?book_id=${bookId}':alert('Błąd usuwania'))`}
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+</AdminLayout>

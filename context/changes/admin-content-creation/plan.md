@@ -538,8 +538,8 @@ Brak zmian w schema DB — wszystkie tabele i RLS policies gotowe. Istniejące s
 ### Faza 1: Infrastruktura
 
 #### Automatyczne
-- [x] 1.1 `npm run build` przechodzi bez błędów TypeScript
-- [x] 1.2 Pliki `src/components/ui/input.tsx`, `textarea.tsx`, `select.tsx`, `label.tsx` istnieją
+- [x] 1.1 `npm run build` przechodzi bez błędów TypeScript — acf4541
+- [x] 1.2 Pliki `src/components/ui/input.tsx`, `textarea.tsx`, `select.tsx`, `label.tsx` istnieją — acf4541
 
 #### Ręczne
 - [ ] 1.3 Student odwiedzający `/admin` → redirect `/dashboard`
@@ -549,8 +549,8 @@ Brak zmian w schema DB — wszystkie tabele i RLS policies gotowe. Istniejące s
 ### Faza 2: Książki i Rozdziały
 
 #### Automatyczne
-- [ ] 2.1 `npm run build` przechodzi
-- [ ] 2.2 `npm run typecheck` bez błędów
+- [x] 2.1 `npm run build` przechodzi
+- [x] 2.2 `npm run typecheck` bez błędów
 
 #### Ręczne
 - [ ] 2.3 Admin tworzy książkę → widoczna na liście `/admin/books`

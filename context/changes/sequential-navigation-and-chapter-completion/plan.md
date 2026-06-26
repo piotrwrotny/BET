@@ -396,12 +396,12 @@ Brak zmian schematu DB. `chapter_progress` view istnieje od F-01. Jeśli pojawi 
 
 #### Automatyczne
 
-- [x] 2.1 `npx tsc --noEmit` przechodzi
-- [x] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npx tsc --noEmit` przechodzi — 8ad055c
+- [x] 2.2 `npm run build` przechodzi — 8ad055c
 
 #### Ręczne
 
-- [x] 2.3 Dashboard pokazuje listę rozdziałów pod tytułem książki z licznikami `x/y lekcji`
-- [x] 2.4 Ukończony rozdział pokazuje `✓` obok licznika
-- [x] 2.5 Przycisk "Kontynuuj naukę" nadal kieruje do pierwszej nieukończonej lekcji
-- [x] 2.6 "✓ Gratulacje, książka ukończona!" nadal wyświetla się przy pełnym ukończeniu
+- [x] 2.3 Dashboard pokazuje listę rozdziałów pod tytułem książki z licznikami `x/y lekcji` — 8ad055c
+- [x] 2.4 Ukończony rozdział pokazuje `✓` obok licznika — 8ad055c
+- [x] 2.5 Przycisk "Kontynuuj naukę" nadal kieruje do pierwszej nieukończonej lekcji — 8ad055c
+- [x] 2.6 "✓ Gratulacje, książka ukończona!" nadal wyświetla się przy pełnym ukończeniu — 8ad055c

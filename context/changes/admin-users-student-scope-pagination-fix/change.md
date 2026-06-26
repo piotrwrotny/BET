@@ -2,7 +2,7 @@
 id: admin-users-student-scope-pagination-fix
 created: 2026-06-26
 updated: 2026-06-26
-status: implemented
+status: impl_reviewed
 ---
 
 # admin-users-student-scope-pagination-fix

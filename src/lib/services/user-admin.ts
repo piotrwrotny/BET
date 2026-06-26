@@ -33,20 +33,36 @@ export interface UserWithAccess {
 }
 
 const AUTH_USERS_PAGE_SIZE = 200;
+function chunk<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+const ID_CHUNK_SIZE = 200;
 
 async function listAllAuthUsersWithEmail(supabaseAdmin: ReturnType<typeof createAdminClient>) {
   const users: (User & { email: string })[] = [];
   let page = 1;
   let hasMore = true;
+  const MAX_AUTH_PAGES = 1000;
 
   while (hasMore) {
+    if (page > MAX_AUTH_PAGES) {
+      console.error("Exceeded maximum auth user pages:", MAX_AUTH_PAGES);
+      throw new Error("Too many auth users to load");
+    }
+
     const { data, error } = await supabaseAdmin.auth.admin.listUsers({
       page,
       perPage: AUTH_USERS_PAGE_SIZE,
     });
 
     if (error) {
-      throw new Error(`Failed to list auth users page ${page}: ${error.message}`);
+      console.error(`Failed to list auth users page ${page}:`, error);
+      throw new Error("Failed to list auth users");
     }
 
     const pageUsers = data.users;
@@ -72,34 +88,52 @@ export async function getStudentsWithAccess(): Promise<UserWithAccess[]> {
     return [];
   }
 
-  const [{ data: roleRows, error: rolesError }, { data: accessRows, error: accessError }] = await Promise.all([
-    supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", userIds),
-    supabaseAdmin
-      .from("user_book_access")
-      .select("user_id, book_id, granted_at, books(id, title)")
-      .in("user_id", userIds),
+  const userIdChunks = chunk(userIds, ID_CHUNK_SIZE);
+
+  const [roleResults, accessResults] = await Promise.all([
+    Promise.all(userIdChunks.map((ids) => supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids))),
+    Promise.all(
+      userIdChunks.map((ids) =>
+        supabaseAdmin
+          .from("user_book_access")
+          .select("user_id, book_id, granted_at, books(id, title)")
+          .in("user_id", ids),
+      ),
+    ),
   ]);
 
+  const rolesError = roleResults.find((result) => result.error)?.error ?? null;
+  const accessError = accessResults.find((result) => result.error)?.error ?? null;
+  const roleRows: UserRoleRow[] = roleResults.flatMap((result) => result.data ?? []);
+  const accessRows: UserBookAccessRow[] = accessResults.flatMap(
+    (result) => (result.data as UserBookAccessRow[] | null) ?? [],
+  );
+
   if (rolesError) {
-    throw new Error(`Failed to fetch user roles: ${rolesError.message}`);
+    console.error("Failed to fetch user roles:", rolesError);
+    throw new Error("Failed to fetch user roles");
   }
 
   if (accessError) {
-    throw new Error(`Failed to fetch user access: ${accessError.message}`);
+    console.error("Failed to fetch user access:", accessError);
+    throw new Error("Failed to fetch user access");
   }
 
   const roleByUserId = new Map<string, "admin" | "student">();
-  (roleRows as UserRoleRow[]).forEach((row) => {
+  roleRows.forEach((row) => {
     roleByUserId.set(row.user_id, row.role);
   });
 
   const usersMissingRole = users.filter((user) => !roleByUserId.has(user.id));
   if (usersMissingRole.length > 0) {
-    throw new Error(`Missing role rows for ${usersMissingRole.length} auth users`);
+    console.error(
+      "Skipping auth users without assigned roles:",
+      usersMissingRole.map((user) => user.id),
+    );
   }
 
   const accessByUserId = new Map<string, UserBookAccess[]>();
-  (accessRows as UserBookAccessRow[]).forEach((row) => {
+  accessRows.forEach((row) => {
     const book = row.books === null ? null : Array.isArray(row.books) ? (row.books[0] ?? null) : row.books;
     const entry: UserBookAccess = {
       book_id: row.book_id,

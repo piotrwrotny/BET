@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ locals }) => {
       },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown server error";
-    return new Response(JSON.stringify({ error: message }), { status: 500 });
+    console.error("Failed to load admin users:", error);
+    return new Response(JSON.stringify({ error: "Failed to load users" }), { status: 500 });
   }
 };

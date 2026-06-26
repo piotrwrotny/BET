@@ -18,21 +18,22 @@ if (!supabase) return Astro.redirect("/auth/signin");
 let users: UserWithAccess[] = [];
 
 let books: BookOption[] = [];
-let errorMessage: string | null = null;
+let usersError: string | null = null;
+let booksError: string | null = null;
 
 try {
   users = await getStudentsWithAccess();
 } catch (error) {
-  errorMessage = error instanceof Error ? error.message : "Nie udało się pobrać użytkowników";
+  usersError = error instanceof Error ? error.message : "Nie udało się pobrać użytkowników";
 }
 
-const { data: booksData, error: booksError } = await supabase
+const { data: booksData, error: booksQueryError } = await supabase
   .from("books")
   .select("id, title")
   .order("title", { ascending: true });
 
-if (booksError) {
-  errorMessage = booksError.message;
+if (booksQueryError) {
+  booksError = booksQueryError.message;
 }
 
 books = booksData ?? [];
@@ -45,10 +46,11 @@ books = booksData ?? [];
       <p class="text-muted-foreground text-sm">{users.length} kont</p>
     </div>
 
-    <ServerError message={errorMessage} />
+    <ServerError message={usersError} />
+    {booksError && <ServerError message={`Błąd pobierania książek: ${booksError}`} />}
 
     {
-      !errorMessage ? (
+      !usersError ? (
         <UsersTable users={users} books={books} client:load />
       ) : (
         <p class="text-muted-foreground text-sm">

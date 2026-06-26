@@ -182,12 +182,12 @@ Brak migracji DB. Zmiana dotyczy wyłącznie kontraktu serwisu i konsumentów.
 
 #### Automatyczne
 
-- [x] 2.1 Strona `/admin/users` nie renderuje tabeli przy błędzie serwisu
-- [x] 2.2 API + SSR utrzymują spójny kontrakt błędu
-- [x] 2.3 Build i scoped lint przechodzą
+- [x] 2.1 Strona `/admin/users` nie renderuje tabeli przy błędzie serwisu — 735c4e8
+- [x] 2.2 API + SSR utrzymują spójny kontrakt błędu — 735c4e8
+- [x] 2.3 Build i scoped lint przechodzą — 735c4e8
 
 #### Ręczne
 
-- [x] 2.4 `/admin/users` pokazuje tylko studentów
-- [x] 2.5 Przy błędzie danych widoczny `ServerError` i brak tabeli
-- [x] 2.6 Spójność listy i błędu między `/api/admin/users` i `/admin/users`
+- [x] 2.4 `/admin/users` pokazuje tylko studentów — 735c4e8
+- [x] 2.5 Przy błędzie danych widoczny `ServerError` i brak tabeli — 735c4e8
+- [x] 2.6 Spójność listy i błędu między `/api/admin/users` i `/admin/users` — 735c4e8

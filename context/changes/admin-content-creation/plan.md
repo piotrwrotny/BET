@@ -561,8 +561,8 @@ Brak zmian w schema DB — wszystkie tabele i RLS policies gotowe. Istniejące s
 ### Faza 3: Lekcje
 
 #### Automatyczne
-- [x] 3.1 `npm run build` przechodzi
-- [x] 3.2 `npm run typecheck` bez błędów
+- [x] 3.1 `npm run build` przechodzi — d597956
+- [x] 3.2 `npm run typecheck` bez błędów — d597956
 
 #### Ręczne
 - [ ] 3.3 Admin tworzy lekcję z Markdown → live preview działa
@@ -572,8 +572,8 @@ Brak zmian w schema DB — wszystkie tabele i RLS policies gotowe. Istniejące s
 ### Faza 4: Ćwiczenia i Klucze
 
 #### Automatyczne
-- [ ] 4.1 `npm run build` przechodzi
-- [ ] 4.2 `npm run typecheck` bez błędów
+- [x] 4.1 `npm run build` przechodzi
+- [x] 4.2 `npm run typecheck` bez błędów
 
 #### Ręczne
 - [ ] 4.3 Admin tworzy ćwiczenie MC → student może je rozwiązać poprawnie

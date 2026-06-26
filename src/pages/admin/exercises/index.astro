@@ -1,0 +1,126 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { createClient } from "@/lib/supabase";
+
+const lessonId = Astro.url.searchParams.get("lesson_id");
+if (!lessonId) return Astro.redirect("/admin/lessons");
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/auth/signin");
+
+const { data: lesson } = await supabase
+  .from("lessons")
+  .select("id, title, chapter_id")
+  .eq("id", lessonId)
+  .single();
+
+if (!lesson) return Astro.redirect("/admin/lessons");
+
+const { data: chapter } = await supabase
+  .from("chapters")
+  .select("title, book_id")
+  .eq("id", lesson.chapter_id)
+  .single();
+
+const { data: book } = chapter?.book_id
+  ? await supabase.from("books").select("title").eq("id", chapter.book_id).single()
+  : { data: null };
+
+const { data: exercises } = await supabase
+  .from("exercises")
+  .select("id, type, prompt, ord, exercise_keys(id, key_text, ord)")
+  .eq("lesson_id", lessonId)
+  .order("ord", { ascending: true });
+
+const typeLabel: Record<string, string> = {
+  multiple_choice: "MC",
+  fill_in_blank: "FIB",
+  true_false: "T/F",
+  matching: "Match",
+  sentence_transformation: "ST",
+  open_ended: "Open",
+};
+---
+
+<AdminLayout title="Ćwiczenia">
+  <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+    <a href="/admin/books" class="hover:underline">Książki</a>
+    {chapter?.book_id && <><span>›</span><a href={`/admin/chapters?book_id=${chapter.book_id}`} class="hover:underline">{book?.title ?? "Rozdziały"}</a></>}
+    <span>›</span>
+    <a href={`/admin/lessons?chapter_id=${lesson.chapter_id}`} class="hover:underline">
+      {chapter?.title ?? "Lekcje"}
+    </a>
+    <span>›</span>
+    <span class="text-foreground font-medium">{lesson.title}</span>
+  </div>
+
+  <div class="mb-4 flex items-center justify-between">
+    <p class="text-sm text-muted-foreground">
+      {exercises?.length ?? 0} {exercises?.length === 1 ? "ćwiczenie" : "ćwiczeń"}
+    </p>
+    <a
+      href={`/admin/exercises/new?lesson_id=${lessonId}`}
+      class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+    >
+      + Nowe ćwiczenie
+    </a>
+  </div>
+
+  {
+    !exercises || exercises.length === 0 ? (
+      <p class="text-sm text-muted-foreground">Brak ćwiczeń. Stwórz pierwsze.</p>
+    ) : (
+      <div class="rounded-lg border border-border">
+        <table class="w-full text-sm">
+          <thead class="border-b border-border bg-muted/30">
+            <tr>
+              <th class="px-4 py-3 text-left font-medium">Nr</th>
+              <th class="px-4 py-3 text-left font-medium">Typ</th>
+              <th class="px-4 py-3 text-left font-medium">Treść</th>
+              <th class="px-4 py-3 text-left font-medium">Klucze</th>
+              <th class="px-4 py-3 text-right font-medium">Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {exercises.map((ex) => (
+              <tr class="border-b border-border last:border-0 hover:bg-muted/20">
+                <td class="px-4 py-3 text-muted-foreground">{ex.ord + 1}</td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium">
+                    {typeLabel[ex.type] ?? ex.type}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                  {ex.prompt.slice(0, 60)}{ex.prompt.length > 60 ? "…" : ""}
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                  {(ex.exercise_keys as { key_text: string }[])
+                    .map((k) => k.key_text)
+                    .join(", ")
+                    .slice(0, 40) || "—"}
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a
+                      href={`/admin/exercises/${ex.id}/edit?lesson_id=${lessonId}`}
+                      class="text-xs text-muted-foreground hover:underline"
+                    >
+                      Edytuj
+                    </a>
+                    <button
+                      type="button"
+                      class="text-xs text-destructive hover:underline"
+                      onclick={`if(confirm('Usunąć to ćwiczenie?')) fetch('/api/admin/exercises/${ex.id}',{method:'DELETE'}).then(r=>r.ok?location.href='/admin/exercises?lesson_id=${lessonId}':alert('Błąd usuwania'))`}
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+</AdminLayout>

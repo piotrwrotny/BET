@@ -1,0 +1,68 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { ExerciseForm } from "@/components/admin/ExerciseForm";
+import { createClient } from "@/lib/supabase";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/auth/signin");
+
+const { id } = Astro.params;
+const lessonIdParam = Astro.url.searchParams.get("lesson_id");
+
+const { data: exercise, error } = await supabase
+  .from("exercises")
+  .select("id, type, prompt, payload, lesson_id, exercise_keys(key_text, ord)")
+  .eq("id", id!)
+  .single();
+
+if (error || !exercise) return new Response(null, { status: 404 });
+
+const lessonId = lessonIdParam ?? exercise.lesson_id;
+
+const { data: lesson } = await supabase
+  .from("lessons")
+  .select("title, chapter_id")
+  .eq("id", lessonId)
+  .single();
+
+const { data: chapter } = lesson?.chapter_id
+  ? await supabase.from("chapters").select("title, book_id").eq("id", lesson.chapter_id).single()
+  : { data: null };
+
+const { data: book } = chapter?.book_id
+  ? await supabase.from("books").select("title").eq("id", chapter.book_id).single()
+  : { data: null };
+
+// Sort keys by ord, extract key_text values
+const sortedKeys = (exercise.exercise_keys as { key_text: string; ord: number }[])
+  .sort((a, b) => a.ord - b.ord)
+  .map((k) => k.key_text);
+
+// Extract MC options from payload
+const payload = exercise.payload as { options?: string[] };
+const initialOptions = exercise.type === "multiple_choice" ? (payload.options ?? []) : undefined;
+
+const redirectTo = `/admin/exercises?lesson_id=${lessonId}`;
+---
+
+<AdminLayout title="Edytuj ćwiczenie">
+  <div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+    <a href="/admin/books" class="hover:underline">Książki</a>
+    {chapter?.book_id && <><span>›</span><a href={`/admin/chapters?book_id=${chapter.book_id}`} class="hover:underline">{book?.title ?? "Rozdziały"}</a></>}
+    {lesson?.chapter_id && <><span>›</span><a href={`/admin/lessons?chapter_id=${lesson.chapter_id}`} class="hover:underline">{chapter?.title ?? "Lekcje"}</a></>}
+    {lessonId && <><span>›</span><a href={`/admin/exercises?lesson_id=${lessonId}`} class="hover:underline">{lesson?.title ?? "Ćwiczenia"}</a></>}
+    <span>›</span>
+    <span class="text-foreground font-medium">Edytuj</span>
+  </div>
+
+  <ExerciseForm
+    client:load
+    lessonId={lessonId}
+    exerciseId={exercise.id}
+    initialType={exercise.type as "multiple_choice" | "fill_in_blank" | "true_false"}
+    initialPrompt={exercise.prompt}
+    initialOptions={initialOptions}
+    initialKeys={sortedKeys}
+    redirectTo={redirectTo}
+  />
+</AdminLayout>

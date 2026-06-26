@@ -1,0 +1,108 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { createClient } from "@/lib/supabase";
+
+const chapterId = Astro.url.searchParams.get("chapter_id");
+if (!chapterId) return Astro.redirect("/admin/chapters");
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/auth/signin");
+
+const { data: chapter } = await supabase
+  .from("chapters")
+  .select("id, title, book_id")
+  .eq("id", chapterId)
+  .single();
+
+if (!chapter) return Astro.redirect("/admin/chapters");
+
+const { data: book } = await supabase
+  .from("books")
+  .select("id, title")
+  .eq("id", chapter.book_id)
+  .single();
+
+const { data: lessons } = await supabase
+  .from("lessons")
+  .select("id, title, content, ord")
+  .eq("chapter_id", chapterId)
+  .order("ord", { ascending: true });
+---
+
+<AdminLayout title="Lekcje">
+  <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+    <a href="/admin/books" class="hover:underline">Książki</a>
+    <span>›</span>
+    <a href={`/admin/chapters?book_id=${chapter.book_id}`} class="hover:underline">
+      {book?.title ?? "Rozdziały"}
+    </a>
+    <span>›</span>
+    <span class="text-foreground font-medium">{chapter.title}</span>
+  </div>
+
+  <div class="mb-4 flex items-center justify-between">
+    <p class="text-sm text-muted-foreground">
+      {lessons?.length ?? 0} {lessons?.length === 1 ? "lekcja" : "lekcji"}
+    </p>
+    <a
+      href={`/admin/lessons/new?chapter_id=${chapterId}`}
+      class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+    >
+      + Nowa lekcja
+    </a>
+  </div>
+
+  {
+    !lessons || lessons.length === 0 ? (
+      <p class="text-sm text-muted-foreground">Brak lekcji. Stwórz pierwszą.</p>
+    ) : (
+      <div class="rounded-lg border border-border">
+        <table class="w-full text-sm">
+          <thead class="border-b border-border bg-muted/30">
+            <tr>
+              <th class="px-4 py-3 text-left font-medium">Nr</th>
+              <th class="px-4 py-3 text-left font-medium">Tytuł</th>
+              <th class="px-4 py-3 text-left font-medium">Podgląd treści</th>
+              <th class="px-4 py-3 text-right font-medium">Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lessons.map((lesson) => (
+              <tr class="border-b border-border last:border-0 hover:bg-muted/20">
+                <td class="px-4 py-3 text-muted-foreground">{lesson.ord + 1}</td>
+                <td class="px-4 py-3 font-medium">{lesson.title}</td>
+                <td class="px-4 py-3 text-muted-foreground">
+                  {lesson.content.slice(0, 60)}
+                  {lesson.content.length > 60 ? "…" : ""}
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a
+                      href={`/admin/exercises?lesson_id=${lesson.id}`}
+                      class="text-xs text-blue-600 hover:underline"
+                    >
+                      Ćwiczenia
+                    </a>
+                    <a
+                      href={`/admin/lessons/${lesson.id}/edit?chapter_id=${chapterId}`}
+                      class="text-xs text-muted-foreground hover:underline"
+                    >
+                      Edytuj
+                    </a>
+                    <button
+                      type="button"
+                      class="text-xs text-destructive hover:underline"
+                      onclick={`if(confirm('Usunąć lekcję "${lesson.title}"? Kaskadowo usunięte zostaną ćwiczenia.')) fetch('/api/admin/lessons/${lesson.id}',{method:'DELETE'}).then(r=>r.ok?location.href='/admin/lessons?chapter_id=${chapterId}':alert('Błąd usuwania'))`}
+                    >
+                      Usuń
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+</AdminLayout>

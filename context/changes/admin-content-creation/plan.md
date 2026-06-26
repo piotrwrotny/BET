@@ -549,8 +549,8 @@ Brak zmian w schema DB — wszystkie tabele i RLS policies gotowe. Istniejące s
 ### Faza 2: Książki i Rozdziały
 
 #### Automatyczne
-- [x] 2.1 `npm run build` przechodzi
-- [x] 2.2 `npm run typecheck` bez błędów
+- [x] 2.1 `npm run build` przechodzi — 957c167
+- [x] 2.2 `npm run typecheck` bez błędów — 957c167
 
 #### Ręczne
 - [ ] 2.3 Admin tworzy książkę → widoczna na liście `/admin/books`
@@ -561,8 +561,8 @@ Brak zmian w schema DB — wszystkie tabele i RLS policies gotowe. Istniejące s
 ### Faza 3: Lekcje
 
 #### Automatyczne
-- [ ] 3.1 `npm run build` przechodzi
-- [ ] 3.2 `npm run typecheck` bez błędów
+- [x] 3.1 `npm run build` przechodzi
+- [x] 3.2 `npm run typecheck` bez błędów
 
 #### Ręczne
 - [ ] 3.3 Admin tworzy lekcję z Markdown → live preview działa

@@ -1,0 +1,77 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ServerError } from "@/components/auth/ServerError";
+import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
+import { createClient } from "@/lib/supabase";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/auth/signin");
+
+const { id } = Astro.params;
+const chapterIdParam = Astro.url.searchParams.get("chapter_id");
+
+const { data: lesson, error } = await supabase
+  .from("lessons")
+  .select("id, title, content, chapter_id")
+  .eq("id", id!)
+  .single();
+
+if (error || !lesson) return new Response(null, { status: 404 });
+
+const chapterId = chapterIdParam ?? lesson.chapter_id;
+
+const { data: chapter } = await supabase
+  .from("chapters")
+  .select("title, book_id")
+  .eq("id", chapterId)
+  .single();
+
+const { data: book } = chapter?.book_id
+  ? await supabase.from("books").select("title").eq("id", chapter.book_id).single()
+  : { data: null };
+
+const errorParam = Astro.url.searchParams.get("error");
+---
+
+<AdminLayout title="Edytuj lekcję">
+  <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+    <a href="/admin/books" class="hover:underline">Książki</a>
+    {chapter?.book_id && <><span>›</span><a href={`/admin/chapters?book_id=${chapter.book_id}`} class="hover:underline">{book?.title ?? "Rozdziały"}</a></>}
+    {chapterId && <><span>›</span><a href={`/admin/lessons?chapter_id=${chapterId}`} class="hover:underline">{chapter?.title ?? "Lekcje"}</a></>}
+    <span>›</span>
+    <span class="text-foreground font-medium">Edytuj</span>
+  </div>
+
+  {errorParam && <ServerError client:load message={decodeURIComponent(errorParam)} />}
+
+  <form method="post" action={`/api/admin/lessons/${lesson.id}`} class="space-y-4">
+    <input type="hidden" name="chapter_id" value={chapterId} />
+
+    <div class="max-w-lg space-y-1">
+      <Label htmlFor="title">Tytuł lekcji *</Label>
+      <Input id="title" name="title" type="text" required value={lesson.title} />
+    </div>
+
+    <div class="space-y-1">
+      <Label>Treść lekcji * <span class="text-xs text-muted-foreground">(Markdown)</span></Label>
+      <MarkdownEditor client:load name="content" defaultValue={lesson.content} className="min-h-96" />
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        type="submit"
+        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        Zapisz zmiany
+      </button>
+      <a
+        href={`/admin/lessons?chapter_id=${chapterId}`}
+        class="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted"
+      >
+        Anuluj
+      </a>
+    </div>
+  </form>
+</AdminLayout>

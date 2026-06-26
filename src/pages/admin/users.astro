@@ -10,16 +10,13 @@ interface BookOption {
   title: string;
 }
 
-if (Astro.locals.role !== "admin") {
-  return Astro.redirect("/dashboard");
-}
+if (Astro.locals.role !== "admin") return Astro.redirect("/dashboard");
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-if (!supabase) {
-  return Astro.redirect("/auth/signin");
-}
+if (!supabase) return Astro.redirect("/auth/signin");
 
 let users: UserWithAccess[] = [];
+
 let books: BookOption[] = [];
 let errorMessage: string | null = null;
 

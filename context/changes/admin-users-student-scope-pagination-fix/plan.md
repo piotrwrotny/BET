@@ -168,26 +168,26 @@ Brak migracji DB. Zmiana dotyczy wyłącznie kontraktu serwisu i konsumentów.
 
 #### Automatyczne
 
-- [x] 1.1 Dodać paginację `listUsers(page/perPage)` w `user-admin.ts`
-- [x] 1.2 Wymusić student-only scope w zwracanym zbiorze serwisu
-- [x] 1.3 Użyć poprawionego kontraktu serwisu w API i stronie
-- [x] 1.4 Build i scoped lint przechodzą
+- [x] 1.1 Dodać paginację `listUsers(page/perPage)` w `user-admin.ts` — 88208fd
+- [x] 1.2 Wymusić student-only scope w zwracanym zbiorze serwisu — 88208fd
+- [x] 1.3 Użyć poprawionego kontraktu serwisu w API i stronie — 88208fd
+- [x] 1.4 Build i scoped lint przechodzą — 88208fd
 
 #### Ręczne
 
-- [x] 1.5 API `/api/admin/users` nie zwraca kont admin
-- [x] 1.6 API nie ucina danych przy >50 kontach
+- [x] 1.5 API `/api/admin/users` nie zwraca kont admin — 88208fd
+- [x] 1.6 API nie ucina danych przy >50 kontach — 88208fd
 
 ### Faza 2: Strona admin/users — twardy błąd i spójność UX
 
 #### Automatyczne
 
-- [ ] 2.1 Strona `/admin/users` nie renderuje tabeli przy błędzie serwisu
-- [ ] 2.2 API + SSR utrzymują spójny kontrakt błędu
-- [ ] 2.3 Build i scoped lint przechodzą
+- [x] 2.1 Strona `/admin/users` nie renderuje tabeli przy błędzie serwisu
+- [x] 2.2 API + SSR utrzymują spójny kontrakt błędu
+- [x] 2.3 Build i scoped lint przechodzą
 
 #### Ręczne
 
-- [ ] 2.4 `/admin/users` pokazuje tylko studentów
-- [ ] 2.5 Przy błędzie danych widoczny `ServerError` i brak tabeli
-- [ ] 2.6 Spójność listy i błędu między `/api/admin/users` i `/admin/users`
+- [x] 2.4 `/admin/users` pokazuje tylko studentów
+- [x] 2.5 Przy błędzie danych widoczny `ServerError` i brak tabeli
+- [x] 2.6 Spójność listy i błędu między `/api/admin/users` i `/admin/users`

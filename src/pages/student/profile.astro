@@ -1,0 +1,200 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { ServerError } from "@/components/auth/ServerError";
+import SafeImage from "@/components/ui/SafeImage.astro";
+import { createClient } from "@/lib/supabase";
+
+const { user } = Astro.locals;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+type BookRow = { id: string; title: string; description: string | null; cover_url: string | null };
+type LessonRef = { id: string; ord: number };
+type ChapterRow = { id: string; book_id: string; ord: number; title: string; lessons: LessonRef[] };
+type ChapterProgressRow = {
+  chapter_id: string;
+  lessons_total: number;
+  lessons_completed: number;
+  completed_at: string | null;
+};
+
+let books: BookRow[] = [];
+let chapters: ChapterRow[] = [];
+let completedIds = new Set<string>();
+let chapterProgressRows: ChapterProgressRow[] = [];
+let pageError: string | null = null;
+
+if (!supabase) {
+  pageError = "Service unavailable";
+} else {
+  const { data: booksData, error: booksError } = await supabase
+    .from("books")
+    .select("id, title, description, cover_url")
+    .order("created_at", { ascending: false });
+
+  if (booksError) {
+    pageError = "Nie udało się pobrać listy książek.";
+  } else {
+    books = (booksData ?? []) as BookRow[];
+  }
+
+  if (!pageError) {
+    const { data: chaptersData, error: chaptersError } = await supabase
+      .from("chapters")
+      .select("id, book_id, ord, title, lessons(id, ord)")
+      .order("ord", { ascending: true });
+
+    if (chaptersError) {
+      pageError = "Nie udało się pobrać struktury kursu.";
+    } else {
+      chapters = (chaptersData ?? []) as ChapterRow[];
+    }
+  }
+
+  if (!pageError) {
+    const { data: progressRows, error: progressError } = await supabase.from("lesson_progress").select("lesson_id");
+
+    if (progressError) {
+      pageError = "Nie udało się pobrać postępów.";
+    } else {
+      completedIds = new Set((progressRows ?? []).map((p) => p.lesson_id));
+    }
+  }
+
+  if (!pageError) {
+    const { data: cpData, error: cpError } = await supabase
+      .from("chapter_progress")
+      .select("chapter_id, lessons_total, lessons_completed, completed_at");
+
+    if (cpError) {
+      pageError = "Nie udało się pobrać postępu rozdziałów.";
+    } else {
+      chapterProgressRows = (cpData ?? []) as ChapterProgressRow[];
+    }
+  }
+}
+
+const chapterProgressMap = Object.fromEntries(chapterProgressRows.map((cp) => [cp.chapter_id, cp]));
+
+const booksWithStats = books.map((book) => {
+  const bookChapters = chapters.filter((c) => c.book_id === book.id).sort((a, b) => a.ord - b.ord);
+  const totalLessons = bookChapters.reduce((sum, ch) => sum + (ch.lessons?.length ?? 0), 0);
+  const completedLessons = bookChapters.reduce(
+    (sum, ch) => sum + (ch.lessons?.filter((l) => completedIds.has(l.id)).length ?? 0),
+    0,
+  );
+  const percent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+  const chaptersWithStats = bookChapters.map((ch) => {
+    const cp = chapterProgressMap[ch.id];
+    const chTotal = cp?.lessons_total ?? (ch.lessons?.length ?? 0);
+    const chCompleted = cp?.lessons_completed ?? (ch.lessons?.filter((l) => completedIds.has(l.id)).length ?? 0);
+    const chPercent = chTotal > 0 ? Math.round((chCompleted / chTotal) * 100) : 0;
+    const completedLessonsInChapter = (ch.lessons ?? [])
+      .filter((l) => completedIds.has(l.id))
+      .sort((a, b) => a.ord - b.ord);
+    return { ...ch, chTotal, chCompleted, chPercent, completedLessonsInChapter };
+  });
+
+  return { ...book, totalLessons, completedLessons, percent, chaptersWithStats };
+});
+---
+
+<Layout title="Profil — BET">
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+    <div class="mx-auto max-w-3xl">
+      <Topbar />
+
+      <div class="mb-8 mt-4">
+        <h1 class="text-2xl font-bold text-white">Profil</h1>
+        <p class="text-sm text-slate-400">{user?.email}</p>
+      </div>
+
+      {pageError && <ServerError message={pageError} />}
+
+      {
+        booksWithStats.length === 0 ? (
+          <div class="rounded-xl border border-white/10 bg-white/5 p-8 text-center text-slate-400">
+            Nie masz jeszcze przypisanych książek.
+          </div>
+        ) : (
+          <ul class="space-y-6">
+            {booksWithStats.map((book) => (
+              <li class="rounded-xl border border-white/10 bg-white/5 p-6">
+                <div class="mb-4 flex items-start gap-4">
+                  <SafeImage
+                    src={book.cover_url}
+                    alt={book.title}
+                    class="h-24 w-16 shrink-0 rounded object-cover"
+                  />
+                  <div class="min-w-0 flex-1">
+                    <h2 class="mb-1 text-lg font-semibold text-white">{book.title}</h2>
+                    {book.description && <p class="text-sm text-slate-400">{book.description}</p>}
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <div class="mb-1 flex items-center justify-between text-sm">
+                    <span class="text-slate-300">Postęp w książce</span>
+                    <span class="font-medium text-white">{book.percent}%</span>
+                  </div>
+                  <div class="h-3 w-full overflow-hidden rounded-full bg-white/10">
+                    <div
+                      class="h-full rounded-full bg-emerald-400 transition-all"
+                      style={`width: ${book.percent}%`}
+                      aria-label={`Postęp książki ${book.title}: ${book.percent}%`}
+                    />
+                  </div>
+                  {book.percent === 100 && (
+                    <p class="mt-2 text-sm font-medium text-emerald-400">✓ Gratulacje, książka ukończona!</p>
+                  )}
+                </div>
+
+                <h3 class="mb-2 text-sm font-medium text-slate-300">Rozdziały</h3>
+                <ul class="space-y-3">
+                  {book.chaptersWithStats.map((ch) => (
+                    <li class="rounded-lg border border-white/5 bg-white/5 p-3">
+                      <div class="mb-2 flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-200">{ch.title}</span>
+                        <span class="text-xs text-slate-400">
+                          {ch.chCompleted}/{ch.chTotal} lekcji
+                        </span>
+                      </div>
+                      <div class="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                        <div
+                          class="h-full rounded-full bg-purple-300 transition-all"
+                          style={`width: ${ch.chPercent}%`}
+                          aria-label={`Postęp rozdziału ${ch.title}: ${ch.chPercent}%`}
+                        />
+                      </div>
+
+                      {ch.completedLessonsInChapter.length > 0 ? (
+                        <div class="mt-3">
+                          <p class="mb-1 text-xs text-slate-400">Ukończone lekcje:</p>
+                          <ul class="space-y-1">
+                            {ch.completedLessonsInChapter.map((lesson) => (
+                              <li>
+                                <a
+                                  href={`/lessons/${lesson.id}`}
+                                  class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+                                >
+                                  Lekcja {lesson.ord + 1}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <p class="mt-3 text-xs text-slate-500">Brak ukończonych lekcji</p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</Layout>

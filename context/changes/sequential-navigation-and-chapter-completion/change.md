@@ -1,9 +1,9 @@
 ---
 change_id: sequential-navigation-and-chapter-completion
 title: Student nawiguje sekwencyjnie i widzi ukończenie rozdziału
-status: implemented
+status: impl_reviewed
 created: 2026-06-26
-updated: 2026-06-26
+updated: 2026-06-29
 archived_at: null
 ---
 

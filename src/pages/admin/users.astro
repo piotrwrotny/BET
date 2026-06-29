@@ -1,0 +1,53 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { ServerError } from "@/components/auth/ServerError";
+import { UsersTable } from "@/components/admin/UsersTable";
+import { createClient } from "@/lib/supabase";
+import { getStudentsWithAccess, type UserWithAccess } from "@/lib/services/user-admin";
+
+interface BookOption {
+  id: string;
+  title: string;
+}
+
+if (Astro.locals.role !== "admin") return Astro.redirect("/dashboard");
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) return Astro.redirect("/auth/signin");
+
+let users: UserWithAccess[] = [];
+let books: BookOption[] = [];
+let pageError: string | null = null;
+
+try {
+  users = await getStudentsWithAccess();
+} catch (error) {
+  pageError = error instanceof Error ? error.message : "Nie udało się pobrać użytkowników";
+}
+
+if (!pageError) {
+  const { data: booksData, error: booksQueryError } = await supabase
+    .from("books")
+    .select("id, title")
+    .order("title", { ascending: true });
+
+  if (booksQueryError) {
+    pageError = booksQueryError.message;
+  } else {
+    books = booksData ?? [];
+  }
+}
+---
+
+<AdminLayout title="Użytkownicy">
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h1 class="text-foreground text-lg font-semibold">Użytkownicy</h1>
+      {!pageError && <p class="text-muted-foreground text-sm">{users.length} kont</p>}
+    </div>
+
+    {pageError && <ServerError message={pageError} />}
+
+    {!pageError && <UsersTable users={users} books={books} client:load />}
+  </div>
+</AdminLayout>

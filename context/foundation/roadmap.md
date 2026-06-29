@@ -33,7 +33,7 @@ Student przygotowujący się do certyfikatu lub egzaminu z języka angielskiego 
 | S-02 | admin-content-creation | (admin) utworzyć książkę z okładką, dodać rozdziały, dodać lekcje (rich text) i dołączyć ćwiczenia z listą dopuszczalnych wariantów | F-01 | FR-006, FR-007, FR-008, FR-009, FR-010 | done |
 | S-03 | admin-user-and-access-mgmt | (admin) utworzyć konto studenta i nadać/odebrać dostęp do konkretnej książki | F-01 | FR-001, FR-002, FR-003 | done |
 | S-04 | student-profile-progress | (student) zobaczyć profil z listą ukończonych lekcji i procentem postępu w książce | F-01 | FR-004 | not_started |
-| S-05 | sequential-navigation-and-chapter-completion | (student) nawigować next/prev przez lekcje, dostać agregat „rozdział ukończony" gdy wszystkie lekcje rozdziału ukończone, kliknąć „Kontynuuj naukę" trafić w pierwszą nieukończoną lekcję | F-01, S-01 | FR-012, FR-013, FR-016, FR-017 | implemented |
+| S-05 | sequential-navigation-and-chapter-completion | (student) nawigować next/prev przez lekcje, dostać agregat „rozdział ukończony" gdy wszystkie lekcje rozdziału ukończone, kliknąć „Kontynuuj naukę" trafić w pierwszą nieukończoną lekcję | F-01, S-01 | FR-012, FR-013, FR-016, FR-017 | done |
 | S-06 | closed-exercises-fill-match-truefalse | (student) wykonywać trzy kolejne typy ćwiczeń zamkniętych: uzupełnianie luk, łączenie fraz, prawda/fałsz; admin dodaje je przez UI | F-01, S-01, S-02 | FR-018, FR-019, FR-023 | not_started |
 | S-07 | sentence-transformation-and-open-ended | (student) wykonać ćwiczenie transformacji zdania z wieloma poprawnymi wariantami i otwarte pytanie z wzorcową odpowiedzią (nie blokuje ukończenia lekcji) | F-01, S-01, S-02 | FR-020, FR-021, FR-025 | not_started |
 
@@ -138,9 +138,9 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
 - **Równolegle z:** S-02, S-04
 - **Blokady:** —
 - **Niewiadome:**
-- **Status:** implemented
+- **Status:** done
 
-> Wdrożony w kodzie; czeka na archiwizację.
+> Zarchiwizowano 2026-06-29. Wdrożony w kodzie; wszystkie ustalenia z przeglądu implementacji naprawione.
 
 ### S-06: Pozostałe ćwiczenia zamknięte — uzupełnianie luk, łączenie fraz, prawda/fałsz
 
@@ -202,3 +202,4 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
 - **S-01: Student kończy pierwszą lekcję od początku do końca (gwiazda przewodnia)** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-25-first-lesson-end-to-end/`. Lekcja: —.
 - **S-02: Admin tworzy i porządkuje treści książki** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-admin-content-creation/`. Lekcja: —.
 - **S-03: Admin zarządza kontami studentów i ich dostępem do książek** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-admin-user-and-access-mgmt/`. Lekcja: —.
+- **S-05: Student nawiguje sekwencyjnie i widzi ukończenie rozdziału** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-sequential-navigation-and-chapter-completion/`. Lekcja: —.

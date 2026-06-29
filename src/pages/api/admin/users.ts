@@ -6,9 +6,12 @@ export const prerender = false;
 function requireSameOrigin(request: Request): Response | null {
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
+  const secFetchSite = request.headers.get("sec-fetch-site");
   const siteUrl = new URL(request.url);
   const isSameOrigin =
-    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+    secFetchSite === "same-origin" ||
+    origin === siteUrl.origin ||
+    (!origin && referer?.startsWith(siteUrl.origin));
   if (!isSameOrigin) {
     return Response.json({ error: "Invalid origin" }, { status: 403 });
   }

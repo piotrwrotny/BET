@@ -15,12 +15,19 @@ if (Astro.locals.role !== "admin") return Astro.redirect("/dashboard");
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) return Astro.redirect("/auth/signin");
 
+const rawPage = parseInt(Astro.url.searchParams.get("page") ?? "1", 10);
+const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+const perPage = 20;
+
 let users: UserWithAccess[] = [];
+let hasNextPage = false;
 let books: BookOption[] = [];
 let pageError: string | null = null;
 
 try {
-  users = await getStudentsWithAccess();
+  const result = await getStudentsWithAccess({ page, perPage });
+  users = result.users;
+  hasNextPage = result.hasNextPage;
 } catch (error) {
   pageError = error instanceof Error ? error.message : "Nie udało się pobrać użytkowników";
 }
@@ -29,7 +36,8 @@ if (!pageError) {
   const { data: booksData, error: booksQueryError } = await supabase
     .from("books")
     .select("id, title")
-    .order("title", { ascending: true });
+    .order("title", { ascending: true })
+    .limit(100);
 
   if (booksQueryError) {
     pageError = booksQueryError.message;
@@ -43,11 +51,35 @@ if (!pageError) {
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-foreground text-lg font-semibold">Użytkownicy</h1>
-      {!pageError && <p class="text-muted-foreground text-sm">{users.length} kont</p>}
+      {!pageError && <p class="text-muted-foreground text-sm">Strona {page} · {users.length} kont</p>}
     </div>
 
     {pageError && <ServerError message={pageError} />}
 
-    {!pageError && <UsersTable users={users} books={books} client:load />}
+    {!pageError && (
+      <>
+        <UsersTable users={users} books={books} client:load />
+        <div class="flex items-center justify-between">
+          {page > 1 ? (
+            <a
+              href={`/admin/users?page=${page - 1}`}
+              class="text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              ← Poprzednia
+            </a>
+          ) : (
+            <span />
+          )}
+          {hasNextPage && (
+            <a
+              href={`/admin/users?page=${page + 1}`}
+              class="text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              Następna →
+            </a>
+          )}
+        </div>
+      </>
+    )}
   </div>
 </AdminLayout>

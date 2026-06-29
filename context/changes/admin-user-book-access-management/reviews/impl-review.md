@@ -4,8 +4,8 @@
 - **Plan**: `context/changes/admin-user-book-access-management/plan.md`
 - **Zakres**: Pełny plan (Faza 1 + Faza 2)
 - **Data**: 2026-06-29
-- **Werdykt**: REJECTED
-- **Ustalenia**: 2 krytyczne, 7 ostrzeżeń, 10 obserwacji
+- **Werdykt**: APPROVED (after fixes)
+- **Ustalenia**: 2 krytyczne, 7 ostrzeżeń, 10 obserwacji — wszystkie naprawione
 
 ## Werdykty
 
@@ -44,7 +44,7 @@
   - Kompromis: Obcięcie danych bez możliwości zobaczenia reszty; długoterminowo niewystarczające.
   - Pewność: HIGH — jeden warunek w serwisie.
   - Martwy punkt: Nie rozwiązuje rzeczywistego problemu skalowania.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Wprowadzono paginację po stronie serwera (`page`/`per_page` w query string); `getStudentsWithAccess` zwraca tylko jedną stronę + flagę `hasNextPage`; strona Astro renderuje linki prev/next.
 
 ### F2 — `getStudentsWithAccess()` rzuca wyjątek dla użytkownika bez roli
 
@@ -58,7 +58,7 @@
   - Kompromis: Użytkownicy bez roli nie będą widoczni w panelu.
   - Pewność: HIGH — zmiana jednej gałęzi w reduce.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Użytkownicy bez roli są pomijani zamiast rzucania wyjątkiem; panel admina działa nawet przy niekompletnych danych.
 
 ### F3 — `grant`/`revoke` nie weryfikują roli docelowego użytkownika
 
@@ -72,7 +72,7 @@
   - Kompromis: Dodatkowe zapytanie do `user_roles` w każdym mutacyjnym endpoincie.
   - Pewność: HIGH — RLS pozwala adminowi na SELECT `user_roles`.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Dodano sprawdzenie roli docelowego użytkownika w `user_roles`; `grant` i `revoke` zwracają 403, jeśli target nie jest studentem.
 
 ### F4 — Błędy Supabase są wysyłane bezpośrednio do klienta
 
@@ -86,7 +86,7 @@
   - Kompromis: Admin widzi mniej szczegółów w UI (ale szczegóły są w logach).
   - Pewność: HIGH — prosta zmiana w dwóch endpointach.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Szczegóły błędów Supabase logowane są po stronie serwera; klient otrzymuje generyczny komunikat.
 
 ### F5 — Pobierane są wszystkie książki bez limitu
 
@@ -100,7 +100,7 @@
   - Kompromis: Dla MVP z małą liczbą książek niekrytyczne.
   - Pewność: MEDIUM — zależy od przyjętego limitu.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Dodano `.limit(100)` do query książek.
 
 ### F6 — Wiele równoległych zapytań do Supabase dla ról i dostępów
 
@@ -114,7 +114,7 @@
   - Kompromis: Wymaga zmiany w serwisie i ewentualnie nowej migracji/funkcji DB.
   - Pewność: MEDIUM — zależy od wybranej ścieżki.
   - Martwy punkt: Nie mierzono rzeczywistych limitów Supabase.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Paginacja strony do 20 użytkowników redukuje liczbę równoległych zapytań do maksymalnie 2 na stronę.
 
 ### F7 — `fetch()` nie ustawia jawnie `credentials: 'same-origin'`
 
@@ -128,7 +128,7 @@
   - Kompromis: Brak.
   - Pewność: HIGH — jedna linia w dwóch miejscach.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Dodano `credentials: "same-origin"` do `fetch` w `handleGrantBook` i `handleRevokeBook`.
 
 ### F8 — Brak refetch-a listy po udanym grant/revoke
 
@@ -142,7 +142,7 @@
   - Kompromis: Dodatkowy request po każdej mutacji.
   - Pewność: HIGH — prosty `fetch` + `setRows`.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Po udanym `grant`/`revoke` wywoływany jest `refetchUsers()`, który pobiera aktualną listę z `/api/admin/users` i odświeża stan lokalny.
 
 ## Obserwacje (nieblokujące)
 

@@ -57,6 +57,16 @@ export const DELETE: APIRoute = async ({ params, request, cookies, locals }) => 
     return Response.json({ error: "Service unavailable" }, { status: 503 });
   }
 
+  const { data: targetRole, error: roleError } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", parsedParams.data.id)
+    .maybeSingle();
+
+  if (roleError || targetRole?.role !== "student") {
+    return Response.json({ error: "Target user is not a student" }, { status: 403 });
+  }
+
   const { error } = await supabase
     .from("user_book_access")
     .delete()
@@ -64,7 +74,8 @@ export const DELETE: APIRoute = async ({ params, request, cookies, locals }) => 
     .eq("book_id", parsedQuery.data.book_id);
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error("Failed to revoke book access:", error);
+    return Response.json({ error: "Nie udało się odebrać dostępu" }, { status: 500 });
   }
 
   return Response.json({ ok: true }, { status: 200 });

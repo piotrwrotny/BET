@@ -121,11 +121,11 @@ W obecnym modelu dostęp do treści jest otwarty dla wszystkich uwierzytelnionyc
 ### Faza 1: Serwis i API
 
 #### Automatyczne
-- [ ] 1.1 `user-admin.ts` paginuje listUsers i scope'uje do studentów
-- [ ] 1.2 `users.ts` używa `Response.json` i CSRF guard
-- [ ] 1.3 `grant.ts` używa `Response.json` i CSRF guard
-- [ ] 1.4 `revoke.ts` używa `Response.json`, CSRF guard i usuwa konkretną parę `(user_id, book_id)`
-- [ ] 1.5 `npm run build` przechodzi
+- [x] 1.1 `user-admin.ts` paginuje listUsers i scope'uje do studentów
+- [x] 1.2 `users.ts` używa `Response.json` i CSRF guard
+- [x] 1.3 `grant.ts` używa `Response.json` i CSRF guard
+- [x] 1.4 `revoke.ts` używa `Response.json`, CSRF guard i usuwa konkretną parę `(user_id, book_id)`
+- [x] 1.5 `npm run build` przechodzi
 
 #### Ręczne
 - [ ] 1.6 Admin widzi JSON z `GET /api/admin/users` w przeglądarce
@@ -134,9 +134,9 @@ W obecnym modelu dostęp do treści jest otwarty dla wszystkich uwierzytelnionyc
 ### Faza 2: UI
 
 #### Automatyczne
-- [ ] 2.1 `src/pages/admin/users.astro` renderuje się bez błędów build
-- [ ] 2.2 `UsersTable.tsx` bez błędów TypeScript
-- [ ] 2.3 `npm run build` przechodzi
+- [x] 2.1 `src/pages/admin/users.astro` renderuje się bez błędów build
+- [x] 2.2 `UsersTable.tsx` bez błędów TypeScript
+- [x] 2.3 `npm run build` przechodzi
 
 #### Ręczne
 - [ ] 2.4 Tabela pokazuje tylko studentów

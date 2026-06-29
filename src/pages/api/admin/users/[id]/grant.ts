@@ -62,6 +62,16 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
     return Response.json({ error: "Service unavailable" }, { status: 503 });
   }
 
+  const { data: targetRole, error: roleError } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", parsedParams.data.id)
+    .maybeSingle();
+
+  if (roleError || targetRole?.role !== "student") {
+    return Response.json({ error: "Target user is not a student" }, { status: 403 });
+  }
+
   const { error } = await supabase.from("user_book_access").upsert(
     {
       user_id: parsedParams.data.id,
@@ -74,7 +84,8 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   );
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error("Failed to grant book access:", error);
+    return Response.json({ error: "Nie udało się przyznać dostępu" }, { status: 500 });
   }
 
   return Response.json({ ok: true }, { status: 200 });

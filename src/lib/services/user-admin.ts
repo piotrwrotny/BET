@@ -79,13 +79,38 @@ async function listAllAuthUsersWithEmail(supabaseAdmin: ReturnType<typeof create
   return users;
 }
 
-export async function getStudentsWithAccess(): Promise<UserWithAccess[]> {
+interface GetStudentsOptions {
+  page?: number;
+  perPage?: number;
+}
+
+interface GetStudentsResult {
+  users: UserWithAccess[];
+  hasNextPage: boolean;
+}
+
+export async function getStudentsWithAccess(options: GetStudentsOptions = {}): Promise<GetStudentsResult> {
+  const { page = 1, perPage = 20 } = options;
   const supabaseAdmin = createAdminClient();
-  const users = await listAllAuthUsersWithEmail(supabaseAdmin);
+
+  // Fetch one extra page to determine if there is a next page.
+  const { data, error } = await supabaseAdmin.auth.admin.listUsers({
+    page,
+    perPage: perPage + 1,
+  });
+
+  if (error) {
+    console.error("Failed to list auth users:", error);
+    throw new Error("Failed to list auth users");
+  }
+
+  const pageUsers = (data.users ?? []).filter((user): user is User & { email: string } => Boolean(user.email));
+  const hasNextPage = pageUsers.length > perPage;
+  const users = pageUsers.slice(0, perPage);
   const userIds = users.map((user) => user.id);
 
   if (userIds.length === 0) {
-    return [];
+    return { users: [], hasNextPage };
   }
 
   const userIdChunks = chunk(userIds, ID_CHUNK_SIZE);
@@ -124,14 +149,6 @@ export async function getStudentsWithAccess(): Promise<UserWithAccess[]> {
     roleByUserId.set(row.user_id, row.role);
   });
 
-  const usersMissingRole = users.filter((user) => !roleByUserId.has(user.id));
-  if (usersMissingRole.length > 0) {
-    console.error(
-      "Skipping auth users without assigned roles:",
-      usersMissingRole.map((user) => user.id),
-    );
-  }
-
   const accessByUserId = new Map<string, UserBookAccess[]>();
   accessRows.forEach((row) => {
     const book = row.books === null ? null : Array.isArray(row.books) ? (row.books[0] ?? null) : row.books;
@@ -148,10 +165,6 @@ export async function getStudentsWithAccess(): Promise<UserWithAccess[]> {
 
   const studentUsers = users.reduce<UserWithAccess[]>((acc, user) => {
     const role = roleByUserId.get(user.id);
-    if (!role) {
-      throw new Error(`Missing role row for auth user ${user.id}`);
-    }
-
     if (role !== "student") {
       return acc;
     }
@@ -167,5 +180,5 @@ export async function getStudentsWithAccess(): Promise<UserWithAccess[]> {
     return acc;
   }, []);
 
-  return studentUsers.sort((a, b) => a.email.localeCompare(b.email));
+  return { users: studentUsers.sort((a, b) => a.email.localeCompare(b.email)), hasNextPage };
 }

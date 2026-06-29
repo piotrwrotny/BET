@@ -33,6 +33,22 @@ export function UsersTable({ users, books }: UsersTableProps) {
   const [addSelectionByUserId, setAddSelectionByUserId] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
 
+  const refetchUsers = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/users", { credentials: "same-origin" });
+      if (!response.ok) {
+        setError("Nie udało się odświeżyć listy użytkowników");
+        return;
+      }
+      const payload = (await response.json()) as { users?: UserWithAccess[] };
+      if (payload.users) {
+        setRows(payload.users);
+      }
+    } catch {
+      setError("Nie udało się odświeżyć listy użytkowników");
+    }
+  }, []);
+
   const visibleRows = useMemo(
     () => (showPendingOnly ? rows.filter((row) => row.books.length === 0) : rows),
     [rows, showPendingOnly],
@@ -83,6 +99,7 @@ export function UsersTable({ users, books }: UsersTableProps) {
 
       const response = await fetch(`/api/admin/users/${user.id}/grant`, {
         method: "POST",
+        credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
         },
@@ -110,12 +127,14 @@ export function UsersTable({ users, books }: UsersTableProps) {
           }),
         );
         setError(responseError);
+      } else {
+        await refetchUsers();
       }
 
       setLoadingUserId(null);
       setAddSelectionByUserId((prev) => ({ ...prev, [user.id]: NONE_BOOK_VALUE }));
     },
-    [books],
+    [books, refetchUsers],
   );
 
   const handleRevokeBook = useCallback(async (user: UserWithAccess, bookId: string) => {
@@ -143,34 +162,37 @@ export function UsersTable({ users, books }: UsersTableProps) {
 
     const response = await fetch(`/api/admin/users/${user.id}/revoke?book_id=${encodeURIComponent(bookId)}`, {
       method: "DELETE",
+      credentials: "same-origin",
     });
 
-    if (!response.ok) {
-      let responseError = "Nie udało się odebrać dostępu";
-      try {
-        const payload = (await response.json()) as { error?: string };
-        responseError = payload.error ?? responseError;
-      } catch {
-        // noop
+      if (!response.ok) {
+        let responseError = "Nie udało się odebrać dostępu";
+        try {
+          const payload = (await response.json()) as { error?: string };
+          responseError = payload.error ?? responseError;
+        } catch {
+          // noop
+        }
+
+        setRows((prev) =>
+          prev.map((row) => {
+            if (row.id !== user.id) {
+              return row;
+            }
+
+            return {
+              ...row,
+              books: previousBooks,
+            };
+          }),
+        );
+        setError(responseError);
+      } else {
+        await refetchUsers();
       }
 
-      setRows((prev) =>
-        prev.map((row) => {
-          if (row.id !== user.id) {
-            return row;
-          }
-
-          return {
-            ...row,
-            books: previousBooks,
-          };
-        }),
-      );
-      setError(responseError);
-    }
-
-    setLoadingUserId(null);
-  }, []);
+      setLoadingUserId(null);
+  }, [refetchUsers]);
 
   const columns = useMemo(
     () => [

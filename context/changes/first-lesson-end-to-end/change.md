@@ -1,9 +1,9 @@
 ---
 change_id: first-lesson-end-to-end
 title: Student kończy pierwszą lekcję od początku do końca (Gwiazda przewodnia S-01)
-status: implemented
 created: 2026-06-25
 updated: 2026-06-26
+status: impl_reviewed
 archived_at: null
 ---
 

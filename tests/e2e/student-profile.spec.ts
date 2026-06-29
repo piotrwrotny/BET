@@ -28,6 +28,10 @@ async function completeLesson(page: Page, lessonId: string) {
 test.describe("student profile", () => {
   test.beforeAll(async ({ browser }) => {
     const adminContext = await browser.newContext({ storageState: "playwright/.auth/admin.json" });
+    const adminPage = await adminContext.newPage();
+    await adminPage.goto("/admin/users");
+    await expect(adminPage.getByRole("main").getByRole("heading", { name: "Użytkownicy" })).toBeVisible();
+
     const grantResponse = await adminContext.request.post(`/api/admin/users/${STUDENT_ID}/grant`, {
       data: { book_id: BOOK_ID },
       headers: {
@@ -37,11 +41,12 @@ test.describe("student profile", () => {
       },
     });
     expect(grantResponse.status()).toBe(200);
+
     await adminContext.close();
   });
 
   test("redirects anonymous users to sign in", async ({ browser }) => {
-    const context = await browser.newContext({ storageState: undefined });
+    const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
     const page = await context.newPage();
 
     await page.goto("/student/profile");
@@ -52,9 +57,9 @@ test.describe("student profile", () => {
 
   test("shows student email and books", async ({ page }) => {
     await page.goto("/student/profile");
+    await expect(page.getByRole("heading", { name: "Profil", level: 1 })).toBeVisible();
 
     await expect(page.getByRole("paragraph").filter({ hasText: "student@bet.local" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Profil", level: 1 })).toBeVisible();
     await expect(page.getByRole("heading", { name: BOOK_TITLE, level: 2 })).toBeVisible();
   });
 

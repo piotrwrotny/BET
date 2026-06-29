@@ -6,6 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
 
+export const prerender = false;
+
+if (Astro.locals.role !== "admin") {
+  return Astro.redirect("/dashboard");
+}
+
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) return Astro.redirect("/auth/signin");
 
@@ -19,6 +25,17 @@ const { data: book, error } = await supabase
 if (error || !book) return new Response(null, { status: 404 });
 
 const errorParam = Astro.url.searchParams.get("error");
+
+function safeDecodeURIComponent(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+const errorMessage = safeDecodeURIComponent(errorParam);
 ---
 
 <AdminLayout title="Edytuj książkę">
@@ -26,7 +43,7 @@ const errorParam = Astro.url.searchParams.get("error");
     <a href="/admin/books" class="text-sm text-muted-foreground hover:underline">← Książki</a>
   </div>
 
-  {errorParam && <ServerError client:load message={decodeURIComponent(errorParam)} />}
+  {errorMessage && <ServerError message={errorMessage} />}
 
   <form method="post" action={`/api/admin/books/${book.id}`} class="max-w-lg space-y-4">
     <div class="space-y-1">

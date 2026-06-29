@@ -1,3 +1,5 @@
+export const prerender = false;
+
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
@@ -10,12 +12,21 @@ const CreateLessonSchema = z.object({
 
 export const POST: APIRoute = async ({ request, cookies, locals }) => {
   if (locals.role !== "admin") {
-    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const siteUrl = new URL(request.url);
+  const isSameOrigin =
+    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+  if (!isSameOrigin) {
+    return Response.json({ error: "Invalid origin" }, { status: 403 });
   }
 
   const supabase = createClient(request.headers, cookies);
   if (!supabase) {
-    return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
+    return Response.json({ error: "Service unavailable" }, { status: 503 });
   }
 
   const formData = await request.formData();

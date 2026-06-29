@@ -5,8 +5,25 @@ import { Label } from "@/components/ui/label";
 import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
 
+export const prerender = false;
+
+if (Astro.locals.role !== "admin") {
+  return Astro.redirect("/dashboard");
+}
+
 const bookId = Astro.url.searchParams.get("book_id") ?? "";
 const errorParam = Astro.url.searchParams.get("error");
+
+function safeDecodeURIComponent(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+const errorMessage = safeDecodeURIComponent(errorParam);
 
 let bookTitle = "";
 if (bookId) {
@@ -35,7 +52,7 @@ if (bookId) {
     <span class="text-foreground font-medium">Nowy rozdział</span>
   </div>
 
-  {errorParam && <ServerError client:load message={decodeURIComponent(errorParam)} />}
+  {errorMessage && <ServerError message={errorMessage} />}
 
   <form method="post" action="/api/admin/chapters" class="max-w-lg space-y-4">
     <input type="hidden" name="book_id" value={bookId} />

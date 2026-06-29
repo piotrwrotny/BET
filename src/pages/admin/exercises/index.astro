@@ -1,6 +1,14 @@
 ---
 import AdminLayout from "@/layouts/AdminLayout.astro";
+import DeleteButton from "@/components/admin/DeleteButton.astro";
+import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
+
+export const prerender = false;
+
+if (Astro.locals.role !== "admin") {
+  return Astro.redirect("/dashboard");
+}
 
 const lessonId = Astro.url.searchParams.get("lesson_id");
 if (!lessonId) return Astro.redirect("/admin/lessons");
@@ -8,29 +16,41 @@ if (!lessonId) return Astro.redirect("/admin/lessons");
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) return Astro.redirect("/auth/signin");
 
-const { data: lesson } = await supabase
+let pageError: string | null = null;
+
+const { data: lesson, error: lessonError } = await supabase
   .from("lessons")
   .select("id, title, chapter_id")
   .eq("id", lessonId)
   .single();
 
+if (lessonError) pageError = lessonError.message;
 if (!lesson) return Astro.redirect("/admin/lessons");
 
-const { data: chapter } = await supabase
+const { data: chapter, error: chapterError } = await supabase
   .from("chapters")
   .select("title, book_id")
   .eq("id", lesson.chapter_id)
   .single();
 
-const { data: book } = chapter?.book_id
-  ? await supabase.from("books").select("title").eq("id", chapter.book_id).single()
-  : { data: null };
+if (chapterError) pageError = chapterError.message;
 
-const { data: exercises } = await supabase
+let book = null;
+let bookError = null;
+if (chapter?.book_id) {
+  const result = await supabase.from("books").select("title").eq("id", chapter.book_id).single();
+  book = result.data;
+  bookError = result.error;
+}
+if (bookError) pageError = bookError.message;
+
+const { data: exercises, error: exercisesError } = await supabase
   .from("exercises")
   .select("id, type, prompt, ord, exercise_keys(id, key_text, ord)")
   .eq("lesson_id", lessonId)
   .order("ord", { ascending: true });
+
+if (exercisesError) pageError = exercisesError.message;
 
 const typeLabel: Record<string, string> = {
   multiple_choice: "MC",
@@ -43,6 +63,8 @@ const typeLabel: Record<string, string> = {
 ---
 
 <AdminLayout title="Ćwiczenia">
+  {pageError && <ServerError message={pageError} />}
+
   <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
     <a href="/admin/books" class="hover:underline">Książki</a>
     {chapter?.book_id && <><span>›</span><a href={`/admin/chapters?book_id=${chapter.book_id}`} class="hover:underline">{book?.title ?? "Rozdziały"}</a></>}
@@ -107,13 +129,12 @@ const typeLabel: Record<string, string> = {
                     >
                       Edytuj
                     </a>
-                    <button
-                      type="button"
-                      class="text-xs text-destructive hover:underline"
-                      onclick={`if(confirm('Usunąć to ćwiczenie?')) fetch('/api/admin/exercises/${ex.id}',{method:'DELETE'}).then(r=>r.ok?location.href='/admin/exercises?lesson_id=${lessonId}':alert('Błąd usuwania'))`}
-                    >
-                      Usuń
-                    </button>
+                    <DeleteButton
+                      url={`/api/admin/exercises/${ex.id}`}
+                      title="to ćwiczenie"
+                      label="Usuń"
+                      redirect={`/admin/exercises?lesson_id=${lessonId}`}
+                    />
                   </div>
                 </td>
               </tr>

@@ -6,8 +6,25 @@ import { ServerError } from "@/components/auth/ServerError";
 import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
 import { createClient } from "@/lib/supabase";
 
+export const prerender = false;
+
+if (Astro.locals.role !== "admin") {
+  return Astro.redirect("/dashboard");
+}
+
 const chapterId = Astro.url.searchParams.get("chapter_id") ?? "";
 const errorParam = Astro.url.searchParams.get("error");
+
+function safeDecodeURIComponent(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+const errorMessage = safeDecodeURIComponent(errorParam);
 
 let chapterTitle = "";
 let bookTitle = "";
@@ -41,7 +58,7 @@ if (chapterId) {
     <span class="text-foreground font-medium">Nowa lekcja</span>
   </div>
 
-  {errorParam && <ServerError client:load message={decodeURIComponent(errorParam)} />}
+  {errorMessage && <ServerError message={errorMessage} />}
 
   <form method="post" action="/api/admin/lessons" class="space-y-4">
     <input type="hidden" name="chapter_id" value={chapterId} />

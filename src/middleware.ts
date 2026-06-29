@@ -17,7 +17,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .single();
+        .single()
+        .overrideTypes<{ role: "admin" | "student" } | null, { merge: false }>();
       context.locals.role = roleRow?.role ?? null;
     } else {
       context.locals.role = null;

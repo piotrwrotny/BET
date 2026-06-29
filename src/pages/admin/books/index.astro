@@ -1,20 +1,30 @@
 ---
 import AdminLayout from "@/layouts/AdminLayout.astro";
-import { createClient } from "@/lib/supabase";
+import DeleteButton from "@/components/admin/DeleteButton.astro";
 import { ServerError } from "@/components/auth/ServerError";
+import { createClient } from "@/lib/supabase";
+
+export const prerender = false;
+
+if (Astro.locals.role !== "admin") {
+  return Astro.redirect("/dashboard");
+}
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) return Astro.redirect("/auth/signin");
 
+let pageError: string | null = null;
 const { data: books, error } = await supabase
   .from("books")
   .select("id, title, cover_url, description, created_at")
   .order("created_at", { ascending: true });
 
-if (error) console.error("books list error:", error.message);
+if (error) pageError = error.message;
 ---
 
 <AdminLayout title="Książki">
+  {pageError && <ServerError message={pageError} />}
+
   <div class="mb-4 flex items-center justify-between">
     <p class="text-sm text-muted-foreground">
       {books?.length ?? 0} {books?.length === 1 ? "książka" : "książek"}
@@ -76,13 +86,12 @@ if (error) console.error("books list error:", error.message);
                     >
                       Edytuj
                     </a>
-                    <button
-                      type="button"
-                      class="text-xs text-destructive hover:underline"
-                      onclick={`if(confirm('Usunąć książkę "${book.title}"? Kaskadowo usunięte zostaną rozdziały, lekcje i ćwiczenia.')) fetch('/api/admin/books/${book.id}',{method:'DELETE'}).then(r=>r.ok?location.href='/admin/books':alert('Błąd usuwania'))`}
-                    >
-                      Usuń
-                    </button>
+                    <DeleteButton
+                      url={`/api/admin/books/${book.id}`}
+                      title={book.title}
+                      label="Usuń"
+                      redirect="/admin/books"
+                    />
                   </div>
                 </td>
               </tr>

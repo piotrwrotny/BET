@@ -1,6 +1,14 @@
 ---
 import AdminLayout from "@/layouts/AdminLayout.astro";
+import DeleteButton from "@/components/admin/DeleteButton.astro";
+import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
+
+export const prerender = false;
+
+if (Astro.locals.role !== "admin") {
+  return Astro.redirect("/dashboard");
+}
 
 const bookId = Astro.url.searchParams.get("book_id");
 if (!bookId) return Astro.redirect("/admin/books");
@@ -8,7 +16,8 @@ if (!bookId) return Astro.redirect("/admin/books");
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) return Astro.redirect("/auth/signin");
 
-const [{ data: book }, { data: chapters }] = await Promise.all([
+let pageError: string | null = null;
+const [{ data: book, error: bookError }, { data: chapters, error: chaptersError }] = await Promise.all([
   supabase.from("books").select("id, title").eq("id", bookId).single(),
   supabase
     .from("chapters")
@@ -17,10 +26,15 @@ const [{ data: book }, { data: chapters }] = await Promise.all([
     .order("ord", { ascending: true }),
 ]);
 
+if (bookError) pageError = bookError.message;
+if (chaptersError) pageError = chaptersError.message;
+
 if (!book) return Astro.redirect("/admin/books");
 ---
 
 <AdminLayout title="Rozdziały">
+  {pageError && <ServerError message={pageError} />}
+
   <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
     <a href="/admin/books" class="hover:underline">Książki</a>
     <span>›</span>
@@ -71,13 +85,12 @@ if (!book) return Astro.redirect("/admin/books");
                     >
                       Edytuj
                     </a>
-                    <button
-                      type="button"
-                      class="text-xs text-destructive hover:underline"
-                      onclick={`if(confirm('Usunąć rozdział "${chapter.title}"? Kaskadowo usunięte zostaną lekcje i ćwiczenia.')) fetch('/api/admin/chapters/${chapter.id}',{method:'DELETE'}).then(r=>r.ok?location.href='/admin/chapters?book_id=${bookId}':alert('Błąd usuwania'))`}
-                    >
-                      Usuń
-                    </button>
+                    <DeleteButton
+                      url={`/api/admin/chapters/${chapter.id}`}
+                      title={chapter.title}
+                      label="Usuń"
+                      redirect={`/admin/chapters?book_id=${bookId}`}
+                    />
                   </div>
                 </td>
               </tr>

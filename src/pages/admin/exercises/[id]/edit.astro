@@ -3,6 +3,12 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
 import { ExerciseForm } from "@/components/admin/ExerciseForm";
 import { createClient } from "@/lib/supabase";
 
+export const prerender = false;
+
+if (Astro.locals.role !== "admin") {
+  return Astro.redirect("/dashboard");
+}
+
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) return Astro.redirect("/auth/signin");
 

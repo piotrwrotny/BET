@@ -1,11 +1,10 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
-
-const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i;
+import { uuidSchema } from "@/lib/utils";
 
 const VerifyBodySchema = z.object({
-  exercise_id: z.string().regex(UUID_RE, "Invalid UUID"),
+  exercise_id: uuidSchema,
   answer: z.string().min(1),
 });
 
@@ -14,37 +13,37 @@ export const POST: APIRoute = async (context) => {
   try {
     body = await context.request.json();
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const parsed = VerifyBodySchema.safeParse(body);
   if (!parsed.success) {
-    return new Response(JSON.stringify({ error: parsed.error.flatten() }), { status: 400 });
+    return Response.json({ error: parsed.error.message }, { status: 400 });
   }
 
   const { exercise_id, answer } = parsed.data;
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
-    return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
+    return Response.json({ error: "Service unavailable" }, { status: 503 });
   }
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Fetch exercise keys — RLS enforces has_exercise_access; keys never reach the client
   const { data: keys } = await supabase
     .from("exercise_keys")
     .select("key_text, key_metadata")
-    .eq("exercise_id", exercise_id);
-
+    .eq("exercise_id", exercise_id)
+    .overrideTypes<{ key_text: string; key_metadata: unknown }[], { merge: false }>();
   if (!keys || keys.length === 0) {
     // No keys accessible = treat as incorrect (don't reveal whether ID exists)
-    return new Response(JSON.stringify({ correct: false }), {
+    return Response.json({ correct: false }, {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -58,7 +57,7 @@ export const POST: APIRoute = async (context) => {
     return key.key_text.trim().toLowerCase() === normalizedAnswer;
   });
 
-  return new Response(JSON.stringify({ correct }), {
+  return Response.json({ correct }, {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });

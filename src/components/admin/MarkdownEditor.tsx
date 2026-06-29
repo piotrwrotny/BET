@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { marked } from "marked";
+import { sanitizeHtml } from "@/lib/markdown";
 
 interface MarkdownEditorProps {
   name: string;
@@ -39,7 +40,7 @@ export function MarkdownEditor({ name, defaultValue = "", className }: MarkdownE
         <div
           className="min-h-64 flex-1 overflow-auto rounded-md border border-border bg-muted/20 px-4 py-3 text-sm [&_blockquote]:border-l-4 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:font-mono [&_code]:text-xs [&_h1]:mb-2 [&_h1]:text-xl [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mb-1 [&_h3]:font-semibold [&_li]:ml-4 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-2 [&_pre]:rounded [&_pre]:bg-muted [&_pre]:p-3 [&_pre_code]:bg-transparent [&_strong]:font-semibold"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: value ? preview() : '<span class="text-muted-foreground">Podgląd pojawi się tutaj…</span>' }}
+          dangerouslySetInnerHTML={{ __html: value ? sanitizeHtml(preview()) : '<span class="text-muted-foreground">Podgląd pojawi się tutaj…</span>' }}
         />
       </div>
     </div>

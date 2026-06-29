@@ -1,6 +1,9 @@
+export const prerender = false;
+
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
+import { uuidSchema } from "@/lib/utils";
 
 const UpdateLessonSchema = z.object({
   title: z.string().min(1, "Tytuł jest wymagany"),
@@ -10,15 +13,30 @@ const UpdateLessonSchema = z.object({
 
 export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   if (locals.role !== "admin") {
-    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const siteUrl = new URL(request.url);
+  const isSameOrigin =
+    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+  if (!isSameOrigin) {
+    return Response.json({ error: "Invalid origin" }, { status: 403 });
   }
 
   const supabase = createClient(request.headers, cookies);
   if (!supabase) {
-    return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
+    return Response.json({ error: "Service unavailable" }, { status: 503 });
   }
 
   const { id } = params;
+  const idResult = uuidSchema.safeParse(id);
+  if (!idResult.success) {
+    return Response.json({ error: "Invalid UUID" }, { status: 400 });
+  }
+  const validId = idResult.data;
+
   const formData = await request.formData();
   const raw = {
     title: formData.get("title"),
@@ -30,7 +48,7 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   if (!parsed.success) {
     const error = encodeURIComponent(parsed.error.issues[0]?.message ?? "Błąd walidacji");
     return Response.redirect(
-      new URL(`/admin/lessons/${id}/edit?error=${error}`, request.url),
+      new URL(`/admin/lessons/${validId}/edit?error=${error}`, request.url),
       302
     );
   }
@@ -39,12 +57,12 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   const { error } = await supabase
     .from("lessons")
     .update({ title, content })
-    .eq("id", id!);
+    .eq("id", validId);
 
   if (error) {
     const msg = encodeURIComponent(error.message);
     return Response.redirect(
-      new URL(`/admin/lessons/${id}/edit?error=${msg}`, request.url),
+      new URL(`/admin/lessons/${validId}/edit?error=${msg}`, request.url),
       302
     );
   }
@@ -54,20 +72,35 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
 
 export const DELETE: APIRoute = async ({ params, request, cookies, locals }) => {
   if (locals.role !== "admin") {
-    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const siteUrl = new URL(request.url);
+  const isSameOrigin =
+    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+  if (!isSameOrigin) {
+    return Response.json({ error: "Invalid origin" }, { status: 403 });
   }
 
   const supabase = createClient(request.headers, cookies);
   if (!supabase) {
-    return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
+    return Response.json({ error: "Service unavailable" }, { status: 503 });
   }
 
   const { id } = params;
-  const { error } = await supabase.from("lessons").delete().eq("id", id!);
+  const idResult = uuidSchema.safeParse(id);
+  if (!idResult.success) {
+    return Response.json({ error: "Invalid UUID" }, { status: 400 });
+  }
+  const validId = idResult.data;
+
+  const { error } = await supabase.from("lessons").delete().eq("id", validId);
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 
-  return new Response(JSON.stringify({ ok: true }), { status: 200 });
+  return Response.json({ ok: true }, { status: 200 });
 };

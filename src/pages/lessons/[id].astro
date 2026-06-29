@@ -2,8 +2,8 @@
 import { marked } from "marked";
 import Layout from "@/layouts/Layout.astro";
 import { createClient } from "@/lib/supabase";
+import { sanitizeHtml } from "@/lib/markdown";
 import LessonInteractive from "@/components/lesson/LessonInteractive";
-
 const { id } = Astro.params;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -31,9 +31,8 @@ const { data: lesson } = await supabase
 // 0 rows = bad ID or RLS blocked → send back to dashboard
 if (!lesson) return Astro.redirect("/dashboard");
 
-// Parse Markdown → HTML (sync, no async extensions configured)
-const contentHtml = marked.parse(lesson.content) as string;
-
+// Parse Markdown → HTML and sanitize before injection
+const contentHtml = sanitizeHtml(marked.parse(lesson.content) as string);
 // Sort exercises by ord
 type Exercise = {
   id: string;

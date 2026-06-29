@@ -1,0 +1,44 @@
+---
+interface Props {
+  url: string;
+  title: string;
+  label?: string;
+  redirect?: string;
+}
+
+const { url, title, label = "Usuń", redirect = "" } = Astro.props;
+---
+
+<button
+  type="button"
+  class="text-xs text-destructive hover:underline"
+  data-delete-url={url}
+  data-title={title}
+  data-redirect={redirect}
+>
+  {label}
+</button>
+
+<script>
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-delete-url]");
+    if (!btn) return;
+
+    const url = btn.dataset.deleteUrl;
+    const title = btn.dataset.title;
+    const redirect = btn.dataset.redirect || window.location.href;
+    if (!url) return;
+
+    if (confirm(`Usunąć "${title}"?`)) {
+      fetch(url, { method: "DELETE" })
+        .then((res) => {
+          if (res.ok) {
+            window.location.href = redirect;
+          } else {
+            alert("Błąd usuwania");
+          }
+        })
+        .catch(() => alert("Błąd usuwania"));
+    }
+  });
+</script>

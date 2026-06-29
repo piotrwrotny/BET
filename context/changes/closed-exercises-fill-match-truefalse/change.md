@@ -1,7 +1,7 @@
 ---
 change_id: closed-exercises-fill-match-truefalse
 title: Closed exercise types — fill-in-blank, matching, true/false
-status: new
+status: planned
 created: 2026-06-29
 updated: 2026-06-29
 archived_at: null

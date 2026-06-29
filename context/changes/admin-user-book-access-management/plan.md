@@ -128,8 +128,8 @@ W obecnym modelu dostęp do treści jest otwarty dla wszystkich uwierzytelnionyc
 - [x] 1.5 `npm run build` przechodzi
 
 #### Ręczne
-- [ ] 1.6 Admin widzi JSON z `GET /api/admin/users` w przeglądarce
-- [ ] 1.7 Nie-admin dostaje 403 na `/api/admin/users`
+- [x] 1.6 Admin widzi JSON z `GET /api/admin/users` w przeglądarce
+- [x] 1.7 Nie-admin dostaje 403 na `/api/admin/users`
 
 ### Faza 2: UI
 
@@ -139,7 +139,17 @@ W obecnym modelu dostęp do treści jest otwarty dla wszystkich uwierzytelnionyc
 - [x] 2.3 `npm run build` przechodzi
 
 #### Ręczne
-- [ ] 2.4 Tabela pokazuje tylko studentów
-- [ ] 2.5 Multi-book przypisanie działa (dodawanie i usuwanie)
-- [ ] 2.6 Filtr "Tylko oczekujący" działa
-- [ ] 2.7 Nie-admin redirectowany z `/admin/users`
+- [x] 2.4 Tabela pokazuje tylko studentów
+- [x] 2.5 Multi-book przypisanie działa (dodawanie i usuwanie)
+- [x] 2.6 Filtr "Tylko oczekujący" działa
+- [x] 2.7 Nie-admin redirectowany z `/admin/users`
+
+### Faza 3: Testy E2E
+
+#### Automatyczne
+- [x] 3.1 Zainstalowano Playwright i skonfigurowano `storageState` dla admina/studenta
+- [x] 3.2 Napisano testy E2E dla `/admin/users`: lista studentów, grant, revoke, filtr oczekujących, redirect nie-admina
+- [x] 3.3 `npx playwright test tests/e2e/` przechodzi na zielono
+
+#### Naprawione w trakcie testów
+- [x] 3.4 Poprawiono walidację UUID w `grant.ts` i `revoke.ts` — użyto wspólnego `uuidSchema` z `src/lib/utils.ts`

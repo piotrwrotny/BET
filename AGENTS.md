@@ -37,6 +37,16 @@ Pre-commit hooks configured in `@package.json` (lint-staged).
 
 `.github/workflows/ci.yml` runs `astro sync` → lint → build on every push and PR to `master`. Set `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets before the first CI run.
 
+## E2E Tests
+
+- Prefer `getByRole`, `getByLabel`, `getByText`. Use `getByTestId` only when accessibility attributes are ambiguous.
+- Never use CSS selectors, XPath, or DOM structure for locating elements.
+- Each test is independent — own setup, action, assertion, and cleanup.
+- Never use `page.waitForTimeout()`. Wait for state: `toBeVisible()`, `waitForURL()`, `waitForResponse()`.
+- Use `storageState` for authentication — never log in through the UI inside individual tests.
+- Use unique identifiers for test data and clean up in `afterEach` or at the end of each test.
+- Assert the business outcome, not implementation details.
+
 ## Commits
 
 Use imperative present tense (`Add`, `Fix`, `Remove`). No scope prefix until a team convention is agreed.

@@ -1,15 +1,14 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
-
-const UUID_LIKE_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+import { uuidSchema } from "@/lib/utils";
 
 const ParamsSchema = z.object({
-  id: z.string().regex(UUID_LIKE_RE, "Nieprawidłowe ID użytkownika"),
+  id: uuidSchema,
 });
 
 const GrantAccessSchema = z.object({
-  book_id: z.string().regex(UUID_LIKE_RE, "Nieprawidłowe ID książki"),
+  book_id: uuidSchema,
 });
 
 export const prerender = false;

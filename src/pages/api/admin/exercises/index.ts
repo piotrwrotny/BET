@@ -3,8 +3,12 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
-
-const ExerciseTypeEnum = z.enum(["multiple_choice", "fill_in_blank", "true_false"]);
+import {
+  ExerciseTypeEnum,
+  MultipleChoicePayloadSchema,
+  MatchingPayloadSchema,
+  parseMatchingKey,
+} from "@/lib/exercise-schemas";
 
 const CreateExerciseSchema = z.object({
   lesson_id: z.string().min(1, "lesson_id jest wymagany"),
@@ -22,8 +26,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
   const siteUrl = new URL(request.url);
-  const isSameOrigin =
-    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+  const isSameOrigin = origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
   if (!isSameOrigin) {
     return Response.json({ error: "Invalid origin" }, { status: 403 });
   }
@@ -47,11 +50,69 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 
   const { lesson_id, type, prompt, payload, keys } = parsed.data;
 
-  // Validate MC: correct answer must be in options
+  // Reject types not editable in S-06
+  if (type === "sentence_transformation" || type === "open_ended") {
+    return Response.json({ error: "Ten typ ćwiczenia nie jest jeszcze edytowalny" }, { status: 400 });
+  }
+
+  // Type-specific validation
   if (type === "multiple_choice") {
-    const options = (payload as { options?: string[] }).options ?? [];
-    if (!options.includes(keys[0]!)) {
+    const payloadResult = MultipleChoicePayloadSchema.safeParse(payload);
+    if (!payloadResult.success) {
+      return Response.json(
+        { error: payloadResult.error.issues[0]?.message ?? "Nieprawidłowy payload" },
+        { status: 400 },
+      );
+    }
+    const options = payloadResult.data.options;
+    const firstKey = keys[0];
+    if (!firstKey || !options.includes(firstKey)) {
       return Response.json({ error: "Poprawna odpowiedź musi być jedną z opcji" }, { status: 400 });
+    }
+  }
+
+  if (type === "matching") {
+    const payloadResult = MatchingPayloadSchema.safeParse(payload);
+    if (!payloadResult.success) {
+      return Response.json(
+        { error: payloadResult.error.issues[0]?.message ?? "Nieprawidłowy payload" },
+        { status: 400 },
+      );
+    }
+    if (keys.length !== 1) {
+      return Response.json({ error: "Ćwiczenie matchingu wymaga dokładnie jednego klucza" }, { status: 400 });
+    }
+    const firstKey = keys[0];
+    if (!firstKey) {
+      return Response.json({ error: "Klucz matchingu jest wymagany" }, { status: 400 });
+    }
+
+    let correctMap: Record<string, string>;
+    try {
+      correctMap = parseMatchingKey(firstKey);
+    } catch {
+      return Response.json({ error: "Klucz matchingu musi być poprawną mapą JSON" }, { status: 400 });
+    }
+
+    const pairs = payloadResult.data.pairs;
+    const leftIndices = new Set(Object.keys(correctMap));
+    if (leftIndices.size !== pairs.length) {
+      return Response.json({ error: "Mapa matchingu musi zawierać każdy lewy indeks" }, { status: 400 });
+    }
+
+    const validLeft = Array.from({ length: pairs.length }, (_, i) => String(i));
+    const validRight = Array.from({ length: pairs.length }, (_, i) => String(i));
+    for (const left of leftIndices) {
+      if (!validLeft.includes(left)) {
+        return Response.json({ error: `Nieprawidłowy lewy indeks: ${left}` }, { status: 400 });
+      }
+      const right = correctMap[left];
+      if (!right || !validRight.includes(right)) {
+        return Response.json(
+          { error: `Nieprawidłowy prawy indeks dla lewej strony ${left}: ${right}` },
+          { status: 400 },
+        );
+      }
     }
   }
 
@@ -64,7 +125,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     .limit(1)
     .single();
 
-  const ord = maxRow ? maxRow.ord + 1 : 0;
+  const ord: number = maxRow ? (maxRow.ord as number) + 1 : 0;
 
   const { data: exercise, error: insertError } = await supabase
     .from("exercises")
@@ -72,11 +133,15 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     .select("id")
     .single();
 
-  if (insertError || !exercise) {
-    return Response.json({ error: insertError?.message ?? "Błąd zapisu ćwiczenia" }, { status: 500 });
+  if (insertError) {
+    return Response.json({ error: insertError.message }, { status: 500 });
   }
 
-  const keyRows = keys.map((key_text, ord) => ({ exercise_id: exercise.id, key_text, ord }));
+  const keyRows: { exercise_id: string; key_text: string; ord: number }[] = keys.map((key_text, ord) => ({
+    exercise_id: exercise.id as string,
+    key_text,
+    ord,
+  }));
   const { error: keysError } = await supabase.from("exercise_keys").insert(keyRows);
 
   if (keysError) {

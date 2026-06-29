@@ -25,11 +25,7 @@ if (error || !exercise) return new Response(null, { status: 404 });
 
 const lessonId = lessonIdParam ?? exercise.lesson_id;
 
-const { data: lesson } = await supabase
-  .from("lessons")
-  .select("title, chapter_id")
-  .eq("id", lessonId)
-  .single();
+const { data: lesson } = await supabase.from("lessons").select("title, chapter_id").eq("id", lessonId).single();
 
 const { data: chapter } = lesson?.chapter_id
   ? await supabase.from("chapters").select("title, book_id").eq("id", lesson.chapter_id).single()
@@ -44,31 +40,78 @@ const sortedKeys = (exercise.exercise_keys as { key_text: string; ord: number }[
   .sort((a, b) => a.ord - b.ord)
   .map((k) => k.key_text);
 
-// Extract MC options from payload
-const payload = exercise.payload as { options?: string[] };
+// Extract type-specific payload
+const payload = exercise.payload as { options?: string[]; pairs?: { left: string; right: string }[] };
 const initialOptions = exercise.type === "multiple_choice" ? (payload.options ?? []) : undefined;
+const initialPairs = exercise.type === "matching" ? (payload.pairs ?? []) : undefined;
 
 const redirectTo = `/admin/exercises?lesson_id=${lessonId}`;
+
+const editableTypes = ["multiple_choice", "fill_in_blank", "true_false", "matching"];
+const isEditable = editableTypes.includes(exercise.type);
 ---
 
 <AdminLayout title="Edytuj ćwiczenie">
-  <div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+  <div class="text-muted-foreground mb-4 flex flex-wrap items-center gap-2 text-sm">
     <a href="/admin/books" class="hover:underline">Książki</a>
-    {chapter?.book_id && <><span>›</span><a href={`/admin/chapters?book_id=${chapter.book_id}`} class="hover:underline">{book?.title ?? "Rozdziały"}</a></>}
-    {lesson?.chapter_id && <><span>›</span><a href={`/admin/lessons?chapter_id=${lesson.chapter_id}`} class="hover:underline">{chapter?.title ?? "Lekcje"}</a></>}
-    {lessonId && <><span>›</span><a href={`/admin/exercises?lesson_id=${lessonId}`} class="hover:underline">{lesson?.title ?? "Ćwiczenia"}</a></>}
+    {
+      chapter?.book_id && (
+        <>
+          <>
+            <span>›</span>
+            <a href={`/admin/chapters?book_id=${chapter.book_id}`} class="hover:underline">
+              {book?.title ?? "Rozdziały"}
+            </a>
+          </>
+        </>
+      )
+    }
+    {
+      lesson?.chapter_id && (
+        <>
+          <>
+            <span>›</span>
+            <a href={`/admin/lessons?chapter_id=${lesson.chapter_id}`} class="hover:underline">
+              {chapter?.title ?? "Lekcje"}
+            </a>
+          </>
+        </>
+      )
+    }
+    {
+      lessonId && (
+        <>
+          <>
+            <span>›</span>
+            <a href={`/admin/exercises?lesson_id=${lessonId}`} class="hover:underline">
+              {lesson?.title ?? "Ćwiczenia"}
+            </a>
+          </>
+        </>
+      )
+    }
     <span>›</span>
     <span class="text-foreground font-medium">Edytuj</span>
   </div>
 
-  <ExerciseForm
-    client:load
-    lessonId={lessonId}
-    exerciseId={exercise.id}
-    initialType={exercise.type as "multiple_choice" | "fill_in_blank" | "true_false"}
-    initialPrompt={exercise.prompt}
-    initialOptions={initialOptions}
-    initialKeys={sortedKeys}
-    redirectTo={redirectTo}
-  />
+  {
+    isEditable ? (
+      <ExerciseForm
+        client:load
+        lessonId={lessonId}
+        exerciseId={exercise.id}
+        initialType={exercise.type as "multiple_choice" | "fill_in_blank" | "true_false" | "matching"}
+        initialPrompt={exercise.prompt}
+        initialOptions={initialOptions}
+        initialPairs={initialPairs}
+        initialKeys={sortedKeys}
+        redirectTo={redirectTo}
+      />
+    ) : (
+      <div class="border-border bg-muted/30 rounded-md border px-4 py-8 text-center">
+        <p class="text-muted-foreground text-sm">Ten typ ćwiczenia nie jest jeszcze edytowalny.</p>
+        <p class="text-muted-foreground mt-2 text-xs">[{exercise.type}]</p>
+      </div>
+    )
+  }
 </AdminLayout>

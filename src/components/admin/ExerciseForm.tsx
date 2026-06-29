@@ -1,6 +1,11 @@
 import { useState } from "react";
 
-type ExerciseType = "multiple_choice" | "fill_in_blank" | "true_false";
+type ExerciseType = "multiple_choice" | "fill_in_blank" | "matching" | "true_false";
+
+interface MatchingPair {
+  left: string;
+  right: string;
+}
 
 interface ExerciseFormProps {
   lessonId: string;
@@ -8,11 +13,16 @@ interface ExerciseFormProps {
   initialType?: ExerciseType;
   initialPrompt?: string;
   initialOptions?: string[];
+  initialPairs?: MatchingPair[];
   initialKeys?: string[];
   redirectTo: string;
 }
 
 const EMPTY_OPTIONS = ["", "", "", ""];
+const EMPTY_PAIRS: MatchingPair[] = [
+  { left: "", right: "" },
+  { left: "", right: "" },
+];
 
 export function ExerciseForm({
   lessonId,
@@ -20,6 +30,7 @@ export function ExerciseForm({
   initialType = "multiple_choice",
   initialPrompt = "",
   initialOptions,
+  initialPairs,
   initialKeys,
   redirectTo,
 }: ExerciseFormProps) {
@@ -28,15 +39,21 @@ export function ExerciseForm({
   // MC
   const [options, setOptions] = useState<string[]>(initialOptions ?? EMPTY_OPTIONS);
   const [correctOption, setCorrectOption] = useState(
-    initialType === "multiple_choice" && initialKeys?.[0] ? initialKeys[0] : ""
+    initialType === "multiple_choice" && initialKeys?.[0] ? initialKeys[0] : "",
   );
   // FIB
   const [fibKeys, setFibKeys] = useState<string[]>(
-    initialType === "fill_in_blank" && initialKeys?.length ? initialKeys : [""]
+    initialType === "fill_in_blank" && initialKeys?.length ? initialKeys : [""],
   );
   // T/F
   const [tfKey, setTfKey] = useState<"true" | "false">(
-    initialType === "true_false" && initialKeys?.[0] === "false" ? "false" : "true"
+    initialType === "true_false" && initialKeys?.[0] === "false" ? "false" : "true",
+  );
+  // Matching
+  const initialMatchingPairs = initialType === "matching" ? initialPairs : EMPTY_PAIRS;
+  const [pairs, setPairs] = useState<MatchingPair[]>(initialMatchingPairs ?? EMPTY_PAIRS);
+  const [matchingKeyJson, setMatchingKeyJson] = useState(
+    initialType === "matching" && initialKeys?.[0] ? initialKeys[0] : "",
   );
 
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +70,34 @@ export function ExerciseForm({
     if (type === "fill_in_blank") {
       if (!fibKeys.some((k) => k.trim())) return "Podaj co najmniej jeden klucz odpowiedzi";
     }
+    if (type === "matching") {
+      const filledPairs = pairs.filter((p) => p.left.trim() && p.right.trim());
+      if (filledPairs.length < 2) return "Podaj co najmniej 2 pełne pary";
+      if (!matchingKeyJson.trim()) return "Podaj poprawną mapę matchingu";
+      let map: Record<string, string>;
+      try {
+        map = JSON.parse(matchingKeyJson) as Record<string, string>;
+      } catch {
+        return "Mapa matchingu musi być poprawnym JSON-em";
+      }
+      const leftIndices = new Set(Object.keys(map));
+      if (leftIndices.size !== filledPairs.length) {
+        return "Mapa musi zawierać każdy lewy indeks";
+      }
+      const validLeft = Array.from({ length: filledPairs.length }, (_, i) => String(i));
+      const validRight = Array.from({ length: filledPairs.length }, (_, i) => String(i));
+      for (const left of leftIndices) {
+        if (!validLeft.includes(left)) return `Nieprawidłowy lewy indeks: ${left}`;
+        const right = map[left];
+        if (!right || !validRight.includes(right)) {
+          return `Nieprawidłowy prawy indeks dla lewej strony ${left}: ${right}`;
+        }
+      }
+    }
     return null;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
@@ -68,19 +109,25 @@ export function ExerciseForm({
 
     setSubmitting(true);
 
-    const payload =
-      type === "multiple_choice" ? { options: options.filter((o) => o.trim()) } : {};
+    let payload: Record<string, unknown> = {};
+    if (type === "multiple_choice") {
+      payload = { options: options.filter((o) => o.trim()) };
+    } else if (type === "matching") {
+      payload = { pairs: pairs.filter((p) => p.left.trim() && p.right.trim()) };
+    }
 
-    const keys =
-      type === "multiple_choice"
-        ? [correctOption]
-        : type === "fill_in_blank"
-          ? fibKeys.filter((k) => k.trim())
-          : [tfKey];
+    let keys: string[];
+    if (type === "multiple_choice") {
+      keys = [correctOption];
+    } else if (type === "fill_in_blank") {
+      keys = fibKeys.filter((k) => k.trim());
+    } else if (type === "true_false") {
+      keys = [tfKey];
+    } else {
+      keys = [matchingKeyJson.trim()];
+    }
 
-    const url = exerciseId
-      ? `/api/admin/exercises/${exerciseId}`
-      : "/api/admin/exercises";
+    const url = exerciseId ? `/api/admin/exercises/${exerciseId}` : "/api/admin/exercises";
 
     try {
       const res = await fetch(url, {
@@ -103,8 +150,9 @@ export function ExerciseForm({
     }
   };
 
-  const setOption = (idx: number, val: string) =>
+  const setOption = (idx: number, val: string) => {
     setOptions((prev) => prev.map((o, i) => (i === idx ? val : o)));
+  };
 
   const removeOption = (idx: number) => {
     const next = options.filter((_, i) => i !== idx);
@@ -112,15 +160,26 @@ export function ExerciseForm({
     if (correctOption === options[idx]) setCorrectOption("");
   };
 
-  const setFibKey = (idx: number, val: string) =>
+  const setFibKey = (idx: number, val: string) => {
     setFibKeys((prev) => prev.map((k, i) => (i === idx ? val : k)));
+  };
 
-  const removeFibKey = (idx: number) => setFibKeys((prev) => prev.filter((_, i) => i !== idx));
+  const removeFibKey = (idx: number) => {
+    setFibKeys((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const setPair = (idx: number, side: "left" | "right", val: string) => {
+    setPairs((prev) => prev.map((p, i) => (i === idx ? { ...p, [side]: val } : p)));
+  };
+
+  const removePair = (idx: number) => {
+    setPairs((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
       {error && (
-        <div className="rounded-md border border-destructive bg-destructive/10 px-4 py-2 text-sm text-destructive">
+        <div className="border-destructive bg-destructive/10 text-destructive rounded-md border px-4 py-2 text-sm">
           {error}
         </div>
       )}
@@ -130,12 +189,15 @@ export function ExerciseForm({
         <label className="text-sm font-medium">Typ ćwiczenia *</label>
         <select
           value={type}
-          onChange={(e) => setType(e.target.value as ExerciseType)}
-          className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          onChange={(e) => {
+            setType(e.target.value as ExerciseType);
+          }}
+          className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm outline-none focus-visible:ring-[3px]"
         >
           <option value="multiple_choice">Wybór wielokrotny (Multiple Choice)</option>
           <option value="fill_in_blank">Uzupełnij lukę (Fill in the Blank)</option>
           <option value="true_false">Prawda / Fałsz (True/False)</option>
+          <option value="matching">Dopasowanie (Matching)</option>
         </select>
       </div>
 
@@ -144,22 +206,18 @@ export function ExerciseForm({
         <label className="text-sm font-medium">
           Treść ćwiczenia *
           {type === "fill_in_blank" && (
-            <span className="ml-2 text-xs font-normal text-muted-foreground">
-              Użyj _____ jako oznaczenia luki
-            </span>
+            <span className="text-muted-foreground ml-2 text-xs font-normal">Użyj _____ jako oznaczenia luki</span>
           )}
         </label>
         <textarea
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={(e) => {
+            setPrompt(e.target.value);
+          }}
           rows={3}
           required
-          className="w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          placeholder={
-            type === "fill_in_blank"
-              ? "She _____ to school yesterday."
-              : "Treść pytania lub polecenia…"
-          }
+          className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full resize-y rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-[3px]"
+          placeholder={type === "fill_in_blank" ? "She _____ to school yesterday." : "Treść pytania lub polecenia…"}
         />
       </div>
 
@@ -174,7 +232,9 @@ export function ExerciseForm({
                   type="radio"
                   name="correct_option"
                   checked={correctOption === opt && opt.trim() !== ""}
-                  onChange={() => opt.trim() && setCorrectOption(opt)}
+                  onChange={() => {
+                    if (opt.trim()) setCorrectOption(opt);
+                  }}
                   className="mt-0.5 shrink-0"
                   title="Zaznacz jako poprawną"
                 />
@@ -187,13 +247,15 @@ export function ExerciseForm({
                     if (correctOption === oldVal) setCorrectOption(e.target.value);
                   }}
                   placeholder={`Opcja ${idx + 1}`}
-                  className="h-8 flex-1 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 flex-1 rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px]"
                 />
                 {options.length > 2 && (
                   <button
                     type="button"
-                    onClick={() => removeOption(idx)}
-                    className="text-xs text-destructive hover:underline"
+                    onClick={() => {
+                      removeOption(idx);
+                    }}
+                    className="text-destructive text-xs hover:underline"
                   >
                     Usuń
                   </button>
@@ -203,7 +265,9 @@ export function ExerciseForm({
           </div>
           <button
             type="button"
-            onClick={() => setOptions((prev) => [...prev, ""])}
+            onClick={() => {
+              setOptions((prev) => [...prev, ""]);
+            }}
             className="text-xs text-blue-600 hover:underline"
           >
             + Dodaj opcję
@@ -216,7 +280,7 @@ export function ExerciseForm({
         <div className="space-y-2">
           <label className="text-sm font-medium">
             Dopuszczalne odpowiedzi *
-            <span className="ml-2 text-xs font-normal text-muted-foreground">
+            <span className="text-muted-foreground ml-2 text-xs font-normal">
               (wpisz wszystkie akceptowalne warianty)
             </span>
           </label>
@@ -226,15 +290,19 @@ export function ExerciseForm({
                 <input
                   type="text"
                   value={key}
-                  onChange={(e) => setFibKey(idx, e.target.value)}
+                  onChange={(e) => {
+                    setFibKey(idx, e.target.value);
+                  }}
                   placeholder={`Odpowiedź ${idx + 1}`}
-                  className="h-8 flex-1 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 flex-1 rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px]"
                 />
                 {fibKeys.length > 1 && (
                   <button
                     type="button"
-                    onClick={() => removeFibKey(idx)}
-                    className="text-xs text-destructive hover:underline"
+                    onClick={() => {
+                      removeFibKey(idx);
+                    }}
+                    className="text-destructive text-xs hover:underline"
                   >
                     Usuń
                   </button>
@@ -244,7 +312,9 @@ export function ExerciseForm({
           </div>
           <button
             type="button"
-            onClick={() => setFibKeys((prev) => [...prev, ""])}
+            onClick={() => {
+              setFibKeys((prev) => [...prev, ""]);
+            }}
             className="text-xs text-blue-600 hover:underline"
           >
             + Dodaj wariant odpowiedzi
@@ -263,7 +333,9 @@ export function ExerciseForm({
                 name="tf_key"
                 value="true"
                 checked={tfKey === "true"}
-                onChange={() => setTfKey("true")}
+                onChange={() => {
+                  setTfKey("true");
+                }}
               />
               Prawda
             </label>
@@ -273,10 +345,81 @@ export function ExerciseForm({
                 name="tf_key"
                 value="false"
                 checked={tfKey === "false"}
-                onChange={() => setTfKey("false")}
+                onChange={() => {
+                  setTfKey("false");
+                }}
               />
               Fałsz
             </label>
+          </div>
+        </div>
+      )}
+
+      {/* Matching pairs */}
+      {type === "matching" && (
+        <div className="space-y-3">
+          <label className="text-sm font-medium">Pary dopasowania *</label>
+          <div className="space-y-2">
+            {pairs.map((pair, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={pair.left}
+                  onChange={(e) => {
+                    setPair(idx, "left", e.target.value);
+                  }}
+                  placeholder={`Lewa ${idx + 1}`}
+                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 flex-1 rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px]"
+                />
+                <span className="text-muted-foreground">↔</span>
+                <input
+                  type="text"
+                  value={pair.right}
+                  onChange={(e) => {
+                    setPair(idx, "right", e.target.value);
+                  }}
+                  placeholder={`Prawa ${idx + 1}`}
+                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 flex-1 rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px]"
+                />
+                {pairs.length > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      removePair(idx);
+                    }}
+                    className="text-destructive text-xs hover:underline"
+                  >
+                    Usuń
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setPairs((prev) => [...prev, { left: "", right: "" }]);
+            }}
+            className="text-xs text-blue-600 hover:underline"
+          >
+            + Dodaj parę
+          </button>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Poprawna mapa (JSON) *</label>
+            <input
+              type="text"
+              value={matchingKeyJson}
+              onChange={(e) => {
+                setMatchingKeyJson(e.target.value);
+              }}
+              placeholder='{"0":"1","1":"0"}'
+              className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px]"
+            />
+            <p className="text-muted-foreground text-xs">
+              Klucz: lewy indeks → prawy indeks, np. {"{"}0:1, 1:0{"}"} oznacza, że lewa 1 pasuje do prawej 2, a lewa 2
+              do prawej 1.
+            </p>
           </div>
         </div>
       )}
@@ -286,13 +429,13 @@ export function ExerciseForm({
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-50"
         >
           {submitting ? "Zapisywanie…" : exerciseId ? "Zapisz zmiany" : "Utwórz ćwiczenie"}
         </button>
         <a
           href={redirectTo}
-          className="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted"
+          className="border-border text-muted-foreground hover:bg-muted inline-flex h-9 items-center rounded-md border px-4 text-sm transition-colors"
         >
           Anuluj
         </a>

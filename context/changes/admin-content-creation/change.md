@@ -1,7 +1,7 @@
 ---
 change_id: admin-content-creation
 title: Admin tworzy i porządkuje treści książki
-status: implemented
+status: impl_reviewed
 created: 2026-06-26
 updated: 2026-06-26
 archived_at: null

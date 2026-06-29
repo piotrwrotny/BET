@@ -31,7 +31,7 @@ Student przygotowujący się do certyfikatu lub egzaminu z języka angielskiego 
 | F-01 | bet-data-foundation | (fundament) schemat (książki, rozdziały, lekcje, ćwiczenia, klucze wariantowe, postęp, role) + RLS rozróżnia admin/student + seed pierwszej książki | — | NFR (postęp nie ulega utracie), Access Control, FR-006..010, FR-024 | done |
 | S-01 | first-lesson-end-to-end | (gwiazda przewodnia) ukończyć pierwszą lekcję od początku do końca: czytać, wykonać multiple-choice, kliknąć „Przeczytano", zobaczyć ukończenie | F-01 | US-01, US-02, FR-011, FR-014, FR-015, FR-017, FR-022, FR-024 | done |
 | S-02 | admin-content-creation | (admin) utworzyć książkę z okładką, dodać rozdziały, dodać lekcje (rich text) i dołączyć ćwiczenia z listą dopuszczalnych wariantów | F-01 | FR-006, FR-007, FR-008, FR-009, FR-010 | implemented |
-| S-03 | admin-user-and-access-mgmt | (admin) utworzyć konto studenta i nadać/odebrać dostęp do konkretnej książki | F-01 | FR-001, FR-002, FR-003 | implemented |
+| S-03 | admin-user-and-access-mgmt | (admin) utworzyć konto studenta i nadać/odebrać dostęp do konkretnej książki | F-01 | FR-001, FR-002, FR-003 | done |
 | S-04 | student-profile-progress | (student) zobaczyć profil z listą ukończonych lekcji i procentem postępu w książce | F-01 | FR-004 | not_started |
 | S-05 | sequential-navigation-and-chapter-completion | (student) nawigować next/prev przez lekcje, dostać agregat „rozdział ukończony" gdy wszystkie lekcje rozdziału ukończone, kliknąć „Kontynuuj naukę" trafić w pierwszą nieukończoną lekcję | F-01, S-01 | FR-012, FR-013, FR-016, FR-017 | implemented |
 | S-06 | closed-exercises-fill-match-truefalse | (student) wykonywać trzy kolejne typy ćwiczeń zamkniętych: uzupełnianie luk, łączenie fraz, prawda/fałsz; admin dodaje je przez UI | F-01, S-01, S-02 | FR-018, FR-019, FR-023 | not_started |
@@ -113,9 +113,9 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
 - **Równolegle z:** S-04
 - **Blokady:** —
 - **Niewiadome:**
-- **Status:** implemented
+- **Status:** done
 
-> Wdrożony w kodzie; czeka na archiwizację. Dawniej oznaczony jako blocked w roadmapie, ale OQ-1 (model rejestracji) zostało rozstrzygnięte i kod został dostarczony.
+> Zarchiwizowano 2026-06-29. Wdrożony w kodzie. Dawniej oznaczony jako blocked, ale OQ-1 zostało rozstrzygnięte.
 
 ### S-04: Student widzi profil z postępem
 
@@ -200,3 +200,4 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
 
 - **F-01: Model danych + role-aware RLS + seed pierwszej książki** — Zarchiwizowano 2026-06-26 → `context/archive/2026-06-25-bet-data-foundation/`. Lekcja: —.
 - **S-01: Student kończy pierwszą lekcję od początku do końca (gwiazda przewodnia)** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-25-first-lesson-end-to-end/`. Lekcja: —.
+- **S-03: Admin zarządza kontami studentów i ich dostępem do książek** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-admin-user-and-access-mgmt/`. Lekcja: —.

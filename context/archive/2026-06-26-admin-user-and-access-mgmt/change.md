@@ -1,8 +1,8 @@
 ---
 id: admin-user-and-access-mgmt
-created: 2026-06-26
-updated: 2026-06-26
-status: implemented
+updated: 2026-06-29
+status: archived
+archived_at: 2026-06-29T11:30:00Z
 ---
 
 # admin-user-and-access-mgmt

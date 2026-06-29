@@ -1,7 +1,7 @@
 ---
 change_id: admin-user-book-access-management
 title: Admin zarządza dostępem studentów do książek
-status: new
+status: impl_reviewed
 created: 2026-06-29
 updated: 2026-06-29
 archived_at: null

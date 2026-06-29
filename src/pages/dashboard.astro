@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
 
 const { user } = Astro.locals;
@@ -19,48 +20,61 @@ let books: BookRow[] = [];
 let chapters: ChapterRow[] = [];
 let completedIds = new Set<string>();
 let chapterProgressRows: ChapterProgressRow[] = [];
+let pageError: string | null = null;
 
-if (supabase) {
-  // 1. Books the student has access to (RLS: own rows only)
-  const { data: bookAccess } = await supabase
-    .from("user_book_access")
-    .select("books(id, title, description, cover_url)");
+if (!supabase) {
+  pageError = "Service unavailable";
+} else {
+  // 1. All books visible through RLS (open access)
+  const { data: booksData, error: booksError } = await supabase
+    .from("books")
+    .select("id, title, description, cover_url")
+    .order("created_at", { ascending: false });
 
-  books = (bookAccess ?? [])
-    .map((row) => row.books as BookRow | null)
-    .filter((b): b is BookRow => b !== null);
+  if (booksError) {
+    pageError = "Nie udało się pobrać listy książek.";
+  } else {
+    books = (booksData ?? []) as BookRow[];
+  }
 
   // 2. All chapters + their lessons ordered by chapter.ord
   //    RLS on chapters filters to accessible books automatically
   //    TODO S-04: replace with single aggregating query
-  const { data: chaptersData } = await supabase
+  const { data: chaptersData, error: chaptersError } = await supabase
     .from("chapters")
     .select("id, book_id, ord, title, lessons(id, ord)")
     .order("ord", { ascending: true });
 
-  chapters = (chaptersData ?? []) as ChapterRow[];
+  if (chaptersError) {
+    pageError = "Nie udało się pobrać struktury kursu.";
+  } else {
+    chapters = (chaptersData ?? []) as ChapterRow[];
+  }
 
   // 3. Completed lesson IDs for this user (RLS: own progress only)
-  const { data: progressRows } = await supabase
-    .from("lesson_progress")
-    .select("lesson_id");
+  const { data: progressRows, error: progressError } = await supabase.from("lesson_progress").select("lesson_id");
 
-  completedIds = new Set((progressRows ?? []).map((p) => p.lesson_id));
+  if (progressError) {
+    pageError = "Nie udało się pobrać postępów.";
+  } else {
+    completedIds = new Set((progressRows ?? []).map((p) => p.lesson_id));
+  }
 
   // 4. Chapter completion progress (view already exists in DB from F-01)
-  const { data: cpData } = await supabase
+  const { data: cpData, error: cpError } = await supabase
     .from("chapter_progress")
     .select("chapter_id, lessons_total, lessons_completed, completed_at");
 
-
-  chapterProgressRows = (cpData ?? []) as ChapterProgressRow[];
+  if (cpError) {
+    pageError = "Nie udało się pobrać postępu rozdziałów.";
+  } else {
+    chapterProgressRows = (cpData ?? []) as ChapterProgressRow[];
+  }
 }
 
 // Compute first unfinished lesson ID per book
 const bookData = books.map((book) => {
-  const bookChapters = chapters
-    .filter((c) => c.book_id === book.id)
-    .sort((a, b) => a.ord - b.ord);
+  const bookChapters = chapters.filter((c) => c.book_id === book.id).sort((a, b) => a.ord - b.ord);
 
   let firstUnfinishedId: string | null = null;
   outer: for (const chapter of bookChapters) {
@@ -77,9 +91,7 @@ const bookData = books.map((book) => {
 });
 
 // Build chapter_id → progress lookup for template
-const chapterProgressMap = Object.fromEntries(
-  chapterProgressRows.map((cp) => [cp.chapter_id, cp]),
-);
+const chapterProgressMap = Object.fromEntries(chapterProgressRows.map((cp) => [cp.chapter_id, cp]));
 ---
 
 <Layout title="Dashboard — BET">
@@ -101,6 +113,7 @@ const chapterProgressMap = Object.fromEntries(
         </form>
       </div>
 
+      {pageError && <ServerError message={pageError} />}
       <!-- Book list -->
       {
         bookData.length === 0 ? (
@@ -110,43 +123,34 @@ const chapterProgressMap = Object.fromEntries(
         ) : (
           <ul class="space-y-4">
             {bookData.map((book) => (
-            <li class="rounded-xl border border-white/10 bg-white/5 p-6">
+              <li class="rounded-xl border border-white/10 bg-white/5 p-6">
                 <div class="mb-3 flex items-start gap-4">
                   {book.cover_url && (
-                    <img
-                      src={book.cover_url}
-                      alt={book.title}
-                      class="h-20 w-14 shrink-0 rounded object-cover"
-                      onerror="this.style.display='none'"
-                    />
+                    <img src={book.cover_url} alt={book.title} class="h-20 w-14 shrink-0 rounded object-cover" />
                   )}
                   <div class="min-w-0">
                     <h2 class="mb-1 text-lg font-semibold text-white">{book.title}</h2>
-                    {book.description && (
-                      <p class="text-sm text-slate-400">{book.description}</p>
-                    )}
+                    {book.description && <p class="text-sm text-slate-400">{book.description}</p>}
                   </div>
                 </div>
                 {/* Chapter list with progress */}
                 {(() => {
-                  const bookChapters = chapters
-                    .filter((c) => c.book_id === book.id)
-                    .sort((a, b) => a.ord - b.ord);
+                  const bookChapters = chapters.filter((c) => c.book_id === book.id).sort((a, b) => a.ord - b.ord);
                   return bookChapters.length > 0 ? (
                     <ul class="mb-4 space-y-1.5">
                       {bookChapters.map((ch) => {
                         const cp = chapterProgressMap[ch.id];
-                        const chDone = !!(cp?.completed_at);
+                        const chDone = !!cp?.completed_at;
                         return (
                           <li class="flex items-center justify-between text-sm">
                             <span class="text-slate-300">{ch.title}</span>
-                            <span class="flex items-center gap-2 shrink-0 ml-4">
+                            <span class="ml-4 flex shrink-0 items-center gap-2">
                               {cp && (
-                                <span class="text-slate-500 text-xs">
+                                <span class="text-xs text-slate-500">
                                   {cp.lessons_completed}/{cp.lessons_total} lekcji
                                 </span>
                               )}
-                              {chDone && <span class="text-emerald-400 text-xs">✓</span>}
+                              {chDone && <span class="text-xs text-emerald-400">✓</span>}
                             </span>
                           </li>
                         );
@@ -162,9 +166,7 @@ const chapterProgressMap = Object.fromEntries(
                     Kontynuuj naukę →
                   </a>
                 ) : (
-                  <p class="text-sm font-medium text-emerald-400">
-                    ✓ Gratulacje, książka ukończona!
-                  </p>
+                  <p class="text-sm font-medium text-emerald-400">✓ Gratulacje, książka ukończona!</p>
                 )}
               </li>
             ))}

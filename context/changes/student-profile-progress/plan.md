@@ -172,33 +172,33 @@ Create `tests/e2e/student-profile.spec.ts` using the `student` storage state.
 ### Phase 1: Route + middleware + data fetching
 
 #### Automated
-- [ ] 1.1 `src/pages/student/profile.astro` created with server-side data fetching.
-- [ ] 1.2 `src/middleware.ts` updated to include `"/student"` in `PROTECTED_ROUTES`.
-- [ ] 1.3 `npx tsc --noEmit` passes.
-- [ ] 1.4 `npm run build` passes.
+- [x] 1.1 `src/pages/student/profile.astro` created with server-side data fetching. — d0b5ff8
+- [x] 1.2 `src/middleware.ts` updated to include `"/student"` in `PROTECTED_ROUTES`. — d0b5ff8
+- [x] 1.3 `npx tsc --noEmit` passes. — d0b5ff8
+- [x] 1.4 `npm run build` passes. — d0b5ff8
 
 #### Manual
-- [ ] 1.5 Signed-in user can open `/student/profile` without error.
-- [ ] 1.6 Anonymous user is redirected to `/auth/signin` from `/student/profile`.
+- [x] 1.5 Signed-in user can open `/student/profile` without error. — d0b5ff8
+- [x] 1.6 Anonymous user is redirected to `/auth/signin` from `/student/profile`. — d0b5ff8
 
 ### Phase 2: UI components + navigation links
 
 #### Automated
-- [ ] 2.1 `npm run build` passes with the profile UI.
-- [ ] 2.2 `Topbar.astro` renders the "Profil" link.
+- [x] 2.1 `npm run build` passes with the profile UI. — 57f92a6
+- [x] 2.2 `Topbar.astro` renders the "Profil" link. — 57f92a6
 
 #### Manual
-- [ ] 2.3 Profile page shows user email and all books.
-- [ ] 2.4 Per-book and per-chapter percentages are correct.
-- [ ] 2.5 Completed lessons render as links to `/lessons/{id}`.
-- [ ] 2.6 Completed books show the completion message.
+- [x] 2.3 Profile page shows user email and all books. — 57f92a6
+- [x] 2.4 Per-book and per-chapter percentages are correct. — 57f92a6
+- [x] 2.5 Completed lessons render as links to `/lessons/{id}`. — 57f92a6
+- [x] 2.6 Completed books show the completion message. — 57f92a6
 
 ### Phase 3: E2E tests + verification
 
 #### Automated
-- [ ] 3.1 `tests/e2e/student-profile.spec.ts` created with all required cases.
-- [ ] 3.2 `npx playwright test tests/e2e/student-profile.spec.ts` passes.
+- [x] 3.1 `tests/e2e/student-profile.spec.ts` created with all required cases. — a00254e
+- [x] 3.2 `npx playwright test tests/e2e/student-profile.spec.ts` passes. — a00254e
 
 #### Manual
-- [ ] 3.3 Profile link in topbar navigates to `/student/profile`.
-- [ ] 3.4 A completed-lesson link navigates to the correct lesson page.
+- [x] 3.3 Profile link in topbar navigates to `/student/profile`. — a00254e
+- [x] 3.4 A completed-lesson link navigates to the correct lesson page. — a00254e

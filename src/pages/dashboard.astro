@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { ServerError } from "@/components/auth/ServerError";
+import SafeImage from "@/components/ui/SafeImage.astro";
 import { createClient } from "@/lib/supabase";
 
 const { user } = Astro.locals;
@@ -40,35 +41,41 @@ if (!supabase) {
   // 2. All chapters + their lessons ordered by chapter.ord
   //    RLS on chapters filters to accessible books automatically
   //    TODO S-04: replace with single aggregating query
-  const { data: chaptersData, error: chaptersError } = await supabase
-    .from("chapters")
-    .select("id, book_id, ord, title, lessons(id, ord)")
-    .order("ord", { ascending: true });
+  if (!pageError) {
+    const { data: chaptersData, error: chaptersError } = await supabase
+      .from("chapters")
+      .select("id, book_id, ord, title, lessons(id, ord)")
+      .order("ord", { ascending: true });
 
-  if (chaptersError) {
-    pageError = "Nie udało się pobrać struktury kursu.";
-  } else {
-    chapters = (chaptersData ?? []) as ChapterRow[];
+    if (chaptersError) {
+      pageError = "Nie udało się pobrać struktury kursu.";
+    } else {
+      chapters = (chaptersData ?? []) as ChapterRow[];
+    }
   }
 
   // 3. Completed lesson IDs for this user (RLS: own progress only)
-  const { data: progressRows, error: progressError } = await supabase.from("lesson_progress").select("lesson_id");
+  if (!pageError) {
+    const { data: progressRows, error: progressError } = await supabase.from("lesson_progress").select("lesson_id");
 
-  if (progressError) {
-    pageError = "Nie udało się pobrać postępów.";
-  } else {
-    completedIds = new Set((progressRows ?? []).map((p) => p.lesson_id));
+    if (progressError) {
+      pageError = "Nie udało się pobrać postępów.";
+    } else {
+      completedIds = new Set((progressRows ?? []).map((p) => p.lesson_id));
+    }
   }
 
   // 4. Chapter completion progress (view already exists in DB from F-01)
-  const { data: cpData, error: cpError } = await supabase
-    .from("chapter_progress")
-    .select("chapter_id, lessons_total, lessons_completed, completed_at");
+  if (!pageError) {
+    const { data: cpData, error: cpError } = await supabase
+      .from("chapter_progress")
+      .select("chapter_id, lessons_total, lessons_completed, completed_at");
 
-  if (cpError) {
-    pageError = "Nie udało się pobrać postępu rozdziałów.";
-  } else {
-    chapterProgressRows = (cpData ?? []) as ChapterProgressRow[];
+    if (cpError) {
+      pageError = "Nie udało się pobrać postępu rozdziałów.";
+    } else {
+      chapterProgressRows = (cpData ?? []) as ChapterProgressRow[];
+    }
   }
 }
 
@@ -125,9 +132,11 @@ const chapterProgressMap = Object.fromEntries(chapterProgressRows.map((cp) => [c
             {bookData.map((book) => (
               <li class="rounded-xl border border-white/10 bg-white/5 p-6">
                 <div class="mb-3 flex items-start gap-4">
-                  {book.cover_url && (
-                    <img src={book.cover_url} alt={book.title} class="h-20 w-14 shrink-0 rounded object-cover" />
-                  )}
+                  <SafeImage
+                    src={book.cover_url}
+                    alt={book.title}
+                    class="h-20 w-14 shrink-0 rounded object-cover"
+                  />
                   <div class="min-w-0">
                     <h2 class="mb-1 text-lg font-semibold text-white">{book.title}</h2>
                     {book.description && <p class="text-sm text-slate-400">{book.description}</p>}

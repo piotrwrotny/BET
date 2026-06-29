@@ -4,8 +4,8 @@
 - **Plan**: `context/changes/sequential-navigation-and-chapter-completion/plan.md`
 - **Zakres**: Pełny plan (Faza 1 + Faza 2)
 - **Data**: 2026-06-29
-- **Werdykt**: NEEDS ATTENTION
-- **Ustalenia**: 0 krytycznych, 6 ostrzeżeń, 1 obserwacja
+- **Werdykt**: APPROVED (after fixes)
+- **Ustalenia**: 0 krytycznych, 6 ostrzeżeń, 1 obserwacja — wszystkie naprawione
 
 ## Werdykty
 
@@ -39,7 +39,7 @@
   - Kompromis: Kosmetyczna zmiana szablonu; wymaga drobnego przesunięcia elementów.
   - Pewność: HIGH — plan zawiera dokładny kod docelowy.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Restrukturyzowano nagłówek do jednego inline paska zgodnie z kontraktem planu; dodano wykrzyknik do badge; cross-chapter labels renderowane inline.
 
 ### F2 — Brak walidacji UUID w parametrze trasowania lekcji
 
@@ -53,7 +53,7 @@
   - Kompromis: Dodatkowa linia walidacji w frontmatterze.
   - Pewność: HIGH — w repo istnieje już `uuidSchema` w `src/lib/utils.ts`.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Dodano walidację `Astro.params.id` za pomocą `uuidSchema` z `src/lib/utils.ts`; nieprawidłowe UUID przekierowuje na `/dashboard?error=...`.
 
 ### F3 — Brak obsługi błędów w zapytaniach nawigacyjnych i progress
 
@@ -67,7 +67,7 @@
   - Kompromis: Więcej kodu obsługi błędów w frontmatterze.
   - Pewność: HIGH — wzorzec `ServerError` jest już używany na dashboardzie i stronach admina.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Dodano sprawdzanie `error` dla zapytań o lekcję, rodzeństwo, poprzedni/następny rozdział oraz `chapter_progress`; błędy powodują przekierowanie na `/dashboard?error=...`.
 
 ### F4 — Nieoptymalne zapytanie cross-chapter pobiera wszystkie lekcje sąsiedniego rozdziału
 
@@ -81,7 +81,7 @@
   - Kompromis: Wymaga dwóch zapytań (chapter + lesson) zamiast jednego osadzonego; nadal warunkowe tylko na granicach.
   - Pewność: HIGH — RLS na `lessons` jest już skonfigurowane.
   - Martwy punkt: Nie mierzono rzeczywistego wpływu wydajnościowego.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Zastąpiono osadzoną relację `lessons` w query `chapters` bezpośrednim zapytaniem do tabeli `lessons` z `eq('chapter_id', ...)`, `order('ord', ...)` i `limit(1)`.
 
 ### F5 — Dashboard nadpisuje `pageError` i kontynuuje zapytania po błędzie
 
@@ -100,7 +100,7 @@
   - Kompromis: Więcej kodu, mniej konsekwentny z resztą aplikacji.
   - Pewność: MEDIUM — wymaga dodatkowej struktury danych.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED (Poprawka A) — Zmieniono dashboard na wzorzec fail-fast: kolejne zapytania wykonywane są tylko gdy `!pageError`.
 
 ### F6 — `book.cover_url` renderowany bez walidacji schematu URL
 
@@ -114,7 +114,7 @@
   - Kompromis: Drobnna zmiana w szablonie / frontmatterze.
   - Pewność: HIGH — wzorzec walidacji URL już istnieje w admin API.
   - Martwy punkt: Brak znaczących.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Utworzono komponent `src/components/ui/SafeImage.astro` walidujący protokół URL (`http:`/`https:`) i renderujący placeholder dla nieprawidłowych adresów; zastosowano go w dashboardzie.
 
 ### F7 — `marked.parse` rzutowane na string bez obsługi async
 
@@ -128,4 +128,4 @@
   - Kompromis: Minimalna zmiana; `marked.parse` w wersji synchronicznej zwraca string lub Promise w zależności od opcji.
   - Pewność: MEDIUM — zależy od wersji `marked` i przyszłych rozszerzeń.
   - Martwy punkt: Nie sprawdzono dokładnej wersji `marked`.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — Zmieniono `marked.parse(...)` na `await marked.parse(...)` dla bezpiecznej obsługi ewentualnych przyszłych rozszerzeń asynchronicznych.

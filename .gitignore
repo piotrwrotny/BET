@@ -1,4 +1,5 @@
 .github/skills
+.omp/skills/
 # build output
 dist/
 

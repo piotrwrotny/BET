@@ -9,7 +9,7 @@ tags: [research, codebase, admin, user-management, access-control, tanstack-tabl
 status: complete
 last_updated: 2026-06-26
 last_updated_by: AI Researcher
-last_updated_note: "Dodano badania uzupełniające dla multi-book assignment UX/API"
+last_updated_note: "Dodano badania uzupełniające dla 2 błędów: student scope + listUsers cutoff"
 ---
 
 # Badanie: Implementacja S-03 admin-user-and-access-mgmt
@@ -348,3 +348,67 @@ W tej sesji nie było aktywnego narzędzia Exa, więc użyto `web_search` jako z
 ### Wniosek implementacyjny
 
 Obecny bug nie wynika z RLS ani Supabase, tylko z kontraktu UI/API ustawionego jako single-book. Najbezpieczniejsza korekta dla BET: **shadcn multi-combobox + granular revoke(book_id)**, bez zmiany schematu DB.
+
+## Badania uzupełniające 2026-06-26T15:20:00+02:00
+
+### Zakres pytania
+
+Badanie dotyczy 2 błędów w S-03:
+1. Lista `/admin/users` zawiera też adminów, a nie tylko studentów.
+2. `listUsers()` może cicho ucinać dane do 50 rekordów.
+
+### Źródła (Exa + Context7)
+
+- W tej sesji brak aktywnego narzędzia Exa/Eva; użyto fallback `web_search`.
+- Context7 użyte do potwierdzenia API i wzorców:
+  - Supabase `auth.admin.listUsers` + paginacja (`page`, `perPage`; domyślnie 50),
+  - TanStack Table manual server pagination (`manualPagination`, `rowCount`).
+- Web fallback potwierdził:
+  - Supabase docs `auth-admin-listusers`,
+  - historyczne issue/PR o limicie 50 i paginacji (`supabase/auth-js` #538, PR #537, #544).
+
+### Błąd 1: w tabeli pojawiają się admini
+
+#### Root cause (kod)
+
+- `src/lib/services/user-admin.ts:43-44` bierze wszystkich auth users z emailem, bez filtra roli.
+- `src/lib/services/user-admin.ts:85-93` zwraca pełną listę 1:1 do UI/API.
+- `src/pages/admin/users.astro:27` i `src/pages/api/admin/users.ts:12` używają tego wyniku bez dodatkowego filtra.
+
+#### Skutek
+
+- UI do zarządzania studentami pokazuje też konta admin.
+- Noise w panelu i ryzyko błędnej operacji operatorskiej.
+
+#### Najlepsze podejście
+
+**Service-layer scoping (rekomendacja):**
+- dodać `getStudentsWithAccess()` albo parametr `role: "student"` w serwisie,
+- użyć tego samego scopu w `.astro` i API route,
+- nie duplikować filtra po konsumentach.
+
+### Błąd 2: ciche ucięcie listy użytkowników do 50
+
+#### Root cause (kod)
+
+- `src/lib/services/user-admin.ts:38` wywołuje `auth.admin.listUsers()` bez parametrów paginacji.
+- `src/pages/api/admin/users.ts:14-15` ma tylko `console.warn` przy `>=50`, nie blokuje odpowiedzi.
+- `src/pages/admin/users.astro:27` omija nawet ten warning, bo woła serwis bezpośrednio.
+
+#### Skutek
+
+- Dane mogą być niepełne przy 51+ kontach.
+- UI wygląda poprawnie, ale pokazuje ucięty zbiór.
+
+#### Najlepsze podejście
+
+**Paginated fetch w serwisie (rekomendacja):**
+- w `getAllUsersWithAccess()` iterować po stronach (`page`, `perPage`) aż pusta strona,
+- składać pełną listę przed joinami ról/dostępów,
+- warning zostawić jako telemetria, nie jako mechanizm poprawności.
+
+**Alternatywa szybka (gorsza):** `perPage: 1000` jednorazowo. Działa teraz, pęka przy dalszym wzroście.
+
+### Wniosek
+
+Oba błędy są kontraktowe (service contract), nie infrastrukturalne. Poprawka powinna siedzieć w `src/lib/services/user-admin.ts`, potem konsumenci (`/admin/users.astro`, `/api/admin/users.ts`) dziedziczą poprawne zachowanie bez rozjazdu.

@@ -30,7 +30,7 @@ Student przygotowujący się do certyfikatu lub egzaminu z języka angielskiego 
 |---|---|---|---|---|---|
 | F-01 | bet-data-foundation | (fundament) schemat (książki, rozdziały, lekcje, ćwiczenia, klucze wariantowe, postęp, role) + RLS rozróżnia admin/student + seed pierwszej książki | — | NFR (postęp nie ulega utracie), Access Control, FR-006..010, FR-024 | done |
 | S-01 | first-lesson-end-to-end | (gwiazda przewodnia) ukończyć pierwszą lekcję od początku do końca: czytać, wykonać multiple-choice, kliknąć „Przeczytano", zobaczyć ukończenie | F-01 | US-01, US-02, FR-011, FR-014, FR-015, FR-017, FR-022, FR-024 | done |
-| S-02 | admin-content-creation | (admin) utworzyć książkę z okładką, dodać rozdziały, dodać lekcje (rich text) i dołączyć ćwiczenia z listą dopuszczalnych wariantów | F-01 | FR-006, FR-007, FR-008, FR-009, FR-010 | implemented |
+| S-02 | admin-content-creation | (admin) utworzyć książkę z okładką, dodać rozdziały, dodać lekcje (rich text) i dołączyć ćwiczenia z listą dopuszczalnych wariantów | F-01 | FR-006, FR-007, FR-008, FR-009, FR-010 | done |
 | S-03 | admin-user-and-access-mgmt | (admin) utworzyć konto studenta i nadać/odebrać dostęp do konkretnej książki | F-01 | FR-001, FR-002, FR-003 | done |
 | S-04 | student-profile-progress | (student) zobaczyć profil z listą ukończonych lekcji i procentem postępu w książce | F-01 | FR-004 | not_started |
 | S-05 | sequential-navigation-and-chapter-completion | (student) nawigować next/prev przez lekcje, dostać agregat „rozdział ukończony" gdy wszystkie lekcje rozdziału ukończone, kliknąć „Kontynuuj naukę" trafić w pierwszą nieukończoną lekcję | F-01, S-01 | FR-012, FR-013, FR-016, FR-017 | implemented |
@@ -100,7 +100,7 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
   - Wybór rich text edytora (Tiptap, Lexical, prosty textarea + Markdown z podglądem) — Właściciel: tech lead w `/10x-plan`. Blokada: nie.
   - Upload okładki książki (Supabase Storage vs publiczny URL na start) — Właściciel: tech lead. Blokada: nie.
 - **Ryzyko:** wybór rich text edytora ma długi ogon konsekwencji (bundle size, hydration, edycja vs render), ale jest izolowany do warstwy admina — nie kontaminuje S-01 render-only path, który może czytać HTML/Markdown bez edytora.
-- **Status:** implemented
+- **Status:** done
 
 > Wdrożony w kodzie; czeka na archiwizację.
 
@@ -200,4 +200,5 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
 
 - **F-01: Model danych + role-aware RLS + seed pierwszej książki** — Zarchiwizowano 2026-06-26 → `context/archive/2026-06-25-bet-data-foundation/`. Lekcja: —.
 - **S-01: Student kończy pierwszą lekcję od początku do końca (gwiazda przewodnia)** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-25-first-lesson-end-to-end/`. Lekcja: —.
+- **S-02: Admin tworzy i porządkuje treści książki** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-admin-content-creation/`. Lekcja: —.
 - **S-03: Admin zarządza kontami studentów i ich dostępem do książek** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-admin-user-and-access-mgmt/`. Lekcja: —.

@@ -51,12 +51,10 @@ type Exercise = {
   payload: Record<string, unknown>;
   ord: number;
 };
-const exercises = ([...(lesson.exercises ?? [])] as Exercise[]).sort(
-  (a, b) => a.ord - b.ord,
-);
+const exercises = ([...(lesson.exercises ?? [])] as Exercise[]).sort((a, b) => a.ord - b.ord);
 
-// S-01: only multiple_choice is interactive; other closed types unblocked until S-06/S-07
-const closedExerciseCount = exercises.filter((e) => e.type === "multiple_choice").length;
+// S-06: every exercise except open_ended is closed and must be solved to complete the lesson
+const closedExerciseCount = exercises.filter((e) => e.type !== "open_ended").length;
 
 // Check if already completed
 const { data: progressRow } = await supabase
@@ -67,16 +65,16 @@ const { data: progressRow } = await supabase
 
 const isAlreadyCompleted = progressRow !== null;
 
-// For review mode: fetch correct answers server-side so completed MC exercises
-// can highlight the correct option. Keys never reach the client before completion.
+// For review mode: fetch correct answers server-side for all closed exercises.
+// Keys never reach the client before completion.
 let correctAnswers: Record<string, string> = {};
 if (isAlreadyCompleted) {
-  const mcIds = exercises.filter((e) => e.type === "multiple_choice").map((e) => e.id);
-  if (mcIds.length > 0) {
+  const closedIds = exercises.filter((e) => e.type !== "open_ended").map((e) => e.id);
+  if (closedIds.length > 0) {
     const { data: keys } = await supabase
       .from("exercise_keys")
       .select("exercise_id, key_text, key_metadata")
-      .in("exercise_id", mcIds);
+      .in("exercise_id", closedIds);
     for (const k of keys ?? []) {
       const isRefOnly = (k.key_metadata as Record<string, unknown> | null)?.is_reference_only === true;
       if (!isRefOnly && !correctAnswers[k.exercise_id as string]) {
@@ -113,13 +111,10 @@ const currentIdx = sibs.findIndex((s) => s.id === lesson.id);
 
 type NavLesson = { id: string; title: string; crossChapterTitle?: string } | null;
 
-let prevLesson: NavLesson =
-  currentIdx > 0 ? { id: sibs[currentIdx - 1].id, title: sibs[currentIdx - 1].title } : null;
+let prevLesson: NavLesson = currentIdx > 0 ? { id: sibs[currentIdx - 1].id, title: sibs[currentIdx - 1].title } : null;
 
 let nextLesson: NavLesson =
-  currentIdx < sibs.length - 1
-    ? { id: sibs[currentIdx + 1].id, title: sibs[currentIdx + 1].title }
-    : null;
+  currentIdx < sibs.length - 1 ? { id: sibs[currentIdx + 1].id, title: sibs[currentIdx + 1].title } : null;
 
 // Cross-chapter boundary: only query when at first/last lesson of chapter
 if (!prevLesson && chapter && !pageError) {
@@ -189,7 +184,7 @@ if (chapterProgressError) {
   pageError = "Nie udało się pobrać postępu rozdziału.";
 }
 
-const isChapterCompleted = !!(chapterProgress?.completed_at);
+const isChapterCompleted = !!chapterProgress?.completed_at;
 
 if (pageError) {
   return Astro.redirect(`/dashboard?error=${encodeURIComponent(pageError)}`);
@@ -203,38 +198,44 @@ if (pageError) {
       <div class="mx-auto flex max-w-3xl items-center justify-between gap-4">
         <!-- Left: back + prev -->
         <div class="flex items-center gap-4 text-sm text-slate-400">
-          <a href="/dashboard" class="hover:text-white transition-colors">← Dashboard</a>
-          {prevLesson && (
-            <a href={`/lessons/${prevLesson.id}`} class="hover:text-white transition-colors">
-              {prevLesson.crossChapterTitle ? (
-                <>← <span class="text-slate-500">{prevLesson.crossChapterTitle}:</span> {prevLesson.title}</>
-              ) : (
-                <>← {prevLesson.title}</>
-              )}
-            </a>
-          )}
+          <a href="/dashboard" class="transition-colors hover:text-white">← Dashboard</a>
+          {
+            prevLesson && (
+              <a href={`/lessons/${prevLesson.id}`} class="transition-colors hover:text-white">
+                {prevLesson.crossChapterTitle ? (
+                  <>
+                    ← <span class="text-slate-500">{prevLesson.crossChapterTitle}:</span> {prevLesson.title}
+                  </>
+                ) : (
+                  <>← {prevLesson.title}</>
+                )}
+              </a>
+            )
+          }
         </div>
         <!-- Right: badges + next -->
         <div class="flex items-center gap-3 text-sm">
-          {isChapterCompleted && (
-            <span class="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-400">
-              ✓ Rozdział ukończony!
-            </span>
-          )}
-          {isAlreadyCompleted && (
-            <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-medium text-emerald-400">
-              ✓ Ukończona
-            </span>
-          )}
-          {nextLesson && (
-            <a href={`/lessons/${nextLesson.id}`} class="text-slate-400 hover:text-white transition-colors">
-              {nextLesson.crossChapterTitle ? (
-                <>{nextLesson.crossChapterTitle} →</>
-              ) : (
-                <>{nextLesson.title} →</>
-              )}
-            </a>
-          )}
+          {
+            isChapterCompleted && (
+              <span class="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-400">
+                ✓ Rozdział ukończony!
+              </span>
+            )
+          }
+          {
+            isAlreadyCompleted && (
+              <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-medium text-emerald-400">
+                ✓ Ukończona
+              </span>
+            )
+          }
+          {
+            nextLesson && (
+              <a href={`/lessons/${nextLesson.id}`} class="text-slate-400 transition-colors hover:text-white">
+                {nextLesson.crossChapterTitle ? <>{nextLesson.crossChapterTitle} →</> : <>{nextLesson.title} →</>}
+              </a>
+            )
+          }
         </div>
       </div>
     </header>
@@ -275,17 +276,30 @@ if (pageError) {
     margin-top: 1.5em;
     margin-bottom: 0.5em;
   }
-  .lesson-content h2 { font-size: 1.4rem; }
-  .lesson-content h3 { font-size: 1.15rem; }
-  .lesson-content p { margin-bottom: 1em; }
-  .lesson-content strong { color: #fff; font-weight: 600; }
-  .lesson-content em { color: rgb(186 230 253); /* sky-200 */ }
+  .lesson-content h2 {
+    font-size: 1.4rem;
+  }
+  .lesson-content h3 {
+    font-size: 1.15rem;
+  }
+  .lesson-content p {
+    margin-bottom: 1em;
+  }
+  .lesson-content strong {
+    color: #fff;
+    font-weight: 600;
+  }
+  .lesson-content em {
+    color: rgb(186 230 253); /* sky-200 */
+  }
   .lesson-content ul,
   .lesson-content ol {
     padding-left: 1.5em;
     margin-bottom: 1em;
   }
-  .lesson-content li { margin-bottom: 0.25em; }
+  .lesson-content li {
+    margin-bottom: 0.25em;
+  }
   .lesson-content code {
     background: rgb(30 41 59); /* slate-800 */
     border-radius: 4px;

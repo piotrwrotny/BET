@@ -1,13 +1,16 @@
 import { useState } from "react";
 import MultipleChoiceExercise from "./MultipleChoiceExercise";
+import FillInBlankExercise from "./FillInBlankExercise";
+import TrueFalseExercise from "./TrueFalseExercise";
+import MatchingExercise from "./MatchingExercise";
 
-type Exercise = {
+interface Exercise {
   id: string;
   type: string;
   prompt: string;
   payload: Record<string, unknown>;
   ord: number;
-};
+}
 
 interface Props {
   lessonId: string;
@@ -49,40 +52,59 @@ export default function LessonInteractive({
     }
   }
 
+  function renderExercise(ex: Exercise) {
+    const commonProps = {
+      exercise: ex as never,
+      onCorrect: handleCorrect,
+      disabled: isCompleted,
+      initialCorrectAnswer: correctAnswers[ex.id],
+    };
+
+    switch (ex.type) {
+      case "multiple_choice":
+        return (
+          <MultipleChoiceExercise
+            key={ex.id}
+            exercise={ex as unknown as { id: string; prompt: string; payload: { options: string[] } }}
+            onCorrect={handleCorrect}
+            disabled={isCompleted}
+            initialCorrectAnswer={correctAnswers[ex.id]}
+          />
+        );
+      case "fill_in_blank":
+        return <FillInBlankExercise key={ex.id} {...commonProps} />;
+      case "true_false":
+        return <TrueFalseExercise key={ex.id} {...commonProps} />;
+      case "matching":
+        return (
+          <MatchingExercise
+            key={ex.id}
+            exercise={
+              ex as unknown as { id: string; prompt: string; payload: { pairs: { left: string; right: string }[] } }
+            }
+            onCorrect={handleCorrect}
+            disabled={isCompleted}
+            initialCorrectAnswer={correctAnswers[ex.id]}
+          />
+        );
+      default:
+        // sentence_transformation / open_ended placeholders until S-07
+        return (
+          <div key={ex.id} className="rounded-xl border border-white/10 bg-white/5 p-5">
+            <p className="mb-1 font-medium text-white">{ex.prompt}</p>
+            <p className="text-xs text-slate-500">[{ex.type}] — interaktywność dostępna wkrótce.</p>
+          </div>
+        );
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Exercises */}
       {exercises.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-white">Ćwiczenia</h2>
-          {exercises.map((ex) => {
-            if (ex.type === "multiple_choice") {
-              return (
-                <MultipleChoiceExercise
-                  key={ex.id}
-                  exercise={
-                    ex as unknown as {
-                      id: string;
-                      prompt: string;
-                      payload: { options: string[] };
-                    }
-                  }
-                  onCorrect={handleCorrect}
-                  disabled={isCompleted}
-                  initialCorrectAnswer={correctAnswers[ex.id]}
-                />
-              );
-            }
-            // Other types — placeholder until S-06/S-07
-            return (
-              <div key={ex.id} className="rounded-xl border border-white/10 bg-white/5 p-5">
-                <p className="mb-1 font-medium text-white">{ex.prompt}</p>
-                <p className="text-xs text-slate-500">
-                  [{ex.type}] — interaktywność dostępna wkrótce.
-                </p>
-              </div>
-            );
-          })}
+          {exercises.map((ex) => renderExercise(ex))}
         </div>
       )}
 

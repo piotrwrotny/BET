@@ -190,20 +190,20 @@ insert into public.exercises (id, lesson_id, type, prompt, payload, ord) values
    '{"options": ["A: went", "B: gone", "C: going", "D: go"]}'::jsonb,
    0),
 
-  -- 3.2 Fill-in-blank (FR-018) — lesson_1_2
+  -- 3.2 Multiple-choice (FR-022) — lesson_1_2
   ('00000000-0000-0000-0000-000000000041',
    '00000000-0000-0000-0000-000000000031',
-   'fill_in_blank',
+   'multiple_choice',
    'Complete the sentence.',
-   '{"template": "Yesterday I ___ to the cinema."}'::jsonb,
+   '{"options": ["went", "have gone", "go", "going"]}'::jsonb,
    0),
 
-  -- 3.3 True/false (FR-023) — lesson_2_1
+  -- 3.3 Multiple-choice (FR-022) — lesson_2_1
   ('00000000-0000-0000-0000-000000000042',
    '00000000-0000-0000-0000-000000000033',
-   'true_false',
+   'multiple_choice',
    'The Present Perfect describes actions that started in the past and continue into the present.',
-   '{}'::jsonb,
+   '{"options": ["True", "False"]}'::jsonb,
    0),
 
   -- 3.4 Sentence transformation (FR-020) — lesson_2_2, ord 0
@@ -229,13 +229,10 @@ insert into public.exercise_keys (id, exercise_id, key_text, key_metadata, ord) 
    '00000000-0000-0000-0000-000000000040',
    'A: went', null, 0),
 
-  -- 3.2 fill_in_blank: 2 acceptable variants
+  -- 3.2 MC: single correct option
   ('00000000-0000-0000-0000-000000000051',
    '00000000-0000-0000-0000-000000000041',
    'went', null, 0),
-  ('00000000-0000-0000-0000-000000000052',
-   '00000000-0000-0000-0000-000000000041',
-   'have gone', null, 1),
   ('00000000-0000-0000-0000-000000000054',
    '00000000-0000-0000-0000-000000000042',
    'true', null, 0),

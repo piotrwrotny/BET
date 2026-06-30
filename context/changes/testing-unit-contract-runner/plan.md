@@ -304,13 +304,13 @@ Uruchomić pełną weryfikację i zaktualizować cookbook w `context/foundation/
 
 #### Automatyczne
 
-- [ ] 1.1 Zainstalować `vitest` i `@vitest/coverage-v8`
-- [ ] 1.2 Dodać skrypty `test`, `test:unit`, `test:coverage`, `test:watch`
-- [ ] 1.3 Utworzyć `vitest.config.ts`
+- [x] 1.1 Zainstalować `vitest` i `@vitest/coverage-v8`
+- [x] 1.2 Dodać skrypty `test`, `test:unit`, `test:coverage`, `test:watch`
+- [x] 1.3 Utworzyć `vitest.config.ts`
 
 #### Ręczne
 
-- [ ] 1.4 Zweryfikować, że Playwright pozostaje niezależny
+- [x] 1.4 Zweryfikować, że Playwright pozostaje niezależny
 
 ### Faza 2: Wyodrębnienie logiki weryfikacji
 

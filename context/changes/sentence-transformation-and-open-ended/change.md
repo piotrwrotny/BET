@@ -1,7 +1,7 @@
 ---
 change_id: sentence-transformation-and-open-ended
 title: Sentence transformation and open-ended exercises
-status: implementing
+status: implemented
 created: 2026-06-30
 updated: 2026-06-30
 archived_at: null

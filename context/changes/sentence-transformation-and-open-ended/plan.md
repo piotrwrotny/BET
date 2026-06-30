@@ -357,12 +357,12 @@ Nie wymagana migracja bazy danych. Istniejące rekordy `sentence_transformation`
 
 #### Automatyczne
 
-- [x] 4.1 `tests/e2e/sentence-transformation-and-open-ended.spec.ts` utworzony
-- [x] 4.2 Nowy spec przechodzi
-- [x] 4.3 Pełny zestaw `npx playwright test tests/e2e/` przechodzi
-- [x] 4.4 `npm run typecheck` i `npm run lint` przechodzą
+- [x] 4.1 `tests/e2e/sentence-transformation-and-open-ended.spec.ts` utworzony — ba60086
+- [x] 4.2 Nowy spec przechodzi — ba60086
+- [x] 4.3 Pełny zestaw `npx playwright test tests/e2e/` przechodzi — ba60086
+- [x] 4.4 `npm run typecheck` i `npm run lint` przechodzą — ba60086
 
 #### Ręczne
 
-- [x] 4.5 Lekcja `lesson_2_2` z seedu renderuje oba typy poprawnie
-- [x] 4.6 `open_ended` w seedzie nie blokuje ukończenia lekcji
+- [x] 4.5 Lekcja `lesson_2_2` z seedu renderuje oba typy poprawnie — ba60086
+- [x] 4.6 `open_ended` w seedzie nie blokuje ukończenia lekcji — ba60086

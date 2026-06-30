@@ -409,51 +409,59 @@ Aktualizujemy dane startowe i dodajemy testy Playwright pokrywające pełen cykl
 
 ### Faza 1: Schema/types + admin API validation + ExerciseForm matching branch
 
+**Commit**: `0680049`
+
 #### Automatyczne
 
-- [ ] 1.1 `npm run lint` przechodzi po zmianach typów i schematów
-- [ ] 1.2 `npm run build` przechodzi po aktualizacji admin API
-- [ ] 1.3 Testy API ręcznie potwierdzają odrzucanie nieobsługiwanych typów i błędnego matchingu
+- [x] 1.1 `npm run lint` przechodzi po zmianach typów i schematów
+- [x] 1.2 `npm run build` przechodzi po aktualizacji admin API
+- [x] 1.3 Testy API ręcznie potwierdzają odrzucanie nieobsługiwanych typów i błędnego matchingu
 
 #### Ręczne
 
-- [ ] 1.4 Admin może dodać ćwiczenie matching z ≥2 parami
-- [ ] 1.5 Admin może edytować istniejące ćwiczenie matching
-- [ ] 1.6 FIB i T/F działają w adminie bez regresji
+- [x] 1.4 Admin może dodać ćwiczenie matching z ≥2 parami
+- [x] 1.5 Admin może edytować istniejące ćwiczenie matching
+- [x] 1.6 FIB i T/F działają w adminie bez regresji
 
 ### Faza 2: Student renderers + LessonInteractive dispatcher + closedExerciseCount fix
 
+**Commit**: `abb45e6`
+
 #### Automatyczne
 
-- [ ] 2.1 `npm run build` przechodzi po dodaniu rendererów
-- [ ] 2.2 TypeScript nie zgłasza błędów w `LessonInteractive.tsx`
+- [x] 2.1 `npm run build` przechodzi po dodaniu rendererów
+- [x] 2.2 TypeScript nie zgłasza błędów w `LessonInteractive.tsx`
 
 #### Ręczne
 
-- [ ] 2.3 Student widzi i rozwiązuje FIB, T/F i matching w lekcji
-- [ ] 2.4 Lekcja zawierająca tylko FIB/T-F/Matching nie zalicza się przedwcześnie
-- [ ] 2.5 `sentence_transformation` i `open_ended` nadal wyświetlają placeholder
+- [x] 2.3 Student widzi i rozwiązuje FIB, T/F i matching w lekcji
+- [x] 2.4 Lekcja zawierająca tylko FIB/T-F/Matching nie zalicza się przedwcześnie
+- [x] 2.5 `sentence_transformation` i `open_ended` nadal wyświetlają placeholder
 
 ### Faza 3: verify.ts matching branch + review-mode correct answers
 
+**Commit**: `a9a8dbc`
+
 #### Automatyczne
 
-- [ ] 3.1 Testy E2E dla matchingu przechodzą
-- [ ] 3.2 `npm run build` przechodzi po zmianach w `verify.ts` i `[id].astro`
+- [x] 3.1 Testy E2E dla matchingu przechodzą
+- [x] 3.2 `npm run build` przechodzi po zmianach w `verify.ts` i `[id].astro`
 
 #### Ręczne
 
-- [ ] 3.3 Niepoprawne mapowanie w matchingu jest odrzucane, poprawne zaakceptowane
-- [ ] 3.4 Po ukończeniu lekcji widoczne są poprawne odpowiedzi dla FIB, T/F i matching
+- [x] 3.3 Niepoprawne mapowanie w matchingu jest odrzucane, poprawne zaakceptowane
+- [x] 3.4 Po ukończeniu lekcji widoczne są poprawne odpowiedzi dla FIB, T/F i matching
 
 ### Faza 4: Seed data + E2E tests
 
+**Commit**: `a3706a3`
+
 #### Automatyczne
 
-- [ ] 4.1 `npx playwright test` przechodzi
-- [ ] 4.2 `npm run db:reset` + `npm run dev` startuje bez błędów
+- [x] 4.1 `npx playwright test` przechodzi
+- [x] 4.2 `npm run db:reset` + `npm run dev` startuje bez błędów
 
 #### Ręczne
 
-- [ ] 4.3 Świeży seed pokazuje `lesson_2_1` jako `true_false` i student może je rozwiązać
-- [ ] 4.4 Lekcja bez MC ale z FIB + T-F nie zalicza się przedwcześnie
+- [x] 4.3 Świeży seed pokazuje `lesson_2_1` jako `true_false` i student może je rozwiązać
+- [x] 4.4 Lekcja bez MC ale z FIB + T-F nie zalicza się przedwcześnie

@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
 import { uuidSchema } from "@/lib/utils";
-import { parseMatchingKey } from "@/lib/exercise-schemas";
+import { verifyExercise } from "@/lib/verify-exercise";
 
 const VerifyBodySchema = z.object({
   exercise_id: uuidSchema,
@@ -55,91 +55,8 @@ export const POST: APIRoute = async (context) => {
     );
   }
 
-  const exerciseType = (exercise?.type ?? "") as string;
-
-  if (exerciseType === "matching") {
-    let studentMap: Record<string, string>;
-    try {
-      studentMap = parseMatchingKey(answer);
-    } catch {
-      return Response.json(
-        { correct: false },
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    const keyText = keys.find((key) => {
-      const meta = key.key_metadata as { is_reference_only?: boolean } | null;
-      return !meta?.is_reference_only;
-    })?.key_text;
-
-    if (!keyText) {
-      return Response.json(
-        { correct: false },
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    let correctMap: Record<string, string>;
-    try {
-      correctMap = parseMatchingKey(keyText);
-    } catch {
-      return Response.json(
-        { correct: false },
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    const studentLeft = Object.keys(studentMap);
-    const correctLeft = Object.keys(correctMap);
-    if (studentLeft.length !== correctLeft.length) {
-      return Response.json(
-        { correct: false },
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    const correct =
-      studentLeft.length === correctLeft.length && studentLeft.every((left) => correctMap[left] === studentMap[left]);
-
-    return Response.json(
-      { correct },
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  }
-
-  if (exerciseType === "open_ended") {
-    return Response.json(
-      { correct: false },
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  }
-
-  // multiple_choice, fill_in_blank, true_false, sentence_transformation
-  const normalizedAnswer = answer.trim().toLowerCase();
-  const correct = keys.some((key) => {
-    const meta = key.key_metadata as { is_reference_only?: boolean } | null;
-    if (meta?.is_reference_only) return false;
-    return key.key_text.trim().toLowerCase() === normalizedAnswer;
-  });
+  const exerciseType = String(exercise?.type ?? "");
+  const correct = verifyExercise(exerciseType, answer, keys);
 
   return Response.json(
     { correct },

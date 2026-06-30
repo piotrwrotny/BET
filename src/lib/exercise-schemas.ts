@@ -18,6 +18,12 @@ export const MultipleChoicePayloadSchema = z.object({
 export const FillInBlankPayloadSchema = z.object({}).strict();
 export const TrueFalsePayloadSchema = z.object({}).strict();
 
+export const SentenceTransformationPayloadSchema = z.object({
+  original: z.string().min(1, "Oryginalne zdanie jest wymagane"),
+});
+
+export const OpenEndedPayloadSchema = z.object({}).strict();
+
 export const MatchingPairSchema = z.object({
   left: z.string().min(1, "Lewa strony pary nie może być pusta"),
   right: z.string().min(1, "Prawa strony pary nie może być pusta"),
@@ -46,11 +52,11 @@ export const ExercisePayloadSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("sentence_transformation"),
-    payload: z.object({}).strict(),
+    payload: SentenceTransformationPayloadSchema,
   }),
   z.object({
     type: z.literal("open_ended"),
-    payload: z.object({}).strict(),
+    payload: OpenEndedPayloadSchema,
   }),
 ]);
 

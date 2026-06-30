@@ -7,6 +7,8 @@ import {
   ExerciseTypeEnum,
   MultipleChoicePayloadSchema,
   MatchingPayloadSchema,
+  SentenceTransformationPayloadSchema,
+  OpenEndedPayloadSchema,
   parseMatchingKey,
 } from "@/lib/exercise-schemas";
 
@@ -49,11 +51,6 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
   }
 
   const { lesson_id, type, prompt, payload, keys } = parsed.data;
-
-  // Reject types not editable in S-06
-  if (type === "sentence_transformation" || type === "open_ended") {
-    return Response.json({ error: "Ten typ ćwiczenia nie jest jeszcze edytowalny" }, { status: 400 });
-  }
 
   // Type-specific validation
   if (type === "multiple_choice") {
@@ -116,6 +113,29 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     }
   }
 
+  if (type === "sentence_transformation") {
+    const payloadResult = SentenceTransformationPayloadSchema.safeParse(payload);
+    if (!payloadResult.success) {
+      return Response.json(
+        { error: payloadResult.error.issues[0]?.message ?? "Nieprawidłowy payload" },
+        { status: 400 },
+      );
+    }
+  }
+
+  if (type === "open_ended") {
+    const payloadResult = OpenEndedPayloadSchema.safeParse(payload);
+    if (!payloadResult.success) {
+      return Response.json(
+        { error: payloadResult.error.issues[0]?.message ?? "Nieprawidłowy payload" },
+        { status: 400 },
+      );
+    }
+    if (keys.length !== 1) {
+      return Response.json({ error: "Pytanie otwarte wymaga dokładnie jednej wzorcowej odpowiedzi" }, { status: 400 });
+    }
+  }
+
   // Auto-append ord
   const { data: maxRow } = await supabase
     .from("exercises")
@@ -137,11 +157,13 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     return Response.json({ error: insertError.message }, { status: 500 });
   }
 
-  const keyRows: { exercise_id: string; key_text: string; ord: number }[] = keys.map((key_text, ord) => ({
-    exercise_id: exercise.id as string,
-    key_text,
-    ord,
-  }));
+  const keyRows: { exercise_id: string; key_text: string; ord: number; key_metadata?: { is_reference_only: true } }[] =
+    keys.map((key_text, ord) => ({
+      exercise_id: exercise.id as string,
+      key_text,
+      ord,
+      ...(type === "open_ended" ? { key_metadata: { is_reference_only: true } } : {}),
+    }));
   const { error: keysError } = await supabase.from("exercise_keys").insert(keyRows);
 
   if (keysError) {

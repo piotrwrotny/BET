@@ -8,6 +8,8 @@ import {
   ExerciseTypeEnum,
   MultipleChoicePayloadSchema,
   MatchingPayloadSchema,
+  SentenceTransformationPayloadSchema,
+  OpenEndedPayloadSchema,
   parseMatchingKey,
 } from "@/lib/exercise-schemas";
 
@@ -57,10 +59,6 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   }
 
   const { type, prompt, payload, keys } = parsed.data;
-
-  if (type === "sentence_transformation" || type === "open_ended") {
-    return Response.json({ error: "Ten typ ćwiczenia nie jest jeszcze edytowalny" }, { status: 400 });
-  }
 
   if (type === "multiple_choice") {
     const payloadResult = MultipleChoicePayloadSchema.safeParse(payload);
@@ -122,6 +120,29 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
     }
   }
 
+  if (type === "sentence_transformation") {
+    const payloadResult = SentenceTransformationPayloadSchema.safeParse(payload);
+    if (!payloadResult.success) {
+      return Response.json(
+        { error: payloadResult.error.issues[0]?.message ?? "Nieprawidłowy payload" },
+        { status: 400 },
+      );
+    }
+  }
+
+  if (type === "open_ended") {
+    const payloadResult = OpenEndedPayloadSchema.safeParse(payload);
+    if (!payloadResult.success) {
+      return Response.json(
+        { error: payloadResult.error.issues[0]?.message ?? "Nieprawidłowy payload" },
+        { status: 400 },
+      );
+    }
+    if (keys.length !== 1) {
+      return Response.json({ error: "Pytanie otwarte wymaga dokładnie jednej wzorcowej odpowiedzi" }, { status: 400 });
+    }
+  }
+
   // Update exercise
   const { error: updateError } = await supabase.from("exercises").update({ type, prompt, payload }).eq("id", validId);
 
@@ -132,7 +153,7 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   // Replace-all keys: backup old, delete, insert new, restore on failure
   const { data: oldKeys, error: readOldError } = await supabase
     .from("exercise_keys")
-    .select("key_text,ord")
+    .select("key_text,ord,key_metadata")
     .eq("exercise_id", validId);
 
   if (readOldError) {
@@ -145,14 +166,29 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
     return Response.json({ error: deleteError.message }, { status: 500 });
   }
 
-  const keyRows = keys.map((key_text, ord) => ({ exercise_id: validId, key_text, ord }));
+  const keyRows: { exercise_id: string; key_text: string; ord: number; key_metadata?: { is_reference_only: true } }[] =
+    keys.map((key_text, ord) => ({
+      exercise_id: validId,
+      key_text,
+      ord,
+      ...(type === "open_ended" ? { key_metadata: { is_reference_only: true } } : {}),
+    }));
   const { error: keysError } = await supabase.from("exercise_keys").insert(keyRows);
 
   if (keysError) {
     if (oldKeys.length > 0) {
-      const fallbackRows: { exercise_id: string; key_text: string; ord: number }[] = oldKeys.map(
-        ({ key_text, ord }) => ({ exercise_id: validId, key_text: key_text as string, ord: ord as number }),
-      );
+      const fallbackRows: { exercise_id: string; key_text: string; ord: number; key_metadata?: unknown }[] =
+        oldKeys.map(({ key_text, ord, key_metadata }) => {
+          const row: { exercise_id: string; key_text: string; ord: number; key_metadata?: unknown } = {
+            exercise_id: validId,
+            key_text: key_text as string,
+            ord: ord as number,
+          };
+          if (key_metadata != null) {
+            row.key_metadata = key_metadata as unknown;
+          }
+          return row;
+        });
       await supabase.from("exercise_keys").insert(fallbackRows);
     }
     return Response.json({ error: keysError.message }, { status: 500 });

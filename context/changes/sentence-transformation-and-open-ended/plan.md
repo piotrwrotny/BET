@@ -313,15 +313,15 @@ Nie wymagana migracja bazy danych. Istniejące rekordy `sentence_transformation`
 
 #### Automatyczne
 
-- [ ] 1.1 `src/lib/exercise-schemas.ts` rozszerzone o `SentenceTransformationPayloadSchema` i `OpenEndedPayloadSchema`
-- [ ] 1.2 `src/pages/api/admin/exercises/index.ts` usuwa guard i waliduje S-07
-- [ ] 1.3 `src/pages/api/admin/exercises/[id].ts` usuwa guard i waliduje S-07
-- [ ] 1.4 `npm run typecheck` i `npm run lint` przechodzą
+- [x] 1.1 `src/lib/exercise-schemas.ts` rozszerzone o `SentenceTransformationPayloadSchema` i `OpenEndedPayloadSchema`
+- [x] 1.2 `src/pages/api/admin/exercises/index.ts` usuwa guard i waliduje S-07
+- [x] 1.3 `src/pages/api/admin/exercises/[id].ts` usuwa guard i waliduje S-07
+- [x] 1.4 `npm run typecheck` i `npm run lint` przechodzą
 
 #### Ręczne
 
-- [ ] 1.5 Ręczny `curl` tworzy `sentence_transformation` i `open_ended`
-- [ ] 1.6 `open_ended` zapisuje klucz z `is_reference_only: true`
+- [x] 1.5 Ręczny `curl` tworzy `sentence_transformation` i `open_ended`
+- [x] 1.6 `open_ended` zapisuje klucz z `is_reference_only: true`
 
 ### Faza 2: Formularz admina
 

@@ -198,12 +198,12 @@ insert into public.exercises (id, lesson_id, type, prompt, payload, ord) values
    '{"options": ["went", "have gone", "go", "going"]}'::jsonb,
    0),
 
-  -- 3.3 Multiple-choice (FR-022) — lesson_2_1
+  -- 3.3 True/false (FR-023) — lesson_2_1
   ('00000000-0000-0000-0000-000000000042',
    '00000000-0000-0000-0000-000000000033',
-   'multiple_choice',
+   'true_false',
    'The Present Perfect describes actions that started in the past and continue into the present.',
-   '{"options": ["True", "False"]}'::jsonb,
+   '{}'::jsonb,
    0),
 
   -- 3.4 Sentence transformation (FR-020) — lesson_2_2, ord 0

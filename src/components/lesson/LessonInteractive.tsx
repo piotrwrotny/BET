@@ -1,13 +1,16 @@
 import { useState } from "react";
 import MultipleChoiceExercise from "./MultipleChoiceExercise";
+import FillInBlankExercise from "./FillInBlankExercise";
+import TrueFalseExercise from "./TrueFalseExercise";
+import MatchingExercise from "./MatchingExercise";
 
-type Exercise = {
+interface Exercise {
   id: string;
   type: string;
   prompt: string;
   payload: Record<string, unknown>;
   ord: number;
-};
+}
 
 interface Props {
   lessonId: string;
@@ -43,9 +46,60 @@ export default function LessonInteractive({
       const res = await fetch(`/api/lessons/${lessonId}/complete`, { method: "POST" });
       if (res.ok) {
         setIsCompleted(true);
+      } else {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        setErrorMessage(data.error || `Błąd zapisu: ${res.status}`);
       }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Błąd sieci");
     } finally {
       setCompleting(false);
+    }
+  }
+
+  function renderExercise(ex: Exercise) {
+    const commonProps = {
+      exercise: ex as never,
+      onCorrect: handleCorrect,
+      disabled: isCompleted,
+      initialCorrectAnswer: correctAnswers[ex.id],
+    };
+
+    switch (ex.type) {
+      case "multiple_choice":
+        return (
+          <MultipleChoiceExercise
+            key={ex.id}
+            exercise={ex as unknown as { id: string; prompt: string; payload: { options: string[] } }}
+            onCorrect={handleCorrect}
+            disabled={isCompleted}
+            initialCorrectAnswer={correctAnswers[ex.id]}
+          />
+        );
+      case "fill_in_blank":
+        return <FillInBlankExercise key={ex.id} {...commonProps} />;
+      case "true_false":
+        return <TrueFalseExercise key={ex.id} {...commonProps} />;
+      case "matching":
+        return (
+          <MatchingExercise
+            key={ex.id}
+            exercise={
+              ex as unknown as { id: string; prompt: string; payload: { pairs: { left: string; right: string }[] } }
+            }
+            onCorrect={handleCorrect}
+            disabled={isCompleted}
+            initialCorrectAnswer={correctAnswers[ex.id]}
+          />
+        );
+      default:
+        // sentence_transformation / open_ended placeholders until S-07
+        return (
+          <div key={ex.id} className="rounded-xl border border-white/10 bg-white/5 p-5">
+            <p className="mb-1 font-medium text-white">{ex.prompt}</p>
+            <p className="text-xs text-slate-500">[{ex.type}] — interaktywność dostępna wkrótce.</p>
+          </div>
+        );
     }
   }
 
@@ -55,34 +109,7 @@ export default function LessonInteractive({
       {exercises.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-white">Ćwiczenia</h2>
-          {exercises.map((ex) => {
-            if (ex.type === "multiple_choice") {
-              return (
-                <MultipleChoiceExercise
-                  key={ex.id}
-                  exercise={
-                    ex as unknown as {
-                      id: string;
-                      prompt: string;
-                      payload: { options: string[] };
-                    }
-                  }
-                  onCorrect={handleCorrect}
-                  disabled={isCompleted}
-                  initialCorrectAnswer={correctAnswers[ex.id]}
-                />
-              );
-            }
-            // Other types — placeholder until S-06/S-07
-            return (
-              <div key={ex.id} className="rounded-xl border border-white/10 bg-white/5 p-5">
-                <p className="mb-1 font-medium text-white">{ex.prompt}</p>
-                <p className="text-xs text-slate-500">
-                  [{ex.type}] — interaktywność dostępna wkrótce.
-                </p>
-              </div>
-            );
-          })}
+          {exercises.map((ex) => renderExercise(ex))}
         </div>
       )}
 
@@ -104,7 +131,7 @@ export default function LessonInteractive({
             {errorMessage && <p className="mb-3 text-sm text-rose-400">{errorMessage}</p>}
             <button
               type="button"
-              disabled={completing}
+              disabled={completing || completedExercises.size < closedExerciseCount}
               onClick={handleMarkRead}
               className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >

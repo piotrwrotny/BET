@@ -270,11 +270,11 @@ Brak. Nie dotyczy danych ani schematu.
 
 #### Automatyczne
 
-- [ ] 3.1 `npm run lint` — 0 errors, 0 warnings
-- [ ] 3.2 `npm run typecheck`
-- [ ] 3.3 `npm run test:unit` i `npm run test:coverage`
-- [ ] 3.4 E2E: `admin-users`, `closed-exercises`, `sentence-transformation`
+- [x] 3.1 `npm run lint` — 0 errors, 0 warnings
+- [x] 3.2 `npm run typecheck`
+- [x] 3.3 `npm run test:unit` i `npm run test:coverage`
+- [x] 3.4 E2E: `admin-users`, `closed-exercises`, `sentence-transformation`
 
 #### Ręczne
 
-- [ ] 3.5 Przegląd diffu pod kątem niezamierzonych zmian
+- [x] 3.5 Przegląd diffu pod kątem niezamierzonych zmian

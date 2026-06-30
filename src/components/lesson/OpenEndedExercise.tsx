@@ -15,7 +15,7 @@ export default function OpenEndedExercise({ exercise, initialReferenceAnswer, di
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/5 p-5">
-      <p className="mb-4 font-medium text-white">{exercise.prompt}</p>
+      <h3 className="mb-4 font-medium text-white">{exercise.prompt}</h3>
 
       <textarea
         value={answer}

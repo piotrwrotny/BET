@@ -52,7 +52,7 @@ export default function SentenceTransformationExercise({
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/5 p-5">
-      <p className="mb-4 font-medium text-white">{exercise.prompt}</p>
+      <h3 className="mb-4 font-medium text-white">{exercise.prompt}</h3>
       <p className="mb-4 text-sm text-slate-300">
         <span className="text-slate-500">Oryginalne zdanie:</span> {original}
       </p>

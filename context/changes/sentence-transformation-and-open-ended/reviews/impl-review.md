@@ -59,4 +59,4 @@
 - **Lokalizacja**: `tests/e2e/sentence-transformation-and-open-ended.spec.ts`
 - **Szczegóły**: Strona lekcji renderuje `<code>` z serializowanymi propsami wysp Astro, przez co `getByText` dopasowywał zarówno widoczny tekst, jak i JSON w `<code>`. Spec używa `{ exact: true }` dla uniknięcia false-positive. Jest to prawidłowe, ale wskazuje, że inne specy mogą napotkać podobne problemy.
 - **Poprawka**: Rozważ użycie bardziej semantycznych lokalizatorów (`getByRole`, `getByLabel`) w przyszłych specach, zamiast dosłownego tekstu.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — polecenie ćwiczenia przeniesiono do `<h3>`, a w specie S-07 użyto `getByRole("heading")`. Spec nadal przechodzi (3 passed).

@@ -128,8 +128,8 @@ test.describe("sentence transformation and open-ended exercises", () => {
 
     const stPrompt = "Transform the sentence keeping the meaning the same.";
     const oePrompt = "Describe your typical morning routine in 3-4 sentences (use Present Simple).";
-    await expect(studentPage.getByText(stPrompt, { exact: true })).toBeVisible();
-    await expect(studentPage.getByText(oePrompt, { exact: true })).toBeVisible();
+    await expect(studentPage.getByRole("heading", { name: stPrompt })).toBeVisible();
+    await expect(studentPage.getByRole("heading", { name: oePrompt })).toBeVisible();
 
     const markRead = studentPage.getByRole("button", { name: "Przeczytano" });
     await expect(markRead).toBeDisabled();

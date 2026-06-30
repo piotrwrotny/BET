@@ -49,7 +49,7 @@
 - **Szczegóły**: Po `npm run db:reset`, `npx playwright test tests/e2e/` zawodzi na teście `admin user management › admin can grant a book to a student` (timeout na `row.getByRole("combobox").click()`). Test nie dotyczy S-07; pozostałe 12 testów, w tym nowy spec S-07, przechodzą. Wpływa to na kryterium "pełny zestaw E2E przechodzi".
 - **Poprawka A ⭐ Zalecana**: Zbadaj i napraw pre-existing/flaky `admin-users.spec.ts` w osobnym zadaniu, aby sukces całego zestawu był wiarygodny.
 - **Poprawka B**: Tymczasowo oznacz test jako `@skip` lub zwiększ timeout, jeśli jest to znany problem środowiskowy.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — nie udało się odtworzyć po `npm run db:reset`. Spec `admin-users.spec.ts` przechodzi w izolacji (22/22) i w pełnym zestawie E2E (15/15). Awaria wcześniejsza była najprawdopodobniej artefaktem anulowanego/zepsutego stanu środowiska.
 
 ### F4 — E2E używa dokładnych lokalizatorów tekstu z powodu serializacji props wysp Astro
 

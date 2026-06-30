@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
+import { logServerError } from "@/lib/logger";
 import { createClient } from "@/lib/supabase";
 import { uuidSchema } from "@/lib/utils";
 
@@ -74,7 +75,7 @@ export const DELETE: APIRoute = async ({ params, request, cookies, locals }) => 
     .eq("book_id", parsedQuery.data.book_id);
 
   if (error) {
-    console.error("Failed to revoke book access:", error);
+    logServerError("Failed to revoke book access:", error);
     return Response.json({ error: "Nie udało się odebrać dostępu" }, { status: 500 });
   }
 

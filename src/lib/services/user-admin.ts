@@ -1,4 +1,5 @@
 import type { User } from "@supabase/supabase-js";
+import { logServerError } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase";
 
 interface UserRoleRow {
@@ -63,7 +64,7 @@ export async function getStudentsWithAccess(options: GetStudentsOptions = {}): P
   });
 
   if (error) {
-    console.error("Failed to list auth users:", error);
+    logServerError("Failed to list auth users:", error);
     throw new Error("Failed to list auth users");
   }
 
@@ -98,12 +99,12 @@ export async function getStudentsWithAccess(options: GetStudentsOptions = {}): P
   );
 
   if (rolesError) {
-    console.error("Failed to fetch user roles:", rolesError);
+    logServerError("Failed to fetch user roles:", rolesError);
     throw new Error("Failed to fetch user roles");
   }
 
   if (accessError) {
-    console.error("Failed to fetch user access:", accessError);
+    logServerError("Failed to fetch user access:", accessError);
     throw new Error("Failed to fetch user access");
   }
 

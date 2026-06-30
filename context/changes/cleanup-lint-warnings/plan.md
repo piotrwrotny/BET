@@ -247,13 +247,13 @@ Brak. Nie dotyczy danych ani schematu.
 
 #### Automatyczne
 
-- [ ] 1.1 Utworzyć `src/lib/logger.ts` z `logServerError`
-- [ ] 1.2 Zamienić `console.error` na `logServerError` w serwerowych plikach
-- [ ] 1.3 Dodać wyjątek `no-console: off` dla `scripts/` i `tests/e2e/` w ESLint
+- [x] 1.1 Utworzyć `src/lib/logger.ts` z `logServerError`
+- [x] 1.2 Zamienić `console.error` na `logServerError` w serwerowych plikach
+- [x] 1.3 Dodać wyjątek `no-console: off` dla `scripts/` i `tests/e2e/` w ESLint
 
 #### Ręczne
 
-- [ ] 1.4 Przegląd API loggera
+- [x] 1.4 Przegląd API loggera
 
 ### Faza 2: Style lesson-content i wyciszenie React Compiler
 

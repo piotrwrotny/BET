@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { logServerError } from "@/lib/logger";
 import { getStudentsWithAccess } from "@/lib/services/user-admin";
 
 export const prerender = false;
@@ -39,7 +40,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const { users, hasNextPage } = await getStudentsWithAccess({ page, perPage });
     return Response.json({ users, page, perPage, hasNextPage }, { status: 200 });
   } catch (error) {
-    console.error("Failed to load admin users:", error);
+    logServerError("Failed to load admin users:", error);
     return Response.json({ error: "Failed to load users" }, { status: 500 });
   }
 };

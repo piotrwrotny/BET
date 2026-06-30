@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
+import { logServerError } from "@/lib/logger";
 import { createClient } from "@/lib/supabase";
 import { uuidSchema } from "@/lib/utils";
 
@@ -81,7 +82,7 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   );
 
   if (error) {
-    console.error("Failed to grant book access:", error);
+    logServerError("Failed to grant book access:", error);
     return Response.json({ error: "Nie udało się przyznać dostępu" }, { status: 500 });
   }
 

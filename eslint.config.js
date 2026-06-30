@@ -74,6 +74,10 @@ export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   { ignores: ["src/lib/database.types.ts"] },
   baseConfig,
+  {
+    files: ["scripts/**/*.ts", "tests/e2e/**/*.ts"],
+    rules: { "no-console": "off" },
+  },
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
   ...eslintPluginAstro.configs["flat/jsx-a11y-recommended"],

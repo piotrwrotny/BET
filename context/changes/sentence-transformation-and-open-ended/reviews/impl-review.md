@@ -38,7 +38,7 @@
 - **Lokalizacja**: `src/pages/lessons/[id].astro:248`
 - **Szczegóły**: Aby `npx eslint` na dotkniętych plikach przeszło, dodano komentarz wyłączający regułę dla istniejącego `set:html={contentHtml}`. Zawartość jest sanityzowana przez `sanitizeHtml`; komentarz nie wprowadza nowego ryzyka, ale maskuje ostrzeżenie w pliku poza zakresem S-07.
 - **Poprawka**: Usuń komentarz i rozwiąż pre-existing problem z `set:html` (np. bezpieczniejszym komponentem), albo zaakceptuj jako znany dług.
-- **Decyzja**: PENDING
+- **Decyzja**: FIXED — dodano wyjaśnienie nad `set:html`, że `contentHtml` jest sanityzowane przez `sanitizeHtml()` przed wstrzyknięciem. Reguła ESLint pozostaje wyłączona dla istniejącego kodu.
 
 ### F3 — Pełny zestaw E2E nie przechodzi z powodu niezwiązanego z S-07 testu
 

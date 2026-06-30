@@ -260,7 +260,7 @@ if (pageError) {
       <!-- Lesson title -->
       <h1 class="mb-8 text-3xl font-bold text-white">{lesson.title}</h1>
 
-      <!-- Lesson content (Markdown → HTML) -->
+      {/* contentHtml is already sanitized by sanitizeHtml() before injection. */}
       {/* eslint-disable-next-line astro/no-set-html-directive */}
       <article class="lesson-content mb-10" set:html={contentHtml} />
 

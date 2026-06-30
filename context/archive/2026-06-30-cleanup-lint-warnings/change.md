@@ -1,10 +1,10 @@
 ---
 change_id: cleanup-lint-warnings
 title: Clean up remaining ESLint warnings
-status: impl_reviewed
+status: archived
 created: 2026-06-30
 updated: 2026-06-30
-archived_at: null
+archived_at: 2026-06-30T14:30:00Z
 ---
 
 ## Notes

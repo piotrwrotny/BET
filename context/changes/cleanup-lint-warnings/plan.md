@@ -259,8 +259,8 @@ Brak. Nie dotyczy danych ani schematu.
 
 #### Automatyczne
 
-- [ ] 2.1 Dodać `:global()` do selektorów `.lesson-content` w `src/pages/lessons/[id].astro`
-- [ ] 2.2 Dodać `eslint-disable-next-line react-hooks/incompatible-library` w `UsersTable.tsx`
+- [x] 2.1 Dodać `:global()` do selektorów `.lesson-content` w `src/pages/lessons/[id].astro`
+- [x] 2.2 Dodać `eslint-disable-next-line react-hooks/incompatible-library` w `UsersTable.tsx`
 
 #### Ręczne
 

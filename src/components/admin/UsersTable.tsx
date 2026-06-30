@@ -308,6 +308,7 @@ export function UsersTable({ users, books }: UsersTableProps) {
     [books, addSelectionByUserId, loadingUserId, handleGrantBook, handleRevokeBook],
   );
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- useReactTable is on React's known incompatible-library list; component is covered by E2E tests
   const table = useReactTable({
     data: visibleRows,
     columns,

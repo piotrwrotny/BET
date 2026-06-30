@@ -19,8 +19,7 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
   const siteUrl = new URL(request.url);
-  const isSameOrigin =
-    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+  const isSameOrigin = origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
   if (!isSameOrigin) {
     return Response.json({ error: "Invalid origin" }, { status: 403 });
   }
@@ -47,24 +46,15 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   const parsed = UpdateLessonSchema.safeParse(raw);
   if (!parsed.success) {
     const error = encodeURIComponent(parsed.error.issues[0]?.message ?? "Błąd walidacji");
-    return Response.redirect(
-      new URL(`/admin/lessons/${validId}/edit?error=${error}`, request.url),
-      302
-    );
+    return Response.redirect(new URL(`/admin/lessons/${validId}/edit?error=${error}`, request.url), 302);
   }
 
   const { title, content, chapter_id } = parsed.data;
-  const { error } = await supabase
-    .from("lessons")
-    .update({ title, content })
-    .eq("id", validId);
+  const { error } = await supabase.from("lessons").update({ title, content }).eq("id", validId);
 
   if (error) {
     const msg = encodeURIComponent(error.message);
-    return Response.redirect(
-      new URL(`/admin/lessons/${validId}/edit?error=${msg}`, request.url),
-      302
-    );
+    return Response.redirect(new URL(`/admin/lessons/${validId}/edit?error=${msg}`, request.url), 302);
   }
 
   return Response.redirect(new URL(`/admin/lessons?chapter_id=${chapter_id}`, request.url), 302);
@@ -78,8 +68,7 @@ export const DELETE: APIRoute = async ({ params, request, cookies, locals }) => 
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
   const siteUrl = new URL(request.url);
-  const isSameOrigin =
-    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+  const isSameOrigin = origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
   if (!isSameOrigin) {
     return Response.json({ error: "Invalid origin" }, { status: 403 });
   }

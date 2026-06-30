@@ -33,11 +33,7 @@ let bookId = "";
 if (chapterId) {
   const supabase = createClient(Astro.request.headers, Astro.cookies);
   if (supabase) {
-    const { data: chapter } = await supabase
-      .from("chapters")
-      .select("title, book_id")
-      .eq("id", chapterId)
-      .single();
+    const { data: chapter } = await supabase.from("chapters").select("title, book_id").eq("id", chapterId).single();
     chapterTitle = chapter?.title ?? "";
     bookId = chapter?.book_id ?? "";
 
@@ -50,10 +46,32 @@ if (chapterId) {
 ---
 
 <AdminLayout title="Nowa lekcja">
-  <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+  <div class="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
     <a href="/admin/books" class="hover:underline">Książki</a>
-    {bookId && <><span>›</span><a href={`/admin/chapters?book_id=${bookId}`} class="hover:underline">{bookTitle}</a></>}
-    {chapterId && <><span>›</span><a href={`/admin/lessons?chapter_id=${chapterId}`} class="hover:underline">{chapterTitle}</a></>}
+    {
+      bookId && (
+        <>
+          <>
+            <span>›</span>
+            <a href={`/admin/chapters?book_id=${bookId}`} class="hover:underline">
+              {bookTitle}
+            </a>
+          </>
+        </>
+      )
+    }
+    {
+      chapterId && (
+        <>
+          <>
+            <span>›</span>
+            <a href={`/admin/lessons?chapter_id=${chapterId}`} class="hover:underline">
+              {chapterTitle}
+            </a>
+          </>
+        </>
+      )
+    }
     <span>›</span>
     <span class="text-foreground font-medium">Nowa lekcja</span>
   </div>
@@ -69,20 +87,20 @@ if (chapterId) {
     </div>
 
     <div class="space-y-1">
-      <Label>Treść lekcji * <span class="text-xs text-muted-foreground">(Markdown)</span></Label>
+      <Label>Treść lekcji * <span class="text-muted-foreground text-xs">(Markdown)</span></Label>
       <MarkdownEditor client:load name="content" className="min-h-96" />
     </div>
 
     <div class="flex gap-2">
       <button
         type="submit"
-        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors"
       >
         Utwórz lekcję
       </button>
       <a
         href={chapterId ? `/admin/lessons?chapter_id=${chapterId}` : "/admin/chapters"}
-        class="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted"
+        class="border-border text-muted-foreground hover:bg-muted inline-flex h-9 items-center rounded-md border px-4 text-sm transition-colors"
       >
         Anuluj
       </a>

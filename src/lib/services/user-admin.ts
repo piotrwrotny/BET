@@ -32,7 +32,6 @@ export interface UserWithAccess {
   books: UserBookAccess[];
 }
 
-const AUTH_USERS_PAGE_SIZE = 200;
 function chunk<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
@@ -42,42 +41,6 @@ function chunk<T>(items: T[], size: number): T[][] {
 }
 
 const ID_CHUNK_SIZE = 200;
-
-async function listAllAuthUsersWithEmail(supabaseAdmin: ReturnType<typeof createAdminClient>) {
-  const users: (User & { email: string })[] = [];
-  let page = 1;
-  let hasMore = true;
-  const MAX_AUTH_PAGES = 1000;
-
-  while (hasMore) {
-    if (page > MAX_AUTH_PAGES) {
-      console.error("Exceeded maximum auth user pages:", MAX_AUTH_PAGES);
-      throw new Error("Too many auth users to load");
-    }
-
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers({
-      page,
-      perPage: AUTH_USERS_PAGE_SIZE,
-    });
-
-    if (error) {
-      console.error(`Failed to list auth users page ${page}:`, error);
-      throw new Error("Failed to list auth users");
-    }
-
-    const pageUsers = data.users;
-    if (pageUsers.length === 0) {
-      break;
-    }
-
-    users.push(...pageUsers.filter((user): user is User & { email: string } => Boolean(user.email)));
-
-    hasMore = pageUsers.length === AUTH_USERS_PAGE_SIZE;
-    page += 1;
-  }
-
-  return users;
-}
 
 interface GetStudentsOptions {
   page?: number;
@@ -104,7 +67,7 @@ export async function getStudentsWithAccess(options: GetStudentsOptions = {}): P
     throw new Error("Failed to list auth users");
   }
 
-  const pageUsers = (data.users ?? []).filter((user): user is User & { email: string } => Boolean(user.email));
+  const pageUsers = data.users.filter((user): user is User & { email: string } => Boolean(user.email));
   const hasNextPage = pageUsers.length > perPage;
   const users = pageUsers.slice(0, perPage);
   const userIds = users.map((user) => user.id);

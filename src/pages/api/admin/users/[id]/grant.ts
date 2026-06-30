@@ -19,9 +19,7 @@ function requireSameOrigin(request: Request): Response | null {
   const secFetchSite = request.headers.get("sec-fetch-site");
   const siteUrl = new URL(request.url);
   const isSameOrigin =
-    secFetchSite === "same-origin" ||
-    origin === siteUrl.origin ||
-    (!origin && referer?.startsWith(siteUrl.origin));
+    secFetchSite === "same-origin" || origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
   if (!isSameOrigin) {
     return Response.json({ error: "Invalid origin" }, { status: 403 });
   }
@@ -53,10 +51,7 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
 
   const parsedBody = GrantAccessSchema.safeParse(body);
   if (!parsedBody.success) {
-    return Response.json(
-      { error: parsedBody.error.issues[0]?.message ?? "Błąd walidacji" },
-      { status: 400 },
-    );
+    return Response.json({ error: parsedBody.error.issues[0]?.message ?? "Błąd walidacji" }, { status: 400 });
   }
 
   const supabase = createClient(request.headers, cookies);

@@ -18,11 +18,7 @@ const { id } = Astro.params;
 // book_id may come from query param (from chapters list link)
 const bookIdParam = Astro.url.searchParams.get("book_id");
 
-const { data: chapter, error } = await supabase
-  .from("chapters")
-  .select("id, title, book_id")
-  .eq("id", id!)
-  .single();
+const { data: chapter, error } = await supabase.from("chapters").select("id, title, book_id").eq("id", id!).single();
 
 if (error || !chapter) return new Response(null, { status: 404 });
 
@@ -45,7 +41,7 @@ const errorMessage = safeDecodeURIComponent(errorParam);
 ---
 
 <AdminLayout title="Edytuj rozdział">
-  <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+  <div class="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
     <a href="/admin/books" class="hover:underline">Książki</a>
     <span>›</span>
     <a href={`/admin/chapters?book_id=${bookId}`} class="hover:underline">
@@ -68,13 +64,13 @@ const errorMessage = safeDecodeURIComponent(errorParam);
     <div class="flex gap-2">
       <button
         type="submit"
-        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors"
       >
         Zapisz zmiany
       </button>
       <a
         href={`/admin/chapters?book_id=${bookId}`}
-        class="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted"
+        class="border-border text-muted-foreground hover:bg-muted inline-flex h-9 items-center rounded-md border px-4 text-sm transition-colors"
       >
         Anuluj
       </a>

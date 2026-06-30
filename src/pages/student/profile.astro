@@ -87,8 +87,8 @@ const booksWithStats = books.map((book) => {
 
   const chaptersWithStats = bookChapters.map((ch) => {
     const cp = chapterProgressMap[ch.id];
-    const chTotal = cp?.lessons_total ?? (ch.lessons?.length ?? 0);
-    const chCompleted = cp?.lessons_completed ?? (ch.lessons?.filter((l) => completedIds.has(l.id)).length ?? 0);
+    const chTotal = cp?.lessons_total ?? ch.lessons?.length ?? 0;
+    const chCompleted = cp?.lessons_completed ?? ch.lessons?.filter((l) => completedIds.has(l.id)).length ?? 0;
     const chPercent = chTotal > 0 ? Math.round((chCompleted / chTotal) * 100) : 0;
     const completedLessonsInChapter = (ch.lessons ?? [])
       .filter((l) => completedIds.has(l.id))
@@ -105,7 +105,7 @@ const booksWithStats = books.map((book) => {
     <div class="mx-auto max-w-3xl">
       <Topbar />
 
-      <div class="mb-8 mt-4">
+      <div class="mt-4 mb-8">
         <h1 class="text-2xl font-bold text-white">Profil</h1>
         <p class="text-sm text-slate-400">{user?.email}</p>
       </div>
@@ -122,11 +122,7 @@ const booksWithStats = books.map((book) => {
             {booksWithStats.map((book) => (
               <li class="rounded-xl border border-white/10 bg-white/5 p-6">
                 <div class="mb-4 flex items-start gap-4">
-                  <SafeImage
-                    src={book.cover_url}
-                    alt={book.title}
-                    class="h-24 w-16 shrink-0 rounded object-cover"
-                  />
+                  <SafeImage src={book.cover_url} alt={book.title} class="h-24 w-16 shrink-0 rounded object-cover" />
                   <div class="min-w-0 flex-1">
                     <h2 class="mb-1 text-lg font-semibold text-white">{book.title}</h2>
                     {book.description && <p class="text-sm text-slate-400">{book.description}</p>}

@@ -20,20 +20,12 @@ let bookTitle = "";
 if (lessonId) {
   const supabase = createClient(Astro.request.headers, Astro.cookies);
   if (supabase) {
-    const { data: lesson } = await supabase
-      .from("lessons")
-      .select("title, chapter_id")
-      .eq("id", lessonId)
-      .single();
+    const { data: lesson } = await supabase.from("lessons").select("title, chapter_id").eq("id", lessonId).single();
     lessonTitle = lesson?.title ?? "";
     chapterId = lesson?.chapter_id ?? "";
 
     if (chapterId) {
-      const { data: chapter } = await supabase
-        .from("chapters")
-        .select("title, book_id")
-        .eq("id", chapterId)
-        .single();
+      const { data: chapter } = await supabase.from("chapters").select("title, book_id").eq("id", chapterId).single();
       chapterTitle = chapter?.title ?? "";
       bookId = chapter?.book_id ?? "";
 
@@ -49,11 +41,44 @@ const redirectTo = `/admin/exercises?lesson_id=${lessonId}`;
 ---
 
 <AdminLayout title="Nowe ćwiczenie">
-  <div class="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+  <div class="text-muted-foreground mb-4 flex flex-wrap items-center gap-2 text-sm">
     <a href="/admin/books" class="hover:underline">Książki</a>
-    {bookId && <><span>›</span><a href={`/admin/chapters?book_id=${bookId}`} class="hover:underline">{bookTitle}</a></>}
-    {chapterId && <><span>›</span><a href={`/admin/lessons?chapter_id=${chapterId}`} class="hover:underline">{chapterTitle}</a></>}
-    {lessonId && <><span>›</span><a href={`/admin/exercises?lesson_id=${lessonId}`} class="hover:underline">{lessonTitle}</a></>}
+    {
+      bookId && (
+        <>
+          <>
+            <span>›</span>
+            <a href={`/admin/chapters?book_id=${bookId}`} class="hover:underline">
+              {bookTitle}
+            </a>
+          </>
+        </>
+      )
+    }
+    {
+      chapterId && (
+        <>
+          <>
+            <span>›</span>
+            <a href={`/admin/lessons?chapter_id=${chapterId}`} class="hover:underline">
+              {chapterTitle}
+            </a>
+          </>
+        </>
+      )
+    }
+    {
+      lessonId && (
+        <>
+          <>
+            <span>›</span>
+            <a href={`/admin/exercises?lesson_id=${lessonId}`} class="hover:underline">
+              {lessonTitle}
+            </a>
+          </>
+        </>
+      )
+    }
     <span>›</span>
     <span class="text-foreground font-medium">Nowe ćwiczenie</span>
   </div>

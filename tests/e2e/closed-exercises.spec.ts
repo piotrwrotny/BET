@@ -70,17 +70,15 @@ async function createTestLesson(adminPage: Page): Promise<string> {
 async function createExercise(adminPage: Page, lessonId: string, fixture: ExerciseFixture) {
   const payload =
     fixture.type === "matching"
-      ? { pairs: [
-          { left: "cat", right: "kot" },
-          { left: "dog", right: "pies" },
-        ] }
+      ? {
+          pairs: [
+            { left: "cat", right: "kot" },
+            { left: "dog", right: "pies" },
+          ],
+        }
       : {};
   const keys =
-    fixture.type === "fill_in_blank"
-      ? ["went"]
-      : fixture.type === "true_false"
-        ? [fixture.answer]
-        : [fixture.answer];
+    fixture.type === "fill_in_blank" ? ["went"] : fixture.type === "true_false" ? [fixture.answer] : [fixture.answer];
 
   const result = await adminPage.evaluate(
     async ({ lesson_id, type, prompt, payload: p, keys: k }) => {

@@ -36,7 +36,7 @@ if (bookId) {
 ---
 
 <AdminLayout title="Nowy rozdział">
-  <div class="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+  <div class="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
     <a href="/admin/books" class="hover:underline">Książki</a>
     {
       bookId && bookTitle && (
@@ -65,13 +65,13 @@ if (bookId) {
     <div class="flex gap-2">
       <button
         type="submit"
-        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors"
       >
         Utwórz rozdział
       </button>
       <a
         href={bookId ? `/admin/chapters?book_id=${bookId}` : "/admin/books"}
-        class="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted"
+        class="border-border text-muted-foreground hover:bg-muted inline-flex h-9 items-center rounded-md border px-4 text-sm transition-colors"
       >
         Anuluj
       </a>

@@ -36,8 +36,11 @@ export const POST: APIRoute = async (context) => {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  return Response.json({ success: true }, {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json(
+    { success: true },
+    {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    },
+  );
 };

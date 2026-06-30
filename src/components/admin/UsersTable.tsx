@@ -137,33 +137,34 @@ export function UsersTable({ users, books }: UsersTableProps) {
     [books, refetchUsers],
   );
 
-  const handleRevokeBook = useCallback(async (user: UserWithAccess, bookId: string) => {
-    if (user.role !== "student") {
-      return;
-    }
+  const handleRevokeBook = useCallback(
+    async (user: UserWithAccess, bookId: string) => {
+      if (user.role !== "student") {
+        return;
+      }
 
-    const previousBooks = user.books;
+      const previousBooks = user.books;
 
-    setError(null);
-    setLoadingUserId(user.id);
+      setError(null);
+      setLoadingUserId(user.id);
 
-    setRows((prev) =>
-      prev.map((row) => {
-        if (row.id !== user.id) {
-          return row;
-        }
+      setRows((prev) =>
+        prev.map((row) => {
+          if (row.id !== user.id) {
+            return row;
+          }
 
-        return {
-          ...row,
-          books: row.books.filter((book) => book.book_id !== bookId),
-        };
-      }),
-    );
+          return {
+            ...row,
+            books: row.books.filter((book) => book.book_id !== bookId),
+          };
+        }),
+      );
 
-    const response = await fetch(`/api/admin/users/${user.id}/revoke?book_id=${encodeURIComponent(bookId)}`, {
-      method: "DELETE",
-      credentials: "same-origin",
-    });
+      const response = await fetch(`/api/admin/users/${user.id}/revoke?book_id=${encodeURIComponent(bookId)}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
 
       if (!response.ok) {
         let responseError = "Nie udało się odebrać dostępu";
@@ -192,7 +193,9 @@ export function UsersTable({ users, books }: UsersTableProps) {
       }
 
       setLoadingUserId(null);
-  }, [refetchUsers]);
+    },
+    [refetchUsers],
+  );
 
   const columns = useMemo(
     () => [

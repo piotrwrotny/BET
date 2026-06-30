@@ -18,8 +18,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
   const siteUrl = new URL(request.url);
-  const isSameOrigin =
-    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+  const isSameOrigin = origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
   if (!isSameOrigin) {
     return Response.json({ error: "Invalid origin" }, { status: 403 });
   }
@@ -39,11 +38,8 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
   const parsed = CreateLessonSchema.safeParse(raw);
   if (!parsed.success) {
     const error = encodeURIComponent(parsed.error.issues[0]?.message ?? "Błąd walidacji");
-    const chapterId = String(raw.chapter_id ?? "");
-    return Response.redirect(
-      new URL(`/admin/lessons/new?chapter_id=${chapterId}&error=${error}`, request.url),
-      302
-    );
+    const chapterId = typeof raw.chapter_id === "string" ? raw.chapter_id : "";
+    return Response.redirect(new URL(`/admin/lessons/new?chapter_id=${chapterId}&error=${error}`, request.url), 302);
   }
 
   const { chapter_id, title, content } = parsed.data;
@@ -57,16 +53,16 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     .limit(1)
     .single();
 
-  const ord = maxRow ? maxRow.ord + 1 : 0;
+  let ord = 0;
+  if (maxRow && typeof maxRow.ord === "number") {
+    ord = maxRow.ord + 1;
+  }
 
   const { error } = await supabase.from("lessons").insert({ chapter_id, title, content, ord });
 
   if (error) {
     const msg = encodeURIComponent(error.message);
-    return Response.redirect(
-      new URL(`/admin/lessons/new?chapter_id=${chapter_id}&error=${msg}`, request.url),
-      302
-    );
+    return Response.redirect(new URL(`/admin/lessons/new?chapter_id=${chapter_id}&error=${msg}`, request.url), 302);
   }
 
   return Response.redirect(new URL(`/admin/lessons?chapter_id=${chapter_id}`, request.url), 302);

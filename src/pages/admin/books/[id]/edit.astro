@@ -40,7 +40,7 @@ const errorMessage = safeDecodeURIComponent(errorParam);
 
 <AdminLayout title="Edytuj książkę">
   <div class="mb-4">
-    <a href="/admin/books" class="text-sm text-muted-foreground hover:underline">← Książki</a>
+    <a href="/admin/books" class="text-muted-foreground text-sm hover:underline">← Książki</a>
   </div>
 
   {errorMessage && <ServerError message={errorMessage} />}
@@ -70,13 +70,13 @@ const errorMessage = safeDecodeURIComponent(errorParam);
     <div class="flex gap-2">
       <button
         type="submit"
-        class="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors"
       >
         Zapisz zmiany
       </button>
       <a
         href="/admin/books"
-        class="inline-flex h-9 items-center rounded-md border border-border px-4 text-sm text-muted-foreground transition-colors hover:bg-muted"
+        class="border-border text-muted-foreground hover:bg-muted inline-flex h-9 items-center rounded-md border px-4 text-sm transition-colors"
       >
         Anuluj
       </a>

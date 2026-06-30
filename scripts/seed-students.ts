@@ -42,7 +42,7 @@ async function seedStudents() {
     });
 
     if (error) {
-      if (error.message?.includes("already been registered")) {
+      if (error.message.includes("already been registered")) {
         console.log(`  ${email} already exists, skipping.`);
         continue;
       }
@@ -50,13 +50,13 @@ async function seedStudents() {
       continue;
     }
 
-    console.log(`  Created ${email} (${data.user?.id ?? "no id"})`);
+    console.log(`  Created ${email} (${data.user.id})`);
   }
 
   console.log("Done.");
 }
 
-seedStudents().catch((error) => {
+seedStudents().catch((error: unknown) => {
   console.error("Seed failed:", error);
   process.exit(1);
 });

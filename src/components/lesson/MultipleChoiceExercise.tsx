@@ -10,16 +10,9 @@ interface Props {
   disabled?: boolean;
   initialCorrectAnswer?: string;
 }
-export default function MultipleChoiceExercise({
-  exercise,
-  onCorrect,
-  disabled = false,
-  initialCorrectAnswer,
-}: Props) {
+export default function MultipleChoiceExercise({ exercise, onCorrect, disabled = false, initialCorrectAnswer }: Props) {
   const [selected, setSelected] = useState<string | null>(initialCorrectAnswer ?? null);
-  const [feedback, setFeedback] = useState<null | "correct" | "incorrect">(
-    initialCorrectAnswer ? "correct" : null,
-  );
+  const [feedback, setFeedback] = useState<null | "correct" | "incorrect">(initialCorrectAnswer ? "correct" : null);
   const [locked, setLocked] = useState(!!initialCorrectAnswer);
   const [loading, setLoading] = useState(false);
   const isDisabled = disabled || locked;
@@ -104,12 +97,8 @@ export default function MultipleChoiceExercise({
         })}
       </div>
 
-      {feedback === "correct" && (
-        <p className="mt-3 text-sm font-medium text-emerald-400">✓ Poprawnie!</p>
-      )}
-      {feedback === "incorrect" && (
-        <p className="mt-3 text-sm text-rose-400">✗ Niepoprawnie — spróbuj ponownie.</p>
-      )}
+      {feedback === "correct" && <p className="mt-3 text-sm font-medium text-emerald-400">✓ Poprawnie!</p>}
+      {feedback === "incorrect" && <p className="mt-3 text-sm text-rose-400">✗ Niepoprawnie — spróbuj ponownie.</p>}
 
       {!locked && (
         <button

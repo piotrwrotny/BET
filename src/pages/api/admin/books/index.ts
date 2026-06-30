@@ -8,6 +8,7 @@ const CreateBookSchema = z.object({
   title: z.string().min(1, "Tytuł jest wymagany"),
   cover_url: z
     .string()
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     .url("Nieprawidłowy URL")
     .refine((u) => u === "" || u.startsWith("http://") || u.startsWith("https://"), {
       message: "URL musi zaczynać się od http:// lub https://",
@@ -25,8 +26,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
   const siteUrl = new URL(request.url);
-  const isSameOrigin =
-    origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
+  const isSameOrigin = origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
   if (!isSameOrigin) {
     return Response.json({ error: "Invalid origin" }, { status: 403 });
   }
@@ -52,8 +52,8 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
   const { title, cover_url, description } = parsed.data;
   const { error } = await supabase.from("books").insert({
     title,
-    cover_url: cover_url || null,
-    description: description || null,
+    cover_url: cover_url ?? null,
+    description: description ?? null,
   });
 
   if (error) {

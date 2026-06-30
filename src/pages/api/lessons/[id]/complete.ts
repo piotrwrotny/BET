@@ -32,8 +32,10 @@ export const POST: APIRoute = async (context) => {
     );
 
   if (error) {
-    // RLS violation: student doesn't have access to this lesson
-    return Response.json({ error: "Forbidden" }, { status: 403 });
+    // RLS violations surface as PostgreSQL code 42501; treat everything else as a server error.
+    const status = error.code === "42501" ? 403 : 500;
+    const message = status === 403 ? "Forbidden" : "Failed to record lesson completion";
+    return Response.json({ error: message }, { status });
   }
 
   return Response.json(

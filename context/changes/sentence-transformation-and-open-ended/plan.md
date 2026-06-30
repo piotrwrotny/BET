@@ -341,28 +341,28 @@ Nie wymagana migracja bazy danych. Istniejące rekordy `sentence_transformation`
 
 #### Automatyczne
 
-- [x] 3.1 `src/components/lesson/SentenceTransformationExercise.tsx` utworzony
-- [x] 3.2 `src/components/lesson/OpenEndedExercise.tsx` utworzony
-- [x] 3.3 `src/components/lesson/LessonInteractive.tsx` podłącza nowe komponenty i `referenceAnswers`
-- [x] 3.4 `src/pages/lessons/[id].astro` pobiera i przekazuje `referenceAnswers`
-- [x] 3.5 `npm run typecheck` i `npm run lint` przechodzą
+- [x] 3.1 `src/components/lesson/SentenceTransformationExercise.tsx` utworzony — e0d193b
+- [x] 3.2 `src/components/lesson/OpenEndedExercise.tsx` utworzony — e0d193b
+- [x] 3.3 `src/components/lesson/LessonInteractive.tsx` podłącza nowe komponenty i `referenceAnswers` — e0d193b
+- [x] 3.4 `src/pages/lessons/[id].astro` pobiera i przekazuje `referenceAnswers` — e0d193b
+- [x] 3.5 `npm run typecheck` i `npm run lint` przechodzą — e0d193b
 
 #### Ręczne
 
-- [x] 3.6 Student rozwiązuje `sentence_transformation`
-- [x] 3.7 Student odsłania wzorzec w `open_ended`
-- [x] 3.8 Ukończenie lekcji nie wymaga interakcji z `open_ended`
+- [x] 3.6 Student rozwiązuje `sentence_transformation` — e0d193b
+- [x] 3.7 Student odsłania wzorzec w `open_ended` — e0d193b
+- [x] 3.8 Ukończenie lekcji nie wymaga interakcji z `open_ended` — e0d193b
 
 ### Faza 4: Testy E2E i stabilizacja
 
 #### Automatyczne
 
-- [ ] 4.1 `tests/e2e/sentence-transformation-and-open-ended.spec.ts` utworzony
-- [ ] 4.2 Nowy spec przechodzi
-- [ ] 4.3 Pełny zestaw `npx playwright test tests/e2e/` przechodzi
-- [ ] 4.4 `npm run typecheck` i `npm run lint` przechodzą
+- [x] 4.1 `tests/e2e/sentence-transformation-and-open-ended.spec.ts` utworzony
+- [x] 4.2 Nowy spec przechodzi
+- [x] 4.3 Pełny zestaw `npx playwright test tests/e2e/` przechodzi
+- [x] 4.4 `npm run typecheck` i `npm run lint` przechodzą
 
 #### Ręczne
 
-- [ ] 4.5 Lekcja `lesson_2_2` z seedu renderuje oba typy poprawnie
-- [ ] 4.6 `open_ended` w seedzie nie blokuje ukończenia lekcji
+- [x] 4.5 Lekcja `lesson_2_2` z seedu renderuje oba typy poprawnie
+- [x] 4.6 `open_ended` w seedzie nie blokuje ukończenia lekcji

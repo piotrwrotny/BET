@@ -340,12 +340,12 @@ Uruchomić pełną weryfikację i zaktualizować cookbook w `context/foundation/
 
 #### Automatyczne
 
-- [x] 4.1 Utworzyć `src/lib/verify-contract.test.ts` dla wszystkich 6 typów
-- [x] 4.2 Pokryć round-trip payload → keys → verify
+- [x] 4.1 Utworzyć `src/lib/verify-contract.test.ts` dla wszystkich 6 typów — 5ee8d0a
+- [x] 4.2 Pokryć round-trip payload → keys → verify — 5ee8d0a
 
 #### Ręczne
 
-- [x] 4.3 Upewnić się, że dane testowe odzwierciedlają format API admina
+- [x] 4.3 Upewnić się, że dane testowe odzwierciedlają format API admina — 5ee8d0a
 
 ### Faza 5: Stabilizacja i aktualizacja test-plan.md
 

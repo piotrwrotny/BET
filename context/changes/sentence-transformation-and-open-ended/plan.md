@@ -327,31 +327,31 @@ Nie wymagana migracja bazy danych. Istniejące rekordy `sentence_transformation`
 
 #### Automatyczne
 
-- [x] 2.1 `src/components/admin/ExerciseForm.tsx` obsługuje nowe typy
-- [x] 2.2 `src/pages/admin/exercises/[id]/edit.astro` pozwala edytować S-07
-- [x] 2.3 `npm run typecheck` i `npm run lint` przechodzą
+- [x] 2.1 `src/components/admin/ExerciseForm.tsx` obsługuje nowe typy — 2a262df
+- [x] 2.2 `src/pages/admin/exercises/[id]/edit.astro` pozwala edytować S-07 — 2a262df
+- [x] 2.3 `npm run typecheck` i `npm run lint` przechodzą — 2a262df
 
 #### Ręczne
 
-- [x] 2.4 Admin tworzy `sentence_transformation` z oryginałem i wariantami
-- [x] 2.5 Admin tworzy `open_ended` z wzorcem
-- [x] 2.6 Edycja obu typów wczytuje dane poprawnie
+- [x] 2.4 Admin tworzy `sentence_transformation` z oryginałem i wariantami — 2a262df
+- [x] 2.5 Admin tworzy `open_ended` z wzorcem — 2a262df
+- [x] 2.6 Edycja obu typów wczytuje dane poprawnie — 2a262df
 
 ### Faza 3: Komponenty studenta i strona lekcji
 
 #### Automatyczne
 
-- [ ] 3.1 `src/components/lesson/SentenceTransformationExercise.tsx` utworzony
-- [ ] 3.2 `src/components/lesson/OpenEndedExercise.tsx` utworzony
-- [ ] 3.3 `src/components/lesson/LessonInteractive.tsx` podłącza nowe komponenty i `referenceAnswers`
-- [ ] 3.4 `src/pages/lessons/[id].astro` pobiera i przekazuje `referenceAnswers`
-- [ ] 3.5 `npm run typecheck` i `npm run lint` przechodzą
+- [x] 3.1 `src/components/lesson/SentenceTransformationExercise.tsx` utworzony
+- [x] 3.2 `src/components/lesson/OpenEndedExercise.tsx` utworzony
+- [x] 3.3 `src/components/lesson/LessonInteractive.tsx` podłącza nowe komponenty i `referenceAnswers`
+- [x] 3.4 `src/pages/lessons/[id].astro` pobiera i przekazuje `referenceAnswers`
+- [x] 3.5 `npm run typecheck` i `npm run lint` przechodzą
 
 #### Ręczne
 
-- [ ] 3.6 Student rozwiązuje `sentence_transformation`
-- [ ] 3.7 Student odsłania wzorzec w `open_ended`
-- [ ] 3.8 Ukończenie lekcji nie wymaga interakcji z `open_ended`
+- [x] 3.6 Student rozwiązuje `sentence_transformation`
+- [x] 3.7 Student odsłania wzorzec w `open_ended`
+- [x] 3.8 Ukończenie lekcji nie wymaga interakcji z `open_ended`
 
 ### Faza 4: Testy E2E i stabilizacja
 

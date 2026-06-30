@@ -84,6 +84,23 @@ if (isAlreadyCompleted) {
   }
 }
 
+// Reference answers for open-ended exercises are always available for self-assessment.
+let referenceAnswers: Record<string, string> = {};
+const openEndedIds = exercises.filter((e) => e.type === "open_ended").map((e) => e.id);
+if (openEndedIds.length > 0) {
+  const { data: refKeys } = await supabase
+    .from("exercise_keys")
+    .select("exercise_id, key_text, key_metadata")
+    .in("exercise_id", openEndedIds)
+    .overrideTypes<{ exercise_id: string; key_text: string; key_metadata: unknown }[], { merge: false }>();
+  for (const k of refKeys ?? []) {
+    const isRefOnly = (k.key_metadata as Record<string, unknown> | null)?.is_reference_only === true;
+    if (isRefOnly && !referenceAnswers[k.exercise_id as string]) {
+      referenceAnswers[k.exercise_id as string] = k.key_text as string;
+    }
+  }
+}
+
 // Chapter info for breadcrumb
 const chapter =
   ((lesson.chapters as { id: string; title: string; book_id: string; ord: number }[] | null) ?? [])[0] ?? null;
@@ -255,6 +272,7 @@ if (pageError) {
         isAlreadyCompleted={isAlreadyCompleted}
         closedExerciseCount={closedExerciseCount}
         correctAnswers={correctAnswers}
+        referenceAnswers={referenceAnswers}
       />
     </main>
   </div>

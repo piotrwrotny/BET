@@ -3,6 +3,8 @@ import MultipleChoiceExercise from "./MultipleChoiceExercise";
 import FillInBlankExercise from "./FillInBlankExercise";
 import TrueFalseExercise from "./TrueFalseExercise";
 import MatchingExercise from "./MatchingExercise";
+import SentenceTransformationExercise from "./SentenceTransformationExercise";
+import OpenEndedExercise from "./OpenEndedExercise";
 
 interface Exercise {
   id: string;
@@ -18,6 +20,7 @@ interface Props {
   isAlreadyCompleted: boolean;
   closedExerciseCount: number;
   correctAnswers?: Record<string, string>;
+  referenceAnswers?: Record<string, string>;
 }
 export default function LessonInteractive({
   lessonId,
@@ -25,6 +28,7 @@ export default function LessonInteractive({
   isAlreadyCompleted,
   closedExerciseCount,
   correctAnswers = {},
+  referenceAnswers = {},
 }: Props) {
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [isCompleted, setIsCompleted] = useState(isAlreadyCompleted);
@@ -48,7 +52,7 @@ export default function LessonInteractive({
         setIsCompleted(true);
       } else {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setErrorMessage(data.error || `Błąd zapisu: ${res.status}`);
+        setErrorMessage(data.error ?? `Błąd zapisu: ${res.status}`);
       }
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Błąd sieci");
@@ -92,8 +96,26 @@ export default function LessonInteractive({
             initialCorrectAnswer={correctAnswers[ex.id]}
           />
         );
+      case "sentence_transformation":
+        return (
+          <SentenceTransformationExercise
+            key={ex.id}
+            exercise={ex}
+            onCorrect={handleCorrect}
+            disabled={isCompleted}
+            initialCorrectAnswer={correctAnswers[ex.id]}
+          />
+        );
+      case "open_ended":
+        return (
+          <OpenEndedExercise
+            key={ex.id}
+            exercise={ex}
+            initialReferenceAnswer={referenceAnswers[ex.id]}
+            disabled={isCompleted}
+          />
+        );
       default:
-        // sentence_transformation / open_ended placeholders until S-07
         return (
           <div key={ex.id} className="rounded-xl border border-white/10 bg-white/5 p-5">
             <p className="mb-1 font-medium text-white">{ex.prompt}</p>

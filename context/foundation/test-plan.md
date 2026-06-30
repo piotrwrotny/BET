@@ -65,7 +65,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name                | Goal (one line)                                  | Risks covered | Test types              | Status        | Change folder                                       |
 |---|---------------------------|--------------------------------------------------|----------------|-------------------------|---------------|-----------------------------------------------------|
-| 1 | Bootstrap unit/contract runner | Lock correctness of exercise verification     | #1, #2, #5     | unit + contract         | researched    | testing-unit-contract-runner                        |
+| 1 | Bootstrap unit/contract runner | Lock correctness of exercise verification     | #1, #2, #5     | unit + contract         | implemented   | testing-unit-contract-runner                        |
 | 2 | Admin/student access boundary tests | Lock role and ownership checks            | #4, #6         | API contract / integration | not started | —                                               |
 | 3 | Exercise-type wiring + completion tests | Lock admin→student flow per exercise type | #3, #6         | component + focused e2e | not started   | —                                                   |
 | 4 | Quality-gates wiring      | Block regressions in CI                          | cross-cutting  | CI gates                | not started   | —                                                   |
@@ -81,7 +81,7 @@ of assuming access.
 
 | Layer                | Tool                       | Version | Notes                                |
 |----------------------|----------------------------|---------|--------------------------------------|
-| unit + integration   | none yet                   | —       | see §3 Phase 1                       |
+| unit + integration   | Vitest + @vitest/coverage-v8 | 4.1.9   | `src/**/*.test.ts`; `npm run test:unit` / `test:coverage` |
 | API mocking          | none yet                   | —       | see §3 Phase 2                       |
 | e2e                  | Playwright                 | —       | 6 specs in `tests/e2e/` today        |
 | accessibility        | none yet                   | —       | not a current priority               |
@@ -117,7 +117,23 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a unit test
 
-TBD — see §3 Phase 1.
+Place the file next to the module under test: `src/lib/<module>.test.ts`.
+Import `describe`, `it`, `expect` from `vitest` and the module via the `@/`
+path alias (configured in `vitest.config.ts`).
+
+```ts
+import { describe, expect, it } from "vitest";
+import { myFunction } from "@/lib/my-module";
+
+describe("myFunction", () => {
+  it("handles the happy path", () => {
+    expect(myFunction("input")).toBe(true);
+  });
+});
+```
+
+Run `npm run test:unit` for a single pass or `npm run test:watch` while
+editing. Target 100% coverage on pure logic with `npm run test:coverage`.
 
 ### 6.2 Adding an integration / API contract test
 
@@ -129,7 +145,18 @@ TBD — see §3 Phase 3.
 
 ### 6.4 Adding a test for a new exercise type
 
-TBD — see §3 Phase 3.
+Verification logic lives in `src/lib/verify-exercise.ts`. When adding a new
+closed type:
+
+1. Add the type to `CLOSED_EXERCISE_TYPES` in `verify-exercise.ts` if it
+   shares the same normalization/matching rules as existing closed types.
+2. Add a unit dispatch test in `src/lib/verify-exercise.test.ts`.
+3. Add a round-trip contract test in `src/lib/verify-contract.test.ts`
+   using an answer and keys shaped like the admin API payload.
+
+If the new type needs custom matching (e.g., a new structured answer
+format), add a dedicated verifier function and route it from
+`verifyExercise` instead of adding it to the closed-type list.
 
 ### 6.5 Adding a test for a new admin endpoint
 
@@ -137,7 +164,13 @@ TBD — see §3 Phase 2.
 
 ### 6.6 Per-rollout-phase notes
 
-TBD — phases not yet started.
+**Phase 1 — Bootstrap unit/contract runner (implemented).**
+- Pure verification extracted to `src/lib/verify-exercise.ts`.
+- `verify.ts` keeps HTTP/auth/DB wiring and delegates to `verifyExercise`.
+- 36 unit + contract tests in `src/lib/verify-exercise.test.ts` and
+  `src/lib/verify-contract.test.ts`.
+- `verify-exercise.ts` reaches 100% statement/function/line coverage.
+- `npm run test:unit` is wired; Playwright E2E remains independent.
 
 ## 7. What We Deliberately Don't Test
 

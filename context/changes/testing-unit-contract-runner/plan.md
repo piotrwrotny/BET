@@ -351,8 +351,8 @@ Uruchomić pełną weryfikację i zaktualizować cookbook w `context/foundation/
 
 #### Automatyczne
 
-- [ ] 5.1 Uruchomić `npm run typecheck`, `npm run lint`, `npm run test:unit`, E2E
+- [x] 5.1 Uruchomić `npm run typecheck`, `npm run lint`, `npm run test:unit`, E2E
 
 #### Ręczne
 
-- [ ] 5.2 Zaktualizować `context/foundation/test-plan.md` §6 cookbook
+- [x] 5.2 Zaktualizować `context/foundation/test-plan.md` §6 cookbook

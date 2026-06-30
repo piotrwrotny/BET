@@ -3,7 +3,7 @@ change_id: sentence-transformation-and-open-ended
 title: Sentence transformation and open-ended exercises
 status: impl_reviewed
 created: 2026-06-30
-updated: 2026-06-30
+updated: 2026-07-01
 archived_at: null
 ---
 

@@ -259,12 +259,12 @@ Brak. Nie dotyczy danych ani schematu.
 
 #### Automatyczne
 
-- [x] 2.1 Dodać `:global()` do selektorów `.lesson-content` w `src/pages/lessons/[id].astro`
-- [x] 2.2 Dodać `eslint-disable-next-line react-hooks/incompatible-library` w `UsersTable.tsx`
+- [x] 2.1 Dodać `:global()` do selektorów `.lesson-content` w `src/pages/lessons/[id].astro` — cf0c7b5
+- [x] 2.2 Dodać `eslint-disable-next-line react-hooks/incompatible-library` w `UsersTable.tsx` — cf0c7b5
 
 #### Ręczne
 
-- [ ] 2.3 Wizualna weryfikacja stylów lekcji
+- [x] 2.3 Wizualna weryfikacja stylów lekcji — cf0c7b5
 
 ### Faza 3: Pełna regresja
 

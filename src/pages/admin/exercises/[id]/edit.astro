@@ -41,13 +41,25 @@ const sortedKeys = (exercise.exercise_keys as { key_text: string; ord: number }[
   .map((k) => k.key_text);
 
 // Extract type-specific payload
-const payload = exercise.payload as { options?: string[]; pairs?: { left: string; right: string }[] };
+const payload = exercise.payload as {
+  options?: string[];
+  pairs?: { left: string; right: string }[];
+  original?: string;
+};
 const initialOptions = exercise.type === "multiple_choice" ? (payload.options ?? []) : undefined;
 const initialPairs = exercise.type === "matching" ? (payload.pairs ?? []) : undefined;
+const initialOriginal = exercise.type === "sentence_transformation" ? (payload.original ?? "") : undefined;
 
 const redirectTo = `/admin/exercises?lesson_id=${lessonId}`;
 
-const editableTypes = ["multiple_choice", "fill_in_blank", "true_false", "matching"];
+const editableTypes = [
+  "multiple_choice",
+  "fill_in_blank",
+  "true_false",
+  "matching",
+  "sentence_transformation",
+  "open_ended",
+];
 const isEditable = editableTypes.includes(exercise.type);
 ---
 
@@ -100,11 +112,21 @@ const isEditable = editableTypes.includes(exercise.type);
         client:load
         lessonId={lessonId}
         exerciseId={exercise.id}
-        initialType={exercise.type as "multiple_choice" | "fill_in_blank" | "true_false" | "matching"}
+        initialType={
+          exercise.type as
+            | "multiple_choice"
+            | "fill_in_blank"
+            | "true_false"
+            | "matching"
+            | "sentence_transformation"
+            | "open_ended"
+        }
         initialPrompt={exercise.prompt}
         initialOptions={initialOptions}
         initialPairs={initialPairs}
-        initialKeys={sortedKeys}
+        initialKeys={exercise.type === "sentence_transformation" ? sortedKeys : undefined}
+        initialOriginal={initialOriginal}
+        initialReferenceAnswer={exercise.type === "open_ended" ? sortedKeys[0] : undefined}
         redirectTo={redirectTo}
       />
     ) : (

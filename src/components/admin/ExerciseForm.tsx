@@ -1,6 +1,12 @@
 import { useState } from "react";
 
-type ExerciseType = "multiple_choice" | "fill_in_blank" | "matching" | "true_false";
+type ExerciseType =
+  | "multiple_choice"
+  | "fill_in_blank"
+  | "matching"
+  | "true_false"
+  | "sentence_transformation"
+  | "open_ended";
 
 interface MatchingPair {
   left: string;
@@ -15,6 +21,8 @@ interface ExerciseFormProps {
   initialOptions?: string[];
   initialPairs?: MatchingPair[];
   initialKeys?: string[];
+  initialOriginal?: string;
+  initialReferenceAnswer?: string;
   redirectTo: string;
 }
 
@@ -32,6 +40,8 @@ export function ExerciseForm({
   initialOptions,
   initialPairs,
   initialKeys,
+  initialOriginal = "",
+  initialReferenceAnswer = "",
   redirectTo,
 }: ExerciseFormProps) {
   const [type, setType] = useState<ExerciseType>(initialType);
@@ -55,6 +65,12 @@ export function ExerciseForm({
   const [matchingKeyJson, setMatchingKeyJson] = useState(
     initialType === "matching" && initialKeys?.[0] ? initialKeys[0] : "",
   );
+  // Sentence transformation
+  const [originalText, setOriginalText] = useState(initialType === "sentence_transformation" ? initialOriginal : "");
+  const initialStAnswers = initialType === "sentence_transformation" && initialKeys?.length ? initialKeys : [""];
+  const [stAnswers, setStAnswers] = useState<string[]>(initialStAnswers);
+  // Open-ended
+  const [refAnswer, setRefAnswer] = useState(initialType === "open_ended" ? initialReferenceAnswer : "");
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -94,6 +110,13 @@ export function ExerciseForm({
         }
       }
     }
+    if (type === "sentence_transformation") {
+      if (!originalText.trim()) return "Podaj oryginalne zdanie";
+      if (!stAnswers.some((k) => k.trim())) return "Podaj co najmniej jeden dopuszczalny wariant";
+    }
+    if (type === "open_ended") {
+      if (!refAnswer.trim()) return "Podaj wzorcową odpowiedź";
+    }
     return null;
   };
 
@@ -114,6 +137,8 @@ export function ExerciseForm({
       payload = { options: options.filter((o) => o.trim()) };
     } else if (type === "matching") {
       payload = { pairs: pairs.filter((p) => p.left.trim() && p.right.trim()) };
+    } else if (type === "sentence_transformation") {
+      payload = { original: originalText.trim() };
     }
 
     let keys: string[];
@@ -123,6 +148,10 @@ export function ExerciseForm({
       keys = fibKeys.filter((k) => k.trim());
     } else if (type === "true_false") {
       keys = [tfKey];
+    } else if (type === "sentence_transformation") {
+      keys = stAnswers.filter((k) => k.trim());
+    } else if (type === "open_ended") {
+      keys = [refAnswer.trim()];
     } else {
       keys = [matchingKeyJson.trim()];
     }
@@ -176,6 +205,14 @@ export function ExerciseForm({
     setPairs((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const setStAnswer = (idx: number, val: string) => {
+    setStAnswers((prev) => prev.map((k, i) => (i === idx ? val : k)));
+  };
+
+  const removeStAnswer = (idx: number) => {
+    setStAnswers((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
       {error && (
@@ -201,6 +238,8 @@ export function ExerciseForm({
           <option value="fill_in_blank">Uzupełnij lukę (Fill in the Blank)</option>
           <option value="true_false">Prawda / Fałsz (True/False)</option>
           <option value="matching">Dopasowanie (Matching)</option>
+          <option value="sentence_transformation">Przekształcanie zdań</option>
+          <option value="open_ended">Pytanie otwarte</option>
         </select>
       </div>
 
@@ -428,6 +467,91 @@ export function ExerciseForm({
               do prawej 1.
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Sentence transformation */}
+      {type === "sentence_transformation" && (
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <label htmlFor="st-original" className="text-sm font-medium">
+              Oryginalne zdanie *
+            </label>
+            <textarea
+              id="st-original"
+              value={originalText}
+              onChange={(e) => {
+                setOriginalText(e.target.value);
+              }}
+              rows={2}
+              required
+              className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full resize-y rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-[3px]"
+              placeholder="Wpisz zdanie do przekształcenia…"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Dopuszczalne warianty *
+              <span className="text-muted-foreground ml-2 text-xs font-normal">
+                (wpisz wszystkie akceptowalne odpowiedzi)
+              </span>
+            </label>
+            <div className="space-y-2">
+              {stAnswers.map((key, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={key}
+                    onChange={(e) => {
+                      setStAnswer(idx, e.target.value);
+                    }}
+                    placeholder={`Wariant ${idx + 1}`}
+                    className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 flex-1 rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px]"
+                  />
+                  {stAnswers.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeStAnswer(idx);
+                      }}
+                      className="text-destructive text-xs hover:underline"
+                    >
+                      Usuń
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setStAnswers((prev) => [...prev, ""]);
+              }}
+              className="text-xs text-blue-600 hover:underline"
+            >
+              + Dodaj wariant
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Open-ended */}
+      {type === "open_ended" && (
+        <div className="space-y-1">
+          <label htmlFor="oe-reference" className="text-sm font-medium">
+            Wzorcowa odpowiedź *
+          </label>
+          <textarea
+            id="oe-reference"
+            value={refAnswer}
+            onChange={(e) => {
+              setRefAnswer(e.target.value);
+            }}
+            rows={4}
+            required
+            className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full resize-y rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-[3px]"
+            placeholder="Wpisz wzorcową odpowiedź do samooceny…"
+          />
         </div>
       )}
 

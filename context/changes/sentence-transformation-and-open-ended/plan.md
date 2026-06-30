@@ -313,29 +313,29 @@ Nie wymagana migracja bazy danych. Istniejące rekordy `sentence_transformation`
 
 #### Automatyczne
 
-- [x] 1.1 `src/lib/exercise-schemas.ts` rozszerzone o `SentenceTransformationPayloadSchema` i `OpenEndedPayloadSchema`
-- [x] 1.2 `src/pages/api/admin/exercises/index.ts` usuwa guard i waliduje S-07
-- [x] 1.3 `src/pages/api/admin/exercises/[id].ts` usuwa guard i waliduje S-07
-- [x] 1.4 `npm run typecheck` i `npm run lint` przechodzą
+- [x] 1.1 `src/lib/exercise-schemas.ts` rozszerzone o `SentenceTransformationPayloadSchema` i `OpenEndedPayloadSchema` — 0aac517
+- [x] 1.2 `src/pages/api/admin/exercises/index.ts` usuwa guard i waliduje S-07 — 0aac517
+- [x] 1.3 `src/pages/api/admin/exercises/[id].ts` usuwa guard i waliduje S-07 — 0aac517
+- [x] 1.4 `npm run typecheck` i `npm run lint` przechodzą — 0aac517
 
 #### Ręczne
 
-- [x] 1.5 Ręczny `curl` tworzy `sentence_transformation` i `open_ended`
-- [x] 1.6 `open_ended` zapisuje klucz z `is_reference_only: true`
+- [x] 1.5 Ręczny `curl` tworzy `sentence_transformation` i `open_ended` — 0aac517
+- [x] 1.6 `open_ended` zapisuje klucz z `is_reference_only: true` — 0aac517
 
 ### Faza 2: Formularz admina
 
 #### Automatyczne
 
-- [ ] 2.1 `src/components/admin/ExerciseForm.tsx` obsługuje nowe typy
-- [ ] 2.2 `src/pages/admin/exercises/[id]/edit.astro` pozwala edytować S-07
-- [ ] 2.3 `npm run typecheck` i `npm run lint` przechodzą
+- [x] 2.1 `src/components/admin/ExerciseForm.tsx` obsługuje nowe typy
+- [x] 2.2 `src/pages/admin/exercises/[id]/edit.astro` pozwala edytować S-07
+- [x] 2.3 `npm run typecheck` i `npm run lint` przechodzą
 
 #### Ręczne
 
-- [ ] 2.4 Admin tworzy `sentence_transformation` z oryginałem i wariantami
-- [ ] 2.5 Admin tworzy `open_ended` z wzorcem
-- [ ] 2.6 Edycja obu typów wczytuje dane poprawnie
+- [x] 2.4 Admin tworzy `sentence_transformation` z oryginałem i wariantami
+- [x] 2.5 Admin tworzy `open_ended` z wzorcem
+- [x] 2.6 Edycja obu typów wczytuje dane poprawnie
 
 ### Faza 3: Komponenty studenta i strona lekcji
 

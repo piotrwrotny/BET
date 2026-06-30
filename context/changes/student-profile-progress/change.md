@@ -1,9 +1,9 @@
 ---
 change_id: student-profile-progress
 title: Student profile with completed lessons and progress per book
-status: planned
+status: impl_reviewed
 created: 2026-06-29
-updated: 2026-06-29
+updated: 2026-06-30
 archived_at: null
 ---
 

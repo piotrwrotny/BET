@@ -1,9 +1,9 @@
 ---
 change_id: closed-exercises-fill-match-truefalse
 title: Closed exercise types — fill-in-blank, matching, true/false
-status: implemented
+status: impl_reviewed
 created: 2026-06-29
-updated: 2026-06-29
+updated: 2026-06-30
 archived_at: null
 ---
 

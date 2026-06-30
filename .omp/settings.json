@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run lint:fix",
+            "timeout": 15000
+          },
+          {
+            "type": "command",
+            "command": "npm run typecheck",
+            "timeout": 60000
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/run-related-tests.js",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}

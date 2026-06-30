@@ -19,9 +19,9 @@ Tests follow three non-negotiable principles for this project:
 2. **User concerns are first-class evidence.** Risks anchored in "the
    team is worried about X, and the failure would surface somewhere in
    <area>" carry the same weight as PRD lines or hot-spot data.
-3. **Risks are scenarios, not code locations.** This plan documents *what
-   could fail* and *why we believe it's likely* — drawn from documents,
-   interview, and codebase *signal* (churn, structure, test base). It does
+3. **Risks are scenarios, not code locations.** This plan documents _what
+   could fail_ and _why we believe it's likely_ — drawn from documents,
+   interview, and codebase _signal_ (churn, structure, test base). It does
    NOT claim to know which line owns the failure. That knowledge is
    produced by `/10x-research` during each rollout phase. If the plan and
    research disagree about where the failure lives, research is the
@@ -33,29 +33,29 @@ Hot-spot scope used for likelihood weighting: `src/components`, `src/pages`, `sr
 
 The top failure scenarios this project must protect against, ordered by
 risk = impact × likelihood. Risks are failure scenarios in user / business
-terms, not test names. The Source column cites the *evidence that surfaced
-this risk* — never a specific file as "where the failure lives" (that is
+terms, not test names. The Source column cites the _evidence that surfaced
+this risk_ — never a specific file as "where the failure lives" (that is
 research's job, see §1 principle #3).
 
-| # | Risk (failure scenario)                  | Impact | Likelihood | Source (evidence — not anchor)                                          |
-|---|------------------------------------------|--------|------------|--------------------------------------------------------------------------|
-| 1 | Exercise verification accepts a wrong answer or rejects a correct variant | High | High | PRD FR-024; interview Q1; interview Q2 |
-| 2 | Key / payload schema refactor silently breaks multi-variant matching | High | Medium | Interview Q2; hot-spot `src/pages/api/admin/exercises` (8 commits/30d) |
-| 3 | New exercise-type wiring fails between admin form and student component | Medium | Medium | Interview Q3; hot-spot `src/components/lesson` (14 commits/30d) |
-| 4 | Student accesses another student's data or hits admin endpoints | High | Low | PRD Access Control; interview Q4 |
-| 5 | Answer normalization produces false positives or false negatives | Medium | Medium | PRD FR-024; interview Q1 |
-| 6 | Completion gating wrongly requires open-ended exercise or ignores a missing closed exercise | High | Low | PRD FR-015; PRD Business Logic |
+| #   | Risk (failure scenario)                                                                     | Impact | Likelihood | Source (evidence — not anchor)                                         |
+| --- | ------------------------------------------------------------------------------------------- | ------ | ---------- | ---------------------------------------------------------------------- |
+| 1   | Exercise verification accepts a wrong answer or rejects a correct variant                   | High   | High       | PRD FR-024; interview Q1; interview Q2                                 |
+| 2   | Key / payload schema refactor silently breaks multi-variant matching                        | High   | Medium     | Interview Q2; hot-spot `src/pages/api/admin/exercises` (8 commits/30d) |
+| 3   | New exercise-type wiring fails between admin form and student component                     | Medium | Medium     | Interview Q3; hot-spot `src/components/lesson` (14 commits/30d)        |
+| 4   | Student accesses another student's data or hits admin endpoints                             | High   | Low        | PRD Access Control; interview Q4                                       |
+| 5   | Answer normalization produces false positives or false negatives                            | Medium | Medium     | PRD FR-024; interview Q1                                               |
+| 6   | Completion gating wrongly requires open-ended exercise or ignores a missing closed exercise | High   | Low        | PRD FR-015; PRD Business Logic                                         |
 
 ### Risk Response Guidance
 
-| Risk | What would prove protection | Must challenge | Context `/10x-research` must ground | Likely cheapest layer | Anti-pattern to avoid |
-|------|-----------------------------|----------------|--------------------------------------|-----------------------|-----------------------|
-| #1 | Wrong answers are rejected; correct variants are accepted | "E2E covers it" — E2E is expensive and slow for this | Input/output contract of verification; how variants are stored and matched | Unit / contract test | Testing only happy path; copying expected answers from implementation |
-| #2 | Adding/removing a key variant changes accepted answers as documented | Assuming a schema change is covered by type check alone | Schema shape for each exercise type; where keys are read at verification time | Unit / contract test | Mocking the exact function under test |
-| #3 | New exercise type renders, submits, and reports correctly end-to-end | That admin form + API + student component stay in sync by convention | Data flow from admin save through API to student render | Component test + focused E2E | CSS selectors; testing every UI label |
-| #4 | Non-owner / non-admin requests return 401/403 or correctly filtered data | "Logged in = authorized" | Session/role shape; which endpoints touch which resources | API contract / integration test | E2E-only coverage of a single happy path |
-| #5 | Edge-case strings (case, whitespace, punctuation) are handled consistently | Human visual check is enough | Normalization rules for each exercise type | Unit table test | Expectations copied from current output |
-| #6 | Lesson completes only after "mark read" plus all closed exercises correct | Open-ended exercise or no exercise still marks complete | State machine for lesson completion; which exercise types count as closed | Integration test | Testing only one exercise type |
+| Risk | What would prove protection                                                | Must challenge                                                       | Context `/10x-research` must ground                                           | Likely cheapest layer           | Anti-pattern to avoid                                                 |
+| ---- | -------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------- |
+| #1   | Wrong answers are rejected; correct variants are accepted                  | "E2E covers it" — E2E is expensive and slow for this                 | Input/output contract of verification; how variants are stored and matched    | Unit / contract test            | Testing only happy path; copying expected answers from implementation |
+| #2   | Adding/removing a key variant changes accepted answers as documented       | Assuming a schema change is covered by type check alone              | Schema shape for each exercise type; where keys are read at verification time | Unit / contract test            | Mocking the exact function under test                                 |
+| #3   | New exercise type renders, submits, and reports correctly end-to-end       | That admin form + API + student component stay in sync by convention | Data flow from admin save through API to student render                       | Component test + focused E2E    | CSS selectors; testing every UI label                                 |
+| #4   | Non-owner / non-admin requests return 401/403 or correctly filtered data   | "Logged in = authorized"                                             | Session/role shape; which endpoints touch which resources                     | API contract / integration test | E2E-only coverage of a single happy path                              |
+| #5   | Edge-case strings (case, whitespace, punctuation) are handled consistently | Human visual check is enough                                         | Normalization rules for each exercise type                                    | Unit table test                 | Expectations copied from current output                               |
+| #6   | Lesson completes only after "mark read" plus all closed exercises correct  | Open-ended exercise or no exercise still marks complete              | State machine for lesson completion; which exercise types count as closed     | Integration test                | Testing only one exercise type                                        |
 
 ## 3. Phased Rollout
 
@@ -63,12 +63,12 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| # | Phase name                | Goal (one line)                                  | Risks covered | Test types              | Status        | Change folder                                       |
-|---|---------------------------|--------------------------------------------------|----------------|-------------------------|---------------|-----------------------------------------------------|
-| 1 | Bootstrap unit/contract runner | Lock correctness of exercise verification     | #1, #2, #5     | unit + contract         | implemented   | testing-unit-contract-runner                        |
-| 2 | Admin/student access boundary tests | Lock role and ownership checks            | #4, #6         | API contract / integration | not started | —                                               |
-| 3 | Exercise-type wiring + completion tests | Lock admin→student flow per exercise type | #3, #6         | component + focused e2e | not started   | —                                                   |
-| 4 | Quality-gates wiring      | Block regressions in CI                          | cross-cutting  | CI gates                | not started   | —                                                   |
+| #   | Phase name                              | Goal (one line)                           | Risks covered | Test types                 | Status      | Change folder                |
+| --- | --------------------------------------- | ----------------------------------------- | ------------- | -------------------------- | ----------- | ---------------------------- |
+| 1   | Bootstrap unit/contract runner          | Lock correctness of exercise verification | #1, #2, #5    | unit + contract            | implemented | testing-unit-contract-runner |
+| 2   | Admin/student access boundary tests     | Lock role and ownership checks            | #4, #6        | API contract / integration | not started | —                            |
+| 3   | Exercise-type wiring + completion tests | Lock admin→student flow per exercise type | #3, #6        | component + focused e2e    | not started | —                            |
+| 4   | Quality-gates wiring                    | Block regressions in CI                   | cross-cutting | CI gates                   | not started | —                            |
 
 ## 4. Stack
 
@@ -79,15 +79,16 @@ plus the MCP/tools actually exposed in the current session. If a useful docs
 or search MCP such as Context7 or Exa.ai is not available, say that instead
 of assuming access.
 
-| Layer                | Tool                       | Version | Notes                                |
-|----------------------|----------------------------|---------|--------------------------------------|
-| unit + integration   | Vitest + @vitest/coverage-v8 | 4.1.9   | `src/**/*.test.ts`; `npm run test:unit` / `test:coverage` |
-| API mocking          | none yet                   | —       | see §3 Phase 2                       |
-| e2e                  | Playwright                 | —       | 6 specs in `tests/e2e/` today        |
-| accessibility        | none yet                   | —       | not a current priority               |
-| AI-native            | none                       | —       | not used; deterministic tests preferred |
+| Layer              | Tool                         | Version | Notes                                                     |
+| ------------------ | ---------------------------- | ------- | --------------------------------------------------------- |
+| unit + integration | Vitest + @vitest/coverage-v8 | 4.1.9   | `src/**/*.test.ts`; `npm run test:unit` / `test:coverage` |
+| API mocking        | none yet                     | —       | see §3 Phase 2                                            |
+| e2e                | Playwright                   | —       | 6 specs in `tests/e2e/` today                             |
+| accessibility      | none yet                     | —       | not a current priority                                    |
+| AI-native          | none                         | —       | not used; deterministic tests preferred                   |
 
 **Stack grounding tools (current session):**
+
 - Docs: Context7 + framework docs MCP — checked Playwright/Astro docs availability; checked: 2026-06-30
 - Search: built-in `web_search` (Exa.ai not available in this session); checked: 2026-06-30
 - Runtime/browser: Playwright MCP + browser tool — available for e2e layers; checked: 2026-06-30
@@ -99,15 +100,15 @@ The full set of gates that must pass before a change reaches production.
 "Required for §3 Phase <N>" means the gate is enforced once that rollout
 phase lands; before that, the gate is `planned`.
 
-| Gate                          | Where             | Required?                   | Catches                                       |
-|-------------------------------|-------------------|------------------------------|-----------------------------------------------|
-| lint + typecheck              | local + CI        | required                     | syntactic / type drift                        |
-| unit + integration            | local + CI        | required after §3 Phase 1    | logic regressions                             |
-| e2e on critical flows         | CI on PR          | required after §3 Phase 1    | broken critical user paths                    |
-| post-edit hook                | local (agent loop) | planned                     | regressions at edit time                      |
-| visual diff (deterministic)   | CI on PR          | optional                     | rendering regressions                         |
-| multimodal visual review      | CI on PR          | optional                     | visual issues classic diff misses             |
-| pre-prod smoke                | between merge + prod | optional                  | environment-specific failures                 |
+| Gate                        | Where                | Required?                 | Catches                                                 |
+| --------------------------- | -------------------- | ------------------------- | ------------------------------------------------------- |
+| lint + typecheck            | local + CI           | required                  | syntactic / type drift                                  |
+| unit + integration          | local + CI           | required after §3 Phase 1 | logic regressions                                       |
+| e2e on critical flows       | CI on PR             | required after §3 Phase 1 | broken critical user paths                              |
+| post-edit hook              | local (agent loop)   | implemented               | regressions at edit time (lint/typecheck/related tests) |
+| visual diff (deterministic) | CI on PR             | optional                  | rendering regressions                                   |
+| multimodal visual review    | CI on PR             | optional                  | visual issues classic diff misses                       |
+| pre-prod smoke              | between merge + prod | optional                  | environment-specific failures                           |
 
 ## 6. Cookbook Patterns
 
@@ -165,6 +166,7 @@ TBD — see §3 Phase 2.
 ### 6.6 Per-rollout-phase notes
 
 **Phase 1 — Bootstrap unit/contract runner (implemented).**
+
 - Pure verification extracted to `src/lib/verify-exercise.ts`.
 - `verify.ts` keeps HTTP/auth/DB wiring and delegates to `verifyExercise`.
 - 36 unit + contract tests in `src/lib/verify-exercise.test.ts` and

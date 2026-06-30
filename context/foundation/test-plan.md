@@ -65,7 +65,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name                | Goal (one line)                                  | Risks covered | Test types              | Status        | Change folder                                       |
 |---|---------------------------|--------------------------------------------------|----------------|-------------------------|---------------|-----------------------------------------------------|
-| 1 | Bootstrap unit/contract runner | Lock correctness of exercise verification     | #1, #2, #5     | unit + contract         | not started   | —                                                   |
+| 1 | Bootstrap unit/contract runner | Lock correctness of exercise verification     | #1, #2, #5     | unit + contract         | change opened | testing-unit-contract-runner                        |
 | 2 | Admin/student access boundary tests | Lock role and ownership checks            | #4, #6         | API contract / integration | not started | —                                               |
 | 3 | Exercise-type wiring + completion tests | Lock admin→student flow per exercise type | #3, #6         | component + focused e2e | not started   | —                                                   |
 | 4 | Quality-gates wiring      | Block regressions in CI                          | cross-cutting  | CI gates                | not started   | —                                                   |

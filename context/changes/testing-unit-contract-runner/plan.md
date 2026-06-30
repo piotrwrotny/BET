@@ -316,12 +316,12 @@ Uruchomić pełną weryfikację i zaktualizować cookbook w `context/foundation/
 
 #### Automatyczne
 
-- [x] 2.1 Utworzyć `src/lib/verify-exercise.ts` z czystymi funkcjami
-- [x] 2.2 Zrefaktoryzować `src/pages/api/exercises/verify.ts` do użycia `verifyExercise`
+- [x] 2.1 Utworzyć `src/lib/verify-exercise.ts` z czystymi funkcjami — 1e33b0c
+- [x] 2.2 Zrefaktoryzować `src/pages/api/exercises/verify.ts` do użycia `verifyExercise` — 1e33b0c
 
 #### Ręczne
 
-- [x] 2.3 Potwierdzić brak regresji w E2E closed-exercises i sentence-transformation
+- [x] 2.3 Potwierdzić brak regresji w E2E closed-exercises i sentence-transformation — 1e33b0c
 
 ### Faza 3: Testy jednostkowe logiki weryfikacji
 

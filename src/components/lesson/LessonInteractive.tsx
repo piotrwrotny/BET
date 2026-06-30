@@ -46,7 +46,12 @@ export default function LessonInteractive({
       const res = await fetch(`/api/lessons/${lessonId}/complete`, { method: "POST" });
       if (res.ok) {
         setIsCompleted(true);
+      } else {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        setErrorMessage(data.error || `Błąd zapisu: ${res.status}`);
       }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Błąd sieci");
     } finally {
       setCompleting(false);
     }
@@ -126,7 +131,7 @@ export default function LessonInteractive({
             {errorMessage && <p className="mb-3 text-sm text-rose-400">{errorMessage}</p>}
             <button
               type="button"
-              disabled={completing}
+              disabled={completing || completedExercises.size < closedExerciseCount}
               onClick={handleMarkRead}
               className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
             >

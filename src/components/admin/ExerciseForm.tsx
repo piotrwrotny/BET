@@ -186,8 +186,11 @@ export function ExerciseForm({
 
       {/* Type */}
       <div className="space-y-1">
-        <label className="text-sm font-medium">Typ ćwiczenia *</label>
+        <label htmlFor="exercise-type" className="text-sm font-medium">
+          Typ ćwiczenia *
+        </label>
         <select
+          id="exercise-type"
           value={type}
           onChange={(e) => {
             setType(e.target.value as ExerciseType);
@@ -203,13 +206,14 @@ export function ExerciseForm({
 
       {/* Prompt */}
       <div className="space-y-1">
-        <label className="text-sm font-medium">
+        <label htmlFor="exercise-prompt" className="text-sm font-medium">
           Treść ćwiczenia *
           {type === "fill_in_blank" && (
             <span className="text-muted-foreground ml-2 text-xs font-normal">Użyj _____ jako oznaczenia luki</span>
           )}
         </label>
         <textarea
+          id="exercise-prompt"
           value={prompt}
           onChange={(e) => {
             setPrompt(e.target.value);
@@ -406,8 +410,11 @@ export function ExerciseForm({
           </button>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">Poprawna mapa (JSON) *</label>
+            <label htmlFor="matching-key" className="text-sm font-medium">
+              Poprawna mapa (JSON) *
+            </label>
             <input
+              id="matching-key"
               type="text"
               value={matchingKeyJson}
               onChange={(e) => {

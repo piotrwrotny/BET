@@ -34,7 +34,7 @@ Student przygotowujący się do certyfikatu lub egzaminu z języka angielskiego 
 | S-03 | admin-user-and-access-mgmt | (admin) utworzyć konto studenta i nadać/odebrać dostęp do konkretnej książki | F-01 | FR-001, FR-002, FR-003 | done |
 | S-04 | student-profile-progress | (student) zobaczyć profil z listą ukończonych lekcji i procentem postępu w książce | F-01 | FR-004 | done |
 | S-05 | sequential-navigation-and-chapter-completion | (student) nawigować next/prev przez lekcje, dostać agregat „rozdział ukończony" gdy wszystkie lekcje rozdziału ukończone, kliknąć „Kontynuuj naukę" trafić w pierwszą nieukończoną lekcję | F-01, S-01 | FR-012, FR-013, FR-016, FR-017 | done |
-| S-06 | closed-exercises-fill-match-truefalse | (student) wykonywać trzy kolejne typy ćwiczeń zamkniętych: uzupełnianie luk, łączenie fraz, prawda/fałsz; admin dodaje je przez UI | F-01, S-01, S-02 | FR-018, FR-019, FR-023 | not_started |
+| S-06 | closed-exercises-fill-match-truefalse | (student) wykonywać trzy kolejne typy ćwiczeń zamkniętych: uzupełnianie luk, łączenie fraz, prawda/fałsz; admin dodaje je przez UI | F-01, S-01, S-02 | FR-018, FR-019, FR-023 | done |
 | S-07 | sentence-transformation-and-open-ended | (student) wykonać ćwiczenie transformacji zdania z wieloma poprawnymi wariantami i otwarte pytanie z wzorcową odpowiedzią (nie blokuje ukończenia lekcji) | F-01, S-01, S-02 | FR-020, FR-021, FR-025 | not_started |
 
 ## Strumienie
@@ -150,9 +150,9 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
 - **Wymagania wstępne:** F-01, S-01, S-02
 - **Równolegle z:** S-07
 - **Blokady:** —
-- **Status:** not_started
+- **Status:** done
 
-> W kodzie obsługiwany jest tylko `multiple_choice`. `fill_in_blank`, `matching` i `true_false` wyświetlają się jako placeholder; nie są interaktywne. W seedzie zmieniono dwa ćwiczenia `fill_in_blank` / `true_false` na `multiple_choice`, żeby nie blokowały postępu.
+> Wdrożony w kodzie; zarchiwizowano 2026-06-30.
 
 ### S-07: Transformacje zdań i otwarte pytania
 
@@ -203,4 +203,5 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
 - **S-02: Admin tworzy i porządkuje treści książki** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-admin-content-creation/`. Lekcja: —.
 - **S-03: Admin zarządza kontami studentów i ich dostępem do książek** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-admin-user-and-access-mgmt/`. Lekcja: —.
 - **S-04: Student widzi profil z postępem** — Zarchiwizowano 2026-06-30 → `context/archive/2026-06-29-student-profile-progress/`. Lekcja: —.
+- **S-06: Pozostałe ćwiczenia zamknięte — uzupełnianie luk, łączenie fraz, prawda/fałsz** — Zarchiwizowano 2026-06-30 → `context/archive/2026-06-29-closed-exercises-fill-match-truefalse/`. Lekcja: —.
 - **S-05: Student nawiguje sekwencyjnie i widzi ukończenie rozdziału** — Zarchiwizowano 2026-06-29 → `context/archive/2026-06-26-sequential-navigation-and-chapter-completion/`. Lekcja: —.

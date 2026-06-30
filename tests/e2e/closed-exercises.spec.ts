@@ -3,6 +3,21 @@ import { test, expect, type Page } from "@playwright/test";
 test.setTimeout(60000);
 
 const CHAPTER_ID = "00000000-0000-0000-0000-000000000020";
+const createdLessonIds: string[] = [];
+
+test.afterEach(async ({ browser }) => {
+  const adminContext = await browser.newContext({ storageState: "playwright/.auth/admin.json" });
+  for (const lessonId of createdLessonIds) {
+    const res = await adminContext.request.delete(`/api/admin/lessons/${lessonId}`, {
+      headers: { Origin: "http://localhost:4321" },
+    });
+    if (!res.ok()) {
+      console.warn("cleanup delete failed for lesson", lessonId, res.status());
+    }
+  }
+  createdLessonIds.length = 0;
+  await adminContext.close();
+});
 
 interface ExerciseFixture {
   type: string;
@@ -47,7 +62,9 @@ async function createTestLesson(adminPage: Page): Promise<string> {
   await expect(exercisesLink).toBeVisible();
   const href = await exercisesLink.getAttribute("href");
   if (!href) throw new Error("Lesson exercises link missing href");
-  return href.replace("/admin/exercises?lesson_id=", "");
+  const lessonId = href.replace("/admin/exercises?lesson_id=", "");
+  createdLessonIds.push(lessonId);
+  return lessonId;
 }
 
 async function createExercise(adminPage: Page, lessonId: string, fixture: ExerciseFixture) {

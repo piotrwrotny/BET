@@ -36,6 +36,8 @@ async function grantBook(request: APIRequestContext, userId: string) {
 }
 
 test.describe("admin user management", () => {
+  test.describe.configure({ mode: "serial" });
+
   test("lists only students with role", async ({ page }) => {
     await page.goto("/admin/users");
 

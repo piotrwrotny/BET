@@ -327,14 +327,14 @@ Uruchomić pełną weryfikację i zaktualizować cookbook w `context/foundation/
 
 #### Automatyczne
 
-- [x] 3.1 Utworzyć `src/lib/verify-exercise.test.ts` z testami normalizacji
-- [x] 3.2 Dodać testy wielowariantowych kluczy i `is_reference_only`
-- [x] 3.3 Dodać testy mapy matchingu i dispatch
-- [x] 3.4 Osiągnąć 100% coverage `src/lib/verify-exercise.ts`
+- [x] 3.1 Utworzyć `src/lib/verify-exercise.test.ts` z testami normalizacji — 77325d8
+- [x] 3.2 Dodać testy wielowariantowych kluczy i `is_reference_only` — 77325d8
+- [x] 3.3 Dodać testy mapy matchingu i dispatch — 77325d8
+- [x] 3.4 Osiągnąć 100% coverage `src/lib/verify-exercise.ts` — 77325d8
 
 #### Ręczne
 
-- [x] 3.5 Przejrzeć testy pod kątem niezależnych wyroczni
+- [x] 3.5 Przejrzeć testy pod kątem niezależnych wyroczni — 77325d8
 
 ### Faza 4: Testy kontraktowe round-trip
 

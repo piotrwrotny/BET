@@ -40,11 +40,33 @@ test.describe("lesson completion gating", () => {
     await studentContext.dispose();
   });
 
-  test("lesson with closed + open exercises can be completed without solving (current server behaviour)", async () => {
+  test("lesson with closed + open exercises cannot be completed without solving", async () => {
     const studentContext = await signInStudent();
     const response = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`);
-    // Server currently trusts the client; this test documents the gap described in Risk #6.
-    expect(response.status()).toBe(200);
+    expect(response.status()).toBe(409);
+    await studentContext.dispose();
+  });
+
+  test("lesson can be completed after solving closed exercise", async () => {
+    const studentContext = await signInStudent();
+    const verifyResponse = await studentContext.post("/api/exercises/verify", {
+      data: {
+        exercise_id: "00000000-0000-0000-0000-000000000043",
+        answer: "She has too little money.",
+      },
+      headers: {
+        Origin: BASE_URL,
+        Referer: `${BASE_URL}/lessons/${LESSON_CLOSED_PLUS_OPEN}`,
+      },
+    });
+    expect(verifyResponse.status()).toBe(200);
+    const verifyBody = (await verifyResponse.json()) as { correct?: boolean };
+    expect(verifyBody.correct).toBe(true);
+
+    const completeResponse = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`);
+    expect(completeResponse.status()).toBe(200);
+    const completeBody = (await completeResponse.json()) as { success?: boolean };
+    expect(completeBody.success).toBe(true);
     await studentContext.dispose();
   });
 
@@ -57,7 +79,10 @@ test.describe("lesson completion gating", () => {
     await studentContext.dispose();
   });
 
-  test.skip("server rejects completion when closed exercises are unsolved", () => {
-    // Filled in once Risk #6 server-side gating is implemented.
+  test("server rejects completion when closed exercises are unsolved", async () => {
+    const studentContext = await signInStudent();
+    const response = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`);
+    expect(response.status()).toBe(409);
+    await studentContext.dispose();
   });
 });

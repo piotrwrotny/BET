@@ -1,8 +1,17 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { uuidSchema } from "@/lib/utils";
+import type { Database } from "@/lib/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  ClosedExercisesNotSolvedError,
+  LessonAlreadyCompletedError,
+  LessonNotAccessibleError,
+} from "@/lib/errors/lesson-completion";
+import { loadLessonCompletion, saveLessonCompletion } from "@/lib/services/lesson-completion.repository";
+
 export const POST: APIRoute = async (context) => {
-  const supabase = createClient(context.request.headers, context.cookies);
+  const supabase = createClient(context.request.headers, context.cookies) as SupabaseClient<Database> | null;
   if (!supabase) {
     return Response.json({ error: "Service unavailable" }, { status: 503 });
   }
@@ -22,20 +31,21 @@ export const POST: APIRoute = async (context) => {
 
   const validLessonId = uuidResult.data;
 
-  // Idempotent: PK (user_id, lesson_id) prevents duplicates; ignoreDuplicates skips conflict error.
-  // RLS INSERT policy: user_id = auth.uid() AND has_lesson_access(lesson_id).
-  const { error } = await supabase
-    .from("lesson_progress")
-    .upsert(
-      { user_id: user.id, lesson_id: validLessonId },
-      { onConflict: "user_id,lesson_id", ignoreDuplicates: true },
-    );
-
-  if (error) {
-    // RLS violations surface as PostgreSQL code 42501; treat everything else as a server error.
-    const status = error.code === "42501" ? 403 : 500;
-    const message = status === 403 ? "Forbidden" : "Failed to record lesson completion";
-    return Response.json({ error: message }, { status });
+  try {
+    const completion = await loadLessonCompletion(supabase, user.id, validLessonId);
+    const result = completion.markComplete();
+    await saveLessonCompletion(supabase, result);
+  } catch (error) {
+    if (error instanceof LessonAlreadyCompletedError) {
+      return Response.json({ success: true }, { status: 200 });
+    }
+    if (error instanceof ClosedExercisesNotSolvedError) {
+      return Response.json({ error: "Nie rozwiązano wszystkich ćwiczeń zamkniętych" }, { status: 409 });
+    }
+    if (error instanceof LessonNotAccessibleError) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+    return Response.json({ error: "Failed to record lesson completion" }, { status: 500 });
   }
 
   return Response.json(

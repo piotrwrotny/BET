@@ -342,24 +342,24 @@ Podłączamy agregat pod endpoint ukończenia i aktualizujemy UI, aby obsługiwa
 
 #### Automatyczne
 
-- [x] 2.1 Dodać nazwane błędy domenowe.
-- [x] 2.2 Zaimplementować agregat `LessonCompletion`.
-- [x] 2.3 Dodać repozytorium ładujące/zapisujące agregat.
-- [x] 2.4 Zmodyfikować `verify.ts`, aby zapisywał poprawne submissions.
-- [x] 2.5 Napisać testy jednostkowe agregatu.
+- [x] 2.1 Dodać nazwane błędy domenowe. — 627aab9
+- [x] 2.2 Zaimplementować agregat `LessonCompletion`. — 627aab9
+- [x] 2.3 Dodać repozytorium ładujące/zapisujące agregat. — 627aab9
+- [x] 2.4 Zmodyfikować `verify.ts`, aby zapisywał poprawne submissions. — 627aab9
+- [x] 2.5 Napisać testy jednostkowe agregatu. — 627aab9
 
 #### Ręczne
 
-- [x] 2.6 Potwierdzić, że poprawna odpowiedź tworzy wiersz w `exercise_submissions`.
+- [x] 2.6 Potwierdzić, że poprawna odpowiedź tworzy wiersz w `exercise_submissions`. — 627aab9
 
 ### Faza 3: Endpoint completion i UI
 
 #### Automatyczne
 
-- [ ] 3.1 Zastąpić logikę w `complete.ts` wywołaniem agregatu.
-- [ ] 3.2 Zaktualizować `LessonInteractive.tsx` do obsługi 409.
-- [ ] 3.3 Aktywować i rozszerzyć `tests/integration/lesson-completion.spec.ts`.
-- [ ] 3.4 Uruchomić `npm run test:unit`, `npm run lint`, `npm run typecheck`.
+- [x] 3.1 Zastąpić logikę w `complete.ts` wywołaniem agregatu.
+- [x] 3.2 Zaktualizować `LessonInteractive.tsx` do obsługi 409 (istniejąca obsługa `error.message` wyświetla komunikat serwera).
+- [x] 3.3 Aktywować i rozszerzyć `tests/integration/lesson-completion.spec.ts`.
+- [x] 3.4 Uruchomić `npm run test:unit`, `npm run lint`, `npm run typecheck`.
 
 #### Ręczne
 

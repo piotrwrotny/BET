@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
+import { requireSameOrigin } from "@/lib/guards";
 import { logServerError } from "@/lib/logger";
 import { createClient } from "@/lib/supabase";
 import { uuidSchema } from "@/lib/utils";
@@ -13,19 +14,6 @@ const GrantAccessSchema = z.object({
 });
 
 export const prerender = false;
-
-function requireSameOrigin(request: Request): Response | null {
-  const origin = request.headers.get("origin");
-  const referer = request.headers.get("referer");
-  const secFetchSite = request.headers.get("sec-fetch-site");
-  const siteUrl = new URL(request.url);
-  const isSameOrigin =
-    secFetchSite === "same-origin" || origin === siteUrl.origin || (!origin && referer?.startsWith(siteUrl.origin));
-  if (!isSameOrigin) {
-    return Response.json({ error: "Invalid origin" }, { status: 403 });
-  }
-  return null;
-}
 
 export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   if (locals.role !== "admin") {

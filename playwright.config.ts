@@ -14,13 +14,27 @@ export default defineConfig({
   projects: [
     { name: "setup", testMatch: /auth\.setup\.ts/ },
     {
+      name: "api-contract",
+      use: {
+        storageState: "playwright/.auth/admin.json",
+      },
+      dependencies: ["setup"],
+      testMatch: /api-contract\/.*\.spec\.ts/,
+    },
+    {
+      name: "integration",
+      use: {},
+      dependencies: ["setup"],
+      testMatch: /integration\/.*\.spec\.ts/,
+    },
+    {
       name: "e2e",
       use: {
         ...devices["Desktop Chrome"],
         storageState: "playwright/.auth/admin.json",
       },
       dependencies: ["setup"],
-      testIgnore: /admin-users-unauthorized\.spec\.ts/,
+      testIgnore: [/admin-users-unauthorized\.spec\.ts/, /api-contract\/.*\.spec\.ts/, /integration\/.*\.spec\.ts/],
     },
     {
       name: "e2e-student",

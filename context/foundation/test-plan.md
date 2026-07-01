@@ -66,7 +66,7 @@ orchestrator updates Status as artifacts appear on disk.
 | #   | Phase name                              | Goal (one line)                           | Risks covered | Test types                 | Status      | Change folder                |
 | --- | --------------------------------------- | ----------------------------------------- | ------------- | -------------------------- | ----------- | ---------------------------- |
 | 1   | Bootstrap unit/contract runner          | Lock correctness of exercise verification | #1, #2, #5    | unit + contract            | implemented | testing-unit-contract-runner |
-| 2   | Admin/student access boundary tests     | Lock role and ownership checks            | #4, #6        | API contract / integration | not started | —                            |
+| 2   | Admin/student access boundary tests     | Lock role and ownership checks            | #4, #6        | API contract / integration | implemented (Playwright verification blocked: local Supabase Docker unavailable) | testing-admin-student-access-boundary |
 | 3   | Exercise-type wiring + completion tests | Lock admin→student flow per exercise type | #3, #6        | component + focused e2e    | not started | —                            |
 | 4   | Quality-gates wiring                    | Block regressions in CI                   | cross-cutting | CI gates                   | not started | —                            |
 
@@ -138,7 +138,44 @@ editing. Target 100% coverage on pure logic with `npm run test:coverage`.
 
 ### 6.2 Adding an integration / API contract test
 
-TBD — see §3 Phase 2.
+Place the spec in `tests/api-contract/<area>.spec.ts` for HTTP contract
+coverage or `tests/integration/<area>.spec.ts` for stateful flow coverage.
+Both directories are wired as separate Playwright projects in
+`playwright.config.ts`, so they can be run independently:
+
+```bash
+npx playwright test --project=api-contract
+npx playwright test --project=integration
+```
+
+Use the global `request` export from `@playwright/test` to create isolated
+request contexts for secondary actors (e.g., a student context inside an
+admin-scoped test):
+
+```ts
+import { expect, test, request as playwrightRequest } from "@playwright/test";
+
+async function studentContext() {
+  const context = await playwrightRequest.newContext({ baseURL: "http://localhost:4321" });
+  await context.post("/api/auth/signin", {
+    form: { email: "student@bet.local", password: "student-pass" },
+    headers: { Origin: "http://localhost:4321", Referer: "http://localhost:4321/auth/signin" },
+  });
+  return context;
+}
+
+test("student cannot hit admin endpoint", async () => {
+  const ctx = await studentContext();
+  const response = await ctx.get("/api/admin/users");
+  expect(response.status()).toBe(403);
+  await ctx.dispose();
+});
+```
+
+Always send `Origin`/`Referer` headers for state-changing `POST`/`DELETE`
+requests; Astro's `security.checkOrigin` rejects cross-site form submissions
+by default. Type response bodies with a narrow `as { ... }` assertion so
+`@typescript-eslint/no-unsafe-member-access` stays green.
 
 ### 6.3 Adding an e2e test
 
@@ -161,7 +198,24 @@ format), add a dedicated verifier function and route it from
 
 ### 6.5 Adding a test for a new admin endpoint
 
-TBD — see §3 Phase 2.
+New admin endpoints should reuse `requireSameOrigin` from `src/lib/guards.ts`
+for CSRF protection and follow the validation/authorization patterns in
+`src/pages/api/admin/users.ts`, `grant.ts`, and `revoke.ts`:
+
+1. Call `requireSameOrigin(request)` and return its response if non-null.
+2. Validate route params with `z.string().uuid()`.
+3. Validate body with `z.object({ ... })`.
+4. Check caller role via `context.locals.user.role === "admin"`.
+5. Check target-user role when mutating a specific user.
+
+Add the cheapest layer first:
+
+- Unit tests for pure helpers in `src/lib/guards.test.ts` or next to the
+  service under test.
+- API contract tests in `tests/api-contract/admin-<resource>.spec.ts` for
+  the HTTP boundary (status, headers, auth, validation).
+- Focused E2E only if the endpoint has UI wiring that the contract tests
+  cannot cover.
 
 ### 6.6 Per-rollout-phase notes
 
@@ -173,6 +227,26 @@ TBD — see §3 Phase 2.
   `src/lib/verify-contract.test.ts`.
 - `verify-exercise.ts` reaches 100% statement/function/line coverage.
 - `npm run test:unit` is wired; Playwright E2E remains independent.
+
+**Phase 2 — Admin/student access boundary tests (implemented).**
+
+- `requireSameOrigin` extracted to `src/lib/guards.ts` and covered by
+  `src/lib/guards.test.ts`.
+- `getStudentsWithAccess` covered by `src/lib/services/user-admin.test.ts`.
+- API contract tests in `tests/api-contract/admin-users.spec.ts` cover
+  admin/student/anonymous access, cross-origin rejection, UUID/body
+  validation, and target-role checks for `/api/admin/users`, `/grant`,
+  and `/revoke`.
+- Integration tests in `tests/integration/lesson-completion.spec.ts`
+  document current lesson-completion behaviour, including idempotency and
+  the known server-side gap for closed-exercise gating (tracked as a
+  skipped test to be enabled once the server enforces the check).
+- Playwright config split into `api-contract` and `integration` projects
+  so the new specs run without a browser and without colliding with the
+  existing `e2e` / `e2e-student` projects.
+- Verification status: unit / lint / typecheck pass; Playwright contract
+  + integration tests require a running local Supabase (Docker) and were
+  blocked in this environment.
 
 ## 7. What We Deliberately Don't Test
 

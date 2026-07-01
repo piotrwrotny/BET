@@ -10,12 +10,7 @@ import { useCallback, useMemo, useState } from "react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type { UserWithAccess } from "@/lib/services/user-admin";
-
-interface BookOption {
-  id: string;
-  title: string;
-}
+import { AdminUsersResponseSchema, type BookOption, type UserWithAccess } from "@/lib/services/user-admin";
 
 interface UsersTableProps {
   users: UserWithAccess[];
@@ -40,10 +35,8 @@ export function UsersTable({ users, books }: UsersTableProps) {
         setError("Nie udało się odświeżyć listy użytkowników");
         return;
       }
-      const payload = (await response.json()) as { users?: UserWithAccess[] };
-      if (payload.users) {
-        setRows(payload.users);
-      }
+      const payload = AdminUsersResponseSchema.parse(await response.json());
+      setRows(payload.users);
     } catch {
       setError("Nie udało się odświeżyć listy użytkowników");
     }

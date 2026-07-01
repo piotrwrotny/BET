@@ -3,12 +3,7 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
 import { ServerError } from "@/components/auth/ServerError";
 import { UsersTable } from "@/components/admin/UsersTable";
 import { createClient } from "@/lib/supabase";
-import { getStudentsWithAccess, type UserWithAccess } from "@/lib/services/user-admin";
-
-interface BookOption {
-  id: string;
-  title: string;
-}
+import { type BookOption, getStudentsWithAccess, type UserWithAccess } from "@/lib/services/user-admin";
 
 if (Astro.locals.role !== "admin") return Astro.redirect("/dashboard");
 

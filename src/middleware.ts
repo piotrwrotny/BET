@@ -1,4 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
+import { TABLE_USER_ROLES } from "@/lib/db/schema";
 import { createClient } from "@/lib/supabase";
 
 const PROTECTED_ROUTES = ["/dashboard", "/lessons", "/admin", "/student"];
@@ -14,7 +15,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     if (user) {
       const { data: roleRow } = await supabase
-        .from("user_roles")
+        .from(TABLE_USER_ROLES)
         .select("role")
         .eq("user_id", user.id)
         .single()

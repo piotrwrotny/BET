@@ -130,13 +130,13 @@ Each phase is a separate commit. If anything breaks:
 
 ### Automated
 
-- [ ] 1.1 Add a characterization test for the current `/api/admin/users` JSON response shape.
-- [ ] 1.2 Add `src/lib/db/schema.test.ts` asserting constant values match generated types.
-- [ ] 1.3 Add `BookOption` export and `AdminUsersResponseSchema` to `src/lib/services/user-admin.ts`.
-- [ ] 1.4 Create `src/lib/db/schema.ts` and migrate user/book-access flow literals.
-- [ ] 1.5 Replace `BookOption` declarations in `users.astro` and `UsersTable.tsx` with shared import.
-- [ ] 1.6 Replace `response.json()` cast in `UsersTable.tsx` with Zod parse.
-- [ ] 1.7 Run lint + typecheck + unit tests.
+- [x] 1.1 Add a characterization test for the current `/api/admin/users` JSON response shape. — 60b1924
+- [x] 1.2 Add `src/lib/db/schema.test.ts` asserting constant values match generated types. — 60b1924
+- [x] 1.3 Add `BookOption` export and `AdminUsersResponseSchema` to `src/lib/services/user-admin.ts`. — 60b1924
+- [x] 1.4 Create `src/lib/db/schema.ts` and migrate user/book-access flow literals. — 60b1924
+- [x] 1.5 Replace `BookOption` declarations in `users.astro` and `UsersTable.tsx` with shared import. — 60b1924
+- [x] 1.6 Replace `response.json()` cast in `UsersTable.tsx` with Zod parse. — 60b1924
+- [x] 1.7 Run lint + typecheck + unit tests. — 60b1924
 - [ ] 2.1 Add unit tests for `requireAdminApi` / `requireAdminPage` in `src/lib/guards.test.ts`.
 - [ ] 3.1 Add `requireAdminApi` / `requireAdminPage` to `src/lib/guards.ts`.
 - [ ] 3.2 Migrate user/book-access flow role checks to helpers.
@@ -144,8 +144,8 @@ Each phase is a separate commit. If anything breaks:
 
 ### Manual
 
-- [ ] M.1 Review that the Zod schema does not reject extra fields the UI currently ignores.
-- [ ] M.2 Confirm `schema.ts` constant values match the production migrations.
+- [x] M.1 Review that the Zod schema does not reject extra fields the UI currently ignores. — 60b1924
+- [x] M.2 Confirm `schema.ts` constant values match the production migrations. — 60b1924
 - [ ] M.3 Verify API contract tests still reject non-admin callers after Phase 3.
 
 ## Decision log

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { getStudentsWithAccess } from "./user-admin";
+import { TABLE_USER_ROLES } from "@/lib/db/schema";
+import { AdminUsersResponseSchema, type BookOption, getStudentsWithAccess } from "./user-admin";
 
 const mockListUsers = vi.fn();
 const mockFrom = vi.fn();
@@ -45,7 +46,7 @@ function setupQueries(responses: { roles?: unknown[]; access?: unknown[] }) {
     select: () => ({
       in: () =>
         Promise.resolve({
-          data: table === "user_roles" ? (responses.roles ?? []) : (responses.access ?? []),
+          data: table === TABLE_USER_ROLES ? (responses.roles ?? []) : (responses.access ?? []),
           error: null,
         }),
     }),
@@ -169,8 +170,8 @@ describe("getStudentsWithAccess", () => {
 
     await getStudentsWithAccess({ page: 1, perPage: 20 });
 
-    expect(mockFrom).toHaveBeenCalledWith("user_roles");
-    const roleCalls = mockFrom.mock.calls.filter((call) => call[0] === "user_roles");
+    expect(mockFrom).toHaveBeenCalledWith(TABLE_USER_ROLES);
+    const roleCalls = mockFrom.mock.calls.filter((call) => call[0] === TABLE_USER_ROLES);
     expect(roleCalls.length).toBeGreaterThan(1); // chunking triggered
   });
 
@@ -192,5 +193,44 @@ describe("getStudentsWithAccess", () => {
     }));
 
     await expect(getStudentsWithAccess({ page: 1, perPage: 20 })).rejects.toThrow("Failed to fetch user roles");
+  });
+});
+
+describe("AdminUsersResponseSchema", () => {
+  it("accepts the current /api/admin/users response shape", () => {
+    const book: BookOption = { id: "00000000-0000-0000-0000-000000000010", title: "Book One" };
+    const response = {
+      users: [
+        {
+          id: "00000000-0000-0000-0000-000000000002",
+          email: "student@bet.local",
+          role: "student",
+          created_at: new Date().toISOString(),
+          books: [{ book_id: book.id, title: book.title, granted_at: new Date().toISOString() }],
+        },
+      ],
+      page: 1,
+      perPage: 20,
+      hasNextPage: false,
+    };
+
+    expect(() => AdminUsersResponseSchema.parse(response)).not.toThrow();
+  });
+
+  it("rejects a response missing pagination fields", () => {
+    const response = { users: [] };
+
+    expect(() => AdminUsersResponseSchema.parse(response)).toThrow();
+  });
+
+  it("rejects a user missing required fields", () => {
+    const response = {
+      users: [{ id: "00000000-0000-0000-0000-000000000002" }],
+      page: 1,
+      perPage: 20,
+      hasNextPage: false,
+    };
+
+    expect(() => AdminUsersResponseSchema.parse(response)).toThrow();
   });
 });

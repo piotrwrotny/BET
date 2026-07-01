@@ -1,7 +1,7 @@
 ---
 change_id: refactor-opportunities
 title: Refactor opportunities for admin user & book-access flow
-status: planned
+status: implementing
 created: 2026-07-01
 updated: 2026-07-01
 archived_at: null

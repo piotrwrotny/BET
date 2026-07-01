@@ -1,6 +1,9 @@
 import type { User } from "@supabase/supabase-js";
+import { z } from "zod";
 import { logServerError } from "@/lib/logger";
+import { TABLE_USER_BOOK_ACCESS, TABLE_USER_ROLES } from "@/lib/db/schema";
 import { createAdminClient } from "@/lib/supabase";
+import { uuidSchema } from "@/lib/utils";
 
 interface UserRoleRow {
   user_id: string;
@@ -32,6 +35,32 @@ export interface UserWithAccess {
   created_at: string;
   books: UserBookAccess[];
 }
+
+export interface BookOption {
+  id: string;
+  title: string;
+}
+
+const UserBookAccessSchema = z.object({
+  book_id: uuidSchema,
+  title: z.string(),
+  granted_at: z.string(),
+});
+
+const UserWithAccessSchema = z.object({
+  id: uuidSchema,
+  email: z.email(),
+  role: z.enum(["admin", "student"]),
+  created_at: z.string(),
+  books: z.array(UserBookAccessSchema),
+});
+
+export const AdminUsersResponseSchema = z.object({
+  users: z.array(UserWithAccessSchema),
+  page: z.number().int().positive(),
+  perPage: z.number().int().positive(),
+  hasNextPage: z.boolean(),
+});
 
 function chunk<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
@@ -80,11 +109,13 @@ export async function getStudentsWithAccess(options: GetStudentsOptions = {}): P
   const userIdChunks = chunk(userIds, ID_CHUNK_SIZE);
 
   const [roleResults, accessResults] = await Promise.all([
-    Promise.all(userIdChunks.map((ids) => supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids))),
+    Promise.all(
+      userIdChunks.map((ids) => supabaseAdmin.from(TABLE_USER_ROLES).select("user_id, role").in("user_id", ids)),
+    ),
     Promise.all(
       userIdChunks.map((ids) =>
         supabaseAdmin
-          .from("user_book_access")
+          .from(TABLE_USER_BOOK_ACCESS)
           .select("user_id, book_id, granted_at, books(id, title)")
           .in("user_id", ids),
       ),

@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
+import { CONFLICT_USER_BOOK_ACCESS, TABLE_USER_BOOK_ACCESS, TABLE_USER_ROLES } from "@/lib/db/schema";
 import { requireSameOrigin } from "@/lib/guards";
 import { logServerError } from "@/lib/logger";
 import { createClient } from "@/lib/supabase";
@@ -49,7 +50,7 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
   }
 
   const { data: targetRole, error: roleError } = await supabase
-    .from("user_roles")
+    .from(TABLE_USER_ROLES)
     .select("role")
     .eq("user_id", parsedParams.data.id)
     .maybeSingle();
@@ -58,13 +59,13 @@ export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
     return Response.json({ error: "Target user is not a student" }, { status: 403 });
   }
 
-  const { error } = await supabase.from("user_book_access").upsert(
+  const { error } = await supabase.from(TABLE_USER_BOOK_ACCESS).upsert(
     {
       user_id: parsedParams.data.id,
       book_id: parsedBody.data.book_id,
     },
     {
-      onConflict: "user_id,book_id",
+      onConflict: CONFLICT_USER_BOOK_ACCESS,
       ignoreDuplicates: true,
     },
   );

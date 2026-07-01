@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
+import { TABLE_USER_BOOK_ACCESS, TABLE_USER_ROLES } from "@/lib/db/schema";
 import { requireSameOrigin } from "@/lib/guards";
 import { logServerError } from "@/lib/logger";
 import { createClient } from "@/lib/supabase";
@@ -47,7 +48,7 @@ export const DELETE: APIRoute = async ({ params, request, cookies, locals }) => 
   }
 
   const { data: targetRole, error: roleError } = await supabase
-    .from("user_roles")
+    .from(TABLE_USER_ROLES)
     .select("role")
     .eq("user_id", parsedParams.data.id)
     .maybeSingle();
@@ -57,7 +58,7 @@ export const DELETE: APIRoute = async ({ params, request, cookies, locals }) => 
   }
 
   const { error } = await supabase
-    .from("user_book_access")
+    .from(TABLE_USER_BOOK_ACCESS)
     .delete()
     .eq("user_id", parsedParams.data.id)
     .eq("book_id", parsedQuery.data.book_id);

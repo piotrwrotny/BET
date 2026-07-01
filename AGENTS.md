@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-BET (Business English Exam) is an Astro 6 SSR app with React 19 islands, Tailwind 4, Supabase auth, and shadcn/ui, deployed to Cloudflare Workers. Full architecture and auth-flow details in `@CLAUDE.md`.
+BET (Business English Exam) is an Astro 6 SSR app with React 19 islands, Tailwind 4, Supabase auth, and shadcn/ui, deployed to Cloudflare Workers.
 
 ## Hard Rules
 
@@ -46,6 +46,11 @@ Pre-commit hooks configured in `@package.json` (lint-staged).
 - Use `storageState` for authentication — never log in through the UI inside individual tests.
 - Use unique identifiers for test data and clean up in `afterEach` or at the end of each test.
 - Assert the business outcome, not implementation details.
+
+## Reference
+
+- Product requirements, tech-stack, roadmap and test plan live in `@context/foundation/`.
+- Auth-flow details are in `@src/middleware.ts` and `@src/lib/supabase.ts`; conventions above describe how we extend them.
 
 ## Commits
 

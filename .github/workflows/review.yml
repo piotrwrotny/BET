@@ -47,16 +47,10 @@ jobs:
             ':!dist/**' \
             ':!.omp/**' \
             ':!context/archive/**')
-          # GitHub Models enforces an 8k-token request limit; truncate generously
-          # to leave room for the system prompt and JSON response.
+          # GitHub Models enforces an 8k-token request limit; truncate to leave
+          # room for the system prompt and JSON response.
           max_chars=22000
-          if [ "${#raw}" -gt "$max_chars" ]; then
-            diff_value="${raw:0:$max_chars}
-
-[...diff truncated to fit the model context window...]"
-          else
-            diff_value="$raw"
-          fi
+          diff_value=$(printf '%s' "$raw" | head -c "$max_chars")
           echo "value<<EOF" >> "$GITHUB_OUTPUT"
           printf '%s\n' "$diff_value" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"

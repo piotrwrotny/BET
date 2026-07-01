@@ -30,9 +30,7 @@ const modelId =
       : "moonshotai/Kimi-K2.7-Code");
 
 if (!apiKey) {
-  console.error(
-    "Brakuje klucza API. Ustaw LLM_API_KEY (lub GUCIO_API_KEY / OPENROUTER_API_KEY / GITHUB_TOKEN).",
-  );
+  console.error("Brakuje klucza API. Ustaw LLM_API_KEY (lub GUCIO_API_KEY / OPENROUTER_API_KEY / GITHUB_TOKEN).");
   process.exit(1);
 }
 
@@ -98,7 +96,7 @@ async function reviewWithGitHubModels(diff: string): Promise<Review> {
     choices: [{ message: { content: string } }];
     usage?: { prompt_tokens: number; completion_tokens: number };
   };
-  const content = body.choices[0]?.message?.content ?? "";
+  const content = body.choices[0].message.content;
   const usage = body.usage;
   if (usage) {
     console.error(`Usage: ${usage.prompt_tokens} input / ${usage.completion_tokens} output tokens`);

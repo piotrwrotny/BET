@@ -21,7 +21,10 @@ The agent runs as a reusable composite action, scores the diff against the
 - [x] Composite action `.github/actions/ai-reviewer/action.yml` posts a PR comment and labels `ai-cr:passed` / `ai-cr:failed`.
 - [x] Workflow `.github/workflows/review.yml` triggers on PRs to `master` / `dev` and on `workflow_dispatch`.
 - [x] promptfoo eval harness with at least one fixture diff and static assertions.
-- [ ] Run the workflow on a real PR and capture evidence for the 10xChampion badge.
+- [x] Run the workflow on a real PR and capture evidence for the 10xChampion badge.
+  - PR: https://github.com/piotrwrotny/BET/pull/2
+  - Workflow run: https://github.com/piotrwrotny/BET/actions/runs/28552069211
+  - Comment from `github-actions[bot]` posted, label `ai-cr:passed` applied.
 
 ## Decisions
 

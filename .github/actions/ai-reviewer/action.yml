@@ -14,11 +14,11 @@ inputs:
   model:
     description: Model identifier.
     required: false
-    default: moonshotai/Kimi-K2.7-Code
+    default: openai/gpt-4.1
   provider:
-    description: Provider name (gucio or openrouter).
+    description: Provider name (gucio, openrouter, or github).
     required: false
-    default: gucio
+    default: github
   pr-title:
     description: Pull request title.
     required: false

@@ -58,9 +58,9 @@ jobs:
       - name: Run AI reviewer
         uses: ./.github/actions/ai-reviewer
         with:
-          provider: ${{ vars.LLM_PROVIDER || 'gucio' }}
+          provider: ${{ vars.LLM_PROVIDER || 'github' }}
           base-url: ${{ vars.LLM_BASE_URL }}
-          model: ${{ vars.LLM_MODEL || 'moonshotai/Kimi-K2.7-Code' }}
+          model: ${{ vars.LLM_MODEL || 'openai/gpt-4.1' }}
           api-key: ${{ secrets.LLM_API_KEY }}
           pr-title: ${{ github.event.pull_request.title }}
           pr-body: ${{ github.event.pull_request.body }}

@@ -26,7 +26,7 @@ const modelId =
   (providerName === "openrouter"
     ? "moonshotai/Kimi-K2.7-Code"
     : providerName === "github"
-      ? "openai/gpt-4.1-mini"
+      ? "openai/gpt-4.1"
       : "moonshotai/Kimi-K2.7-Code");
 
 if (!apiKey) {

@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { TABLE_USER_ROLES } from "@/lib/db/schema";
+import { requireAdminPage } from "@/lib/guards";
 import { createClient } from "@/lib/supabase";
 
 const PROTECTED_ROUTES = ["/dashboard", "/lessons", "/admin", "/student"];
@@ -35,8 +36,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  if (context.url.pathname.startsWith("/admin") && context.locals.role !== "admin") {
-    return context.redirect("/dashboard");
+  if (context.url.pathname.startsWith("/admin")) {
+    const redirect = requireAdminPage(context);
+    if (redirect) return redirect;
   }
 
   return next();

@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { requireSameOrigin } from "@/lib/guards";
+import { requireAdminApi, requireSameOrigin } from "@/lib/guards";
 import { logServerError } from "@/lib/logger";
 import { getStudentsWithAccess } from "@/lib/services/user-admin";
 
@@ -15,9 +15,8 @@ function parsePagination(searchParams: URLSearchParams): { page: number; perPage
 }
 
 export const GET: APIRoute = async ({ request, locals }) => {
-  if (locals.role !== "admin") {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const denied = requireAdminApi(locals);
+  if (denied) return denied;
 
   const csrf = requireSameOrigin(request);
   if (csrf) return csrf;

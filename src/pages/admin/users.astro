@@ -2,10 +2,12 @@
 import AdminLayout from "@/layouts/AdminLayout.astro";
 import { ServerError } from "@/components/auth/ServerError";
 import { UsersTable } from "@/components/admin/UsersTable";
+import { requireAdminPage } from "@/lib/guards";
 import { createClient } from "@/lib/supabase";
 import { type BookOption, getStudentsWithAccess, type UserWithAccess } from "@/lib/services/user-admin";
 
-if (Astro.locals.role !== "admin") return Astro.redirect("/dashboard");
+const redirect = requireAdminPage(Astro);
+if (redirect) return redirect;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) return Astro.redirect("/auth/signin");

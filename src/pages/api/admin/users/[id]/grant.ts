@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { CONFLICT_USER_BOOK_ACCESS, TABLE_USER_BOOK_ACCESS, TABLE_USER_ROLES } from "@/lib/db/schema";
-import { requireSameOrigin } from "@/lib/guards";
+import { requireAdminApi, requireSameOrigin } from "@/lib/guards";
 import { logServerError } from "@/lib/logger";
 import { createClient } from "@/lib/supabase";
 import { uuidSchema } from "@/lib/utils";
@@ -17,9 +17,8 @@ const GrantAccessSchema = z.object({
 export const prerender = false;
 
 export const POST: APIRoute = async ({ params, request, cookies, locals }) => {
-  if (locals.role !== "admin") {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const denied = requireAdminApi(locals);
+  if (denied) return denied;
 
   const csrf = requireSameOrigin(request);
   if (csrf) return csrf;

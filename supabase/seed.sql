@@ -249,3 +249,10 @@ insert into public.exercise_keys (id, exercise_id, key_text, key_metadata, ord) 
   ('00000000-0000-0000-0000-000000000057',
    '00000000-0000-0000-0000-000000000044',
    'Sample model answer for self-assessment.', '{"is_reference_only": true}'::jsonb, 0);
+
+-- Exercise submissions: seeded correct answer for the closed sentence_transformation
+-- exercise in lesson 034, so integration tests can verify the positive completion path.
+insert into public.exercise_submissions (user_id, exercise_id, answer, is_correct) values
+  ('00000000-0000-0000-0000-000000000002',
+   '00000000-0000-0000-0000-000000000043',
+   'She has too little money.', true);

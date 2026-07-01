@@ -125,6 +125,38 @@ export type Database = {
           },
         ]
       }
+      exercise_submissions: {
+        Row: {
+          answer: string
+          exercise_id: string
+          is_correct: boolean
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          exercise_id: string
+          is_correct: boolean
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          exercise_id?: string
+          is_correct?: boolean
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_submissions_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercises: {
         Row: {
           created_at: string

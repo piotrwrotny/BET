@@ -83,8 +83,10 @@ create table public.exercise_submissions (
 
 **Kontrakt**:
 - `SELECT`: `user_id = auth.uid() or is_admin()`.
-- `INSERT`: `user_id = auth.uid() and has_exercise_access(exercise_id) and is_correct = true`.
+- `INSERT`: **brak polityki dla authenticated** — wiersze są zapisywane wyłącznie przez service-role API route (`createAdminClient`), który najpierw samodzielnie weryfikuje odpowiedź. To zapobiega sytuacji, w której zalogowany klient oznacza własne ćwiczenia jako poprawne.
 - Brak `UPDATE`/`DELETE`.
+- CHECK constraint: `is_correct = true`.
+- Indeks: `create index exercise_submissions_exercise_id_idx on public.exercise_submissions(exercise_id);`.
 
 #### 3. Regeneracja typów
 
@@ -328,13 +330,13 @@ Podłączamy agregat pod endpoint ukończenia i aktualizujemy UI, aby obsługiwa
 
 #### Automatyczne
 
-- [ ] 1.1 Utworzyć migrację `exercise_submissions` z RLS.
-- [ ] 1.2 Zregenerować `src/lib/database.types.ts`.
-- [ ] 1.3 Uaktualnić `supabase/seed.sql` o testowe submissions.
+- [x] 1.1 Utworzyć migrację `exercise_submissions` z RLS.
+- [x] 1.2 Zregenerować `src/lib/database.types.ts`.
+- [x] 1.3 Uaktualnić `supabase/seed.sql` o testowe submissions.
 
 #### Ręczne
 
-- [ ] 1.4 Zweryfikować RLS — student nie może zapisać cudzego submission.
+- [x] 1.4 Zweryfikować RLS — student nie może zapisać cudzego submission.
 
 ### Faza 2: Domena i utrwalanie poprawnych odpowiedzi
 

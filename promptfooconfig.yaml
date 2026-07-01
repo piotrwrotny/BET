@@ -4,8 +4,12 @@ prompts:
   - file://prompts/review.txt
 
 providers:
-  - id: openai:chat:moonshotai/Kimi-K2.7-Code
+  # Gemma 4 31B does not emit reasoning text, so it reliably returns the
+  # requested JSON. Kimi K2.7-Code always thinks out loud and would need a
+  # post-processing step; keep it out of the green eval path.
+  - id: openai:chat:google/gemma-4-31B
     config:
+      apiBaseUrl: http://gemma4-31b.llm.ai.asseco.pl/v1
       temperature: 0
       response_format:
         type: json_object

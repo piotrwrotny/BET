@@ -330,27 +330,27 @@ Podłączamy agregat pod endpoint ukończenia i aktualizujemy UI, aby obsługiwa
 
 #### Automatyczne
 
-- [x] 1.1 Utworzyć migrację `exercise_submissions` z RLS.
-- [x] 1.2 Zregenerować `src/lib/database.types.ts`.
-- [x] 1.3 Uaktualnić `supabase/seed.sql` o testowe submissions.
+- [x] 1.1 Utworzyć migrację `exercise_submissions` z RLS. — 98b7354
+- [x] 1.2 Zregenerować `src/lib/database.types.ts`. — 98b7354
+- [x] 1.3 Uaktualnić `supabase/seed.sql` o testowe submissions. — 98b7354
 
 #### Ręczne
 
-- [x] 1.4 Zweryfikować RLS — student nie może zapisać cudzego submission.
+- [x] 1.4 Zweryfikować RLS — student nie może zapisać cudzego submission. — 98b7354
 
 ### Faza 2: Domena i utrwalanie poprawnych odpowiedzi
 
 #### Automatyczne
 
-- [ ] 2.1 Dodać nazwane błędy domenowe.
-- [ ] 2.2 Zaimplementować agregat `LessonCompletion`.
-- [ ] 2.3 Dodać repozytorium ładujące/zapisujące agregat.
-- [ ] 2.4 Zmodyfikować `verify.ts`, aby zapisywał poprawne submissions.
-- [ ] 2.5 Napisać testy jednostkowe agregatu.
+- [x] 2.1 Dodać nazwane błędy domenowe.
+- [x] 2.2 Zaimplementować agregat `LessonCompletion`.
+- [x] 2.3 Dodać repozytorium ładujące/zapisujące agregat.
+- [x] 2.4 Zmodyfikować `verify.ts`, aby zapisywał poprawne submissions.
+- [x] 2.5 Napisać testy jednostkowe agregatu.
 
 #### Ręczne
 
-- [ ] 2.6 Potwierdzić, że poprawna odpowiedź tworzy wiersz w `exercise_submissions`.
+- [x] 2.6 Potwierdzić, że poprawna odpowiedź tworzy wiersz w `exercise_submissions`.
 
 ### Faza 3: Endpoint completion i UI
 

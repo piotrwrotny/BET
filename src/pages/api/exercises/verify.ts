@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase";
+import { createAdminClient, createClient } from "@/lib/supabase";
 import { uuidSchema } from "@/lib/utils";
 import { verifyExercise } from "@/lib/verify-exercise";
 
@@ -57,6 +57,26 @@ export const POST: APIRoute = async (context) => {
 
   const exerciseType = String(exercise?.type ?? "");
   const correct = verifyExercise(exerciseType, answer, keys);
+
+  if (correct && exerciseType !== "open_ended") {
+    try {
+      const adminClient = createAdminClient();
+      const { error: submissionError } = await adminClient.from("exercise_submissions").upsert(
+        {
+          user_id: user.id,
+          exercise_id,
+          answer,
+          is_correct: true,
+        },
+        { onConflict: "user_id,exercise_id", ignoreDuplicates: false },
+      );
+      if (submissionError) {
+        return Response.json({ error: "Failed to record submission" }, { status: 500 });
+      }
+    } catch {
+      return Response.json({ error: "Service unavailable" }, { status: 503 });
+    }
+  }
 
   return Response.json(
     { correct },

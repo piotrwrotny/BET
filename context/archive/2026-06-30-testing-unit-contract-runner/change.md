@@ -1,10 +1,10 @@
 ---
 change_id: testing-unit-contract-runner
 title: Bootstrap unit and contract runner for exercise verification
-status: completed
+status: archived
 created: 2026-06-30
-updated: 2026-06-30
-archived_at: null
+updated: 2026-07-01
+archived_at: 2026-07-01T17:45:20Z
 ---
 
 ## Notes

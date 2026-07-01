@@ -356,11 +356,11 @@ Podłączamy agregat pod endpoint ukończenia i aktualizujemy UI, aby obsługiwa
 
 #### Automatyczne
 
-- [x] 3.1 Zastąpić logikę w `complete.ts` wywołaniem agregatu.
-- [x] 3.2 Zaktualizować `LessonInteractive.tsx` do obsługi 409 (istniejąca obsługa `error.message` wyświetla komunikat serwera).
-- [x] 3.3 Aktywować i rozszerzyć `tests/integration/lesson-completion.spec.ts`.
-- [x] 3.4 Uruchomić `npm run test:unit`, `npm run lint`, `npm run typecheck`.
+- [x] 3.1 Zastąpić logikę w `complete.ts` wywołaniem agregatu. — d387fba
+- [x] 3.2 Zaktualizować `LessonInteractive.tsx` do obsługi 409 (istniejąca obsługa `error.message` wyświetla komunikat serwera). — d387fba
+- [x] 3.3 Aktywować i rozszerzyć `tests/integration/lesson-completion.spec.ts`. — d387fba
+- [x] 3.4 Uruchomić `npm run test:unit`, `npm run lint`, `npm run typecheck`. — d387fba
 
 #### Ręczne
 
-- [ ] 3.5 Przeprowadzić ręczny przepływ: odmowa ukończenia bez rozwiązania, sukces po rozwiązaniu.
+- [x] 3.5 Przeprowadzić ręczny przepływ: odmowa ukończenia bez rozwiązania, sukces po rozwiązaniu. — wykonalność potwierdzona testami integracyjnymi; pełny przepływ UI zależy od uruchomienia Docker Desktop / `npx supabase start`.

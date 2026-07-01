@@ -138,15 +138,15 @@ Each phase is a separate commit. If anything breaks:
 - [x] 1.6 Replace `response.json()` cast in `UsersTable.tsx` with Zod parse. — 60b1924
 - [x] 1.7 Run lint + typecheck + unit tests. — 60b1924
 - [x] 2.1 Add unit tests for `requireAdminApi` / `requireAdminPage` in `src/lib/guards.test.ts`. — a082651
-- [x] 3.1 Add `requireAdminApi` / `requireAdminPage` to `src/lib/guards.ts`.
-- [x] 3.2 Migrate user/book-access flow role checks to helpers.
-- [x] 3.3 Run lint + typecheck + unit tests.
+- [x] 3.1 Add `requireAdminApi` / `requireAdminPage` to `src/lib/guards.ts`. — 7e90e14
+- [x] 3.2 Migrate user/book-access flow role checks to helpers. — 7e90e14
+- [x] 3.3 Run lint + typecheck + unit tests. — 7e90e14
 
 ### Manual
 
 - [x] M.1 Review that the Zod schema does not reject extra fields the UI currently ignores. — 60b1924
 - [x] M.2 Confirm `schema.ts` constant values match the production migrations. — 60b1924
-- [x] M.3 Verify API contract tests still reject non-admin callers after Phase 3.
+- [x] M.3 Verify API contract tests still reject non-admin callers after Phase 3. — 7e90e14
 
 ## Decision log
 

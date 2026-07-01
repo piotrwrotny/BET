@@ -1,5 +1,12 @@
 # Lessons Learned
 
+## Context architecture — stay centralized
+
+- **Context**: Module 4, lesson 1 — scaling context for AI in the BET repo.
+- **Problem**: A monolithic `AGENTS.md` pushes out the current task, dilutes hints, rots, and makes verification hard. The opposite mistake is adding per-module `AGENTS.md` or nested `context/` folders before the project really needs them.
+- **Rule**: Keep one root `AGENTS.md` as a concise map (well below ~200 lines; split only above ~300 lines) and a centralized `context/` directory (`foundation/`, `changes/<id>/`, `archive/`). Add per-module `AGENTS.md` or a module-level `context/` only when there is a real signal: root file is too large, agent repeatedly fails in that module, or the module gets its own deploy/owner/team.
+- **Applies to**: All future context decisions in this repo.
+
 > Append-only register of recurring rules and patterns. Re-read at start by /10x-frame, /10x-research, /10x-plan, /10x-plan-review, /10x-implement, /10x-impl-review.
 
 ## Zod v4 record schema

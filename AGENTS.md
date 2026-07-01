@@ -49,7 +49,10 @@ Pre-commit hooks configured in `@package.json` (lint-staged).
 
 ## Reference
 
-- Product requirements, tech-stack, roadmap and test plan live in `@context/foundation/`.
+- Living docs live in `context/`:
+  - `context/foundation/` — PRD, roadmap, tech-stack, test-plan, infrastructure, shape-notes, lessons.
+  - `context/changes/<id>/` — in-flight work (plans, research, verification).
+  - `context/archive/` — completed changes.
 - Auth-flow details are in `@src/middleware.ts` and `@src/lib/supabase.ts`; conventions above describe how we extend them.
 
 ## Commits

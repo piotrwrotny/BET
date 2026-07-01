@@ -39,7 +39,13 @@ jobs:
             range="origin/${base}...HEAD"
           fi
           echo "value<<EOF" >> "$GITHUB_OUTPUT"
-          git diff "$range" >> "$GITHUB_OUTPUT"
+          git diff "$range" -- \
+            ':!package-lock.json' \
+            ':!*.lock' \
+            ':!node_modules/**' \
+            ':!dist/**' \
+            ':!.omp/**' \
+            ':!context/archive/**' >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Run AI reviewer

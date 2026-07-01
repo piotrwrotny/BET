@@ -137,7 +137,7 @@ Each phase is a separate commit. If anything breaks:
 - [x] 1.5 Replace `BookOption` declarations in `users.astro` and `UsersTable.tsx` with shared import. — 60b1924
 - [x] 1.6 Replace `response.json()` cast in `UsersTable.tsx` with Zod parse. — 60b1924
 - [x] 1.7 Run lint + typecheck + unit tests. — 60b1924
-- [ ] 2.1 Add unit tests for `requireAdminApi` / `requireAdminPage` in `src/lib/guards.test.ts`.
+- [x] 2.1 Add unit tests for `requireAdminApi` / `requireAdminPage` in `src/lib/guards.test.ts`.
 - [ ] 3.1 Add `requireAdminApi` / `requireAdminPage` to `src/lib/guards.ts`.
 - [ ] 3.2 Migrate user/book-access flow role checks to helpers.
 - [ ] 3.3 Run lint + typecheck + unit tests.

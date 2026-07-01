@@ -1,0 +1,60 @@
+diff --git a/src/components/LegacyCard.tsx b/src/components/LegacyCard.tsx
+index 1a2b3c4..5d6e7f8 100644
+--- a/src/components/LegacyCard.tsx
++++ b/src/components/LegacyCard.tsx
+@@ -1,45 +1,42 @@
+-import React, { Component } from "react";
++import React from "react";
+ 
+-type Props = { title: string; user: any };
+-type State = { expanded: boolean };
++type Props = { title: string; user: Record<string, unknown> };
+ 
+-export class LegacyCard extends Component<Props, State> {
+-  static contextType = ThemeContext;
+-  state = { expanded: false };
++function createMarkup(html: string) {
++  return { __html: html };
++}
+ 
+-  componentWillMount() {
+-    fetch(`/api/visit?userId=${this.props.user.id}`)
+-      .then((r) => r.json())
+-      .then((data) => (this.refs.counter as HTMLElement).innerText = data.count);
+-  }
++export function LegacyCard({ title, user }: Props) {
++  const [expanded, setExpanded] = React.useState(false);
+ 
+-  toggle = () => this.setState((s) => ({ expanded: !s.expanded }));
++  React.useEffect(() => {
++    fetch(`/api/visit?userId=${user.id}`)
++      .then((r) => r.json())
++      .then((data) => console.log(data.count));
++  }, []);
+ 
+-  render() {
+-    const { title, user } = this.props;
+-    return (
+-      <div ref="counter" className={this.context.cardClass}>
+-        <h2>{title}</h2>
+-        <p>{user.email}</p>
+-        {this.state.expanded && (
+-          <div dangerouslySetInnerHTML={createMarkup(user.bio)} />
+-        )}
+-        <button onClick={this.toggle}>Toggle</button>
+-      </div>
+-    );
+-  }
++  const toggle = () => setExpanded((s) => !s);
++
++  return (
++    <div className="card">
++      <h2>{title}</h2>
++      <p>{user.email}</p>
++      {expanded && (
++        <div dangerouslySetInnerHTML={createMarkup(user.bio as string)} />
++      )}
++      <button onClick={toggle}>Toggle</button>
++    </div>
++  );
+ }

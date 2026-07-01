@@ -1,0 +1,30 @@
+description: AI code review evaluation
+
+prompts:
+  - file://prompts/review.txt
+
+providers:
+  - id: openai:chat:moonshotai/Kimi-K2.7-Code
+    config:
+      temperature: 0
+      response_format:
+        type: json_object
+
+defaultTest:
+  options:
+    transform: output.match(/\\{[\\s\\S]*\\}/)?.[0] ?? output
+
+tests:
+  - description: React 16 -> 19 migration with XSS, missing tests, and unsafe HTML
+    vars:
+      diff: file://tests/evals/fixtures/react-migration.diff
+    assert:
+      - type: is-json
+      - type: javascript
+        value: JSON.parse(output).verdict === 'fail'
+      - type: javascript
+        value: JSON.parse(output).securitySafety <= 5
+      - type: javascript
+        value: JSON.parse(output).testRiskCoverage <= 5
+      - type: javascript
+        value: JSON.parse(output).implementationCorrectness <= 6

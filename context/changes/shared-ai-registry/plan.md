@@ -283,30 +283,30 @@ Ponieważ konsumentem testowym jest samo repo BET, aktualizacja pakietu polega n
 
 #### Automatyczne
 
-- [x] 1.1 Utworzono `packages/ai-toolkit/package.json`
-- [x] 1.2 Utworzono `packages/ai-toolkit/rules/AGENTS.md`
-- [x] 1.3 Utworzono szablony konfiguracji
-- [x] 1.4 Utworzono `packages/ai-toolkit/install.js`
-- [x] 1.5 Utworzono `packages/ai-toolkit/uninstall.js`
-- [x] 1.6 Utworzono `packages/ai-toolkit/README.md`
-- [x] 1.7 `npm pack --dry-run` przechodzi
-- [x] 1.8 Lokalny test install/uninstall działa
-- [x] 1.9 `npm run lint` w root jest czyste
+- [x] 1.1 Utworzono `packages/ai-toolkit/package.json` — b999e9f
+- [x] 1.2 Utworzono `packages/ai-toolkit/rules/AGENTS.md` — b999e9f
+- [x] 1.3 Utworzono szablony konfiguracji — b999e9f
+- [x] 1.4 Utworzono `packages/ai-toolkit/install.js` — b999e9f
+- [x] 1.5 Utworzono `packages/ai-toolkit/uninstall.js` — b999e9f
+- [x] 1.6 Utworzono `packages/ai-toolkit/README.md` — b999e9f
+- [x] 1.7 `npm pack --dry-run` przechodzi — b999e9f
+- [x] 1.8 Lokalny test install/uninstall działa — b999e9f
+- [x] 1.9 `npm run lint` w root jest czyste — b999e9f
 
 #### Ręczne
 
-- [x] 1.10 Przegląd zawartości `rules/AGENTS.md`
+- [x] 1.10 Przegląd zawartości `rules/AGENTS.md` — b999e9f
 
 ### Faza 2: CI/CD publikacji
 
 #### Automatyczne
 
-- [ ] 2.1 Utworzono `.github/workflows/publish-ai-toolkit.yml`
-- [ ] 2.2 Workflow przechodzi walidację (dry-run)
+- [x] 2.1 Utworzono `.github/workflows/publish-ai-toolkit.yml`
+- [x] 2.2 Workflow przechodzi walidację (dry-run)
 
 #### Ręczne
 
-- [ ] 2.3 Sprawdzenie triggera na tagi
+- [x] 2.3 Sprawdzenie triggera na tagi
 
 ### Faza 3: Publikacja i instalacja konsumencka
 

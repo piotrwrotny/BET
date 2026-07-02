@@ -14,17 +14,7 @@ function findProjectRoot() {
     return path.resolve(process.env.PROJECT_ROOT);
   }
 
-  let dir = __dirname;
-  let prev;
-  do {
-    if (path.basename(dir) === "node_modules") {
-      return path.dirname(dir);
-    }
-    prev = dir;
-    dir = path.dirname(dir);
-  } while (dir !== prev);
-
-  return process.cwd();
+  return process.env.INIT_CWD ? path.resolve(process.env.INIT_CWD) : process.cwd();
 }
 
 function removeRulesBlock(content) {

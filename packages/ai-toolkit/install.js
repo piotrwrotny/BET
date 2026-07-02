@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const PACKAGE_NAME = "@piotrwrotny/ai-toolkit";
-const PACKAGE_VERSION = "0.1.0";
+const PACKAGE_VERSION = "0.1.1";
 const BEGIN = `<!-- BEGIN ${PACKAGE_NAME} -->`;
 const END = `<!-- END ${PACKAGE_NAME} -->`;
 const MANIFEST = ".ai-toolkit-manifest.json";
@@ -15,20 +15,9 @@ function findProjectRoot() {
     return path.resolve(process.env.PROJECT_ROOT);
   }
 
-  // When installed as a dependency, __dirname sits inside node_modules.
-  // Walk up to the parent of node_modules.
-  let dir = __dirname;
-  let prev;
-  do {
-    if (path.basename(dir) === "node_modules") {
-      return path.dirname(dir);
-    }
-    prev = dir;
-    dir = path.dirname(dir);
-  } while (dir !== prev);
-
-  // For manual npx / standalone runs, default to cwd.
-  return process.cwd();
+  // npm sets INIT_CWD to the project root during postinstall and npx.
+  // Fall back to the current working directory for standalone runs.
+  return process.env.INIT_CWD ? path.resolve(process.env.INIT_CWD) : process.cwd();
 }
 
 function copyDir(source, target, installedFiles, root) {

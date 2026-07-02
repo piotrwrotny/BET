@@ -47,12 +47,19 @@ export default function LessonInteractive({
     setErrorMessage(null);
     setCompleting(true);
     try {
-      const res = await fetch(`/api/lessons/${lessonId}/complete`, { method: "POST" });
-      if (res.ok) {
+      const readRes = await fetch(`/api/lessons/${lessonId}/read`, { method: "POST" });
+      if (!readRes.ok) {
+        const data = (await readRes.json().catch(() => ({}))) as { error?: string };
+        setErrorMessage(data.error ?? `Błąd potwierdzenia: ${readRes.status}`);
+        return;
+      }
+
+      const completeRes = await fetch(`/api/lessons/${lessonId}/complete`, { method: "POST" });
+      if (completeRes.ok) {
         setIsCompleted(true);
       } else {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setErrorMessage(data.error ?? `Błąd zapisu: ${res.status}`);
+        const data = (await completeRes.json().catch(() => ({}))) as { error?: string };
+        setErrorMessage(data.error ?? `Błąd zapisu: ${completeRes.status}`);
       }
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Błąd sieci");

@@ -21,3 +21,4 @@ Must satisfy 10xChampion criteria: source-of-truth repo, package definition, pub
 - GitHub Packages listing: https://github.com/users/piotrwrotny/packages/npm/package/ai-toolkit
 - Published versions: `0.1.0`, `0.1.1`
 - Consumer install verified in BET: `npx @piotrwrotny/ai-toolkit@0.1.1 install` created the managed rules block and manifest; `uninstall` cleaned them up.
+- Unit tests added: `packages/ai-toolkit/test/install.test.js` (Node built-in test runner), run in CI before publish.

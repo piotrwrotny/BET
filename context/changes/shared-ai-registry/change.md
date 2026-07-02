@@ -1,7 +1,7 @@
 ---
 change_id: shared-ai-registry
 title: Shared AI Registry — team AI toolkit package
-status: planned
+status: implemented
 created: 2026-07-02
 updated: 2026-07-02
 archived_at: null

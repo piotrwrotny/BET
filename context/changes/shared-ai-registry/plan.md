@@ -327,9 +327,9 @@ Ponieważ konsumentem testowym jest samo repo BET, aktualizacja pakietu polega n
 
 #### Automatyczne
 
-- [x] 4.1 `npm run lint` czyste — 219a9c9
+- [x] 4.1 `npm run lint` czyste — 2a93567
 
 #### Ręczne
 
-- [x] 4.2 Zrzuty / logi dla 10xChampion zebrane — 219a9c9
-- [x] 4.3 README konsumenta kompletne — 219a9c9
+- [x] 4.2 Zrzuty / logi dla 10xChampion zebrane — 2a93567
+- [x] 4.3 README konsumenta kompletne — 2a93567

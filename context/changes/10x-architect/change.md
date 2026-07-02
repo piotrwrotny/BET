@@ -24,4 +24,6 @@ All three documents follow the local M4L5 prompts in `.omp/prompts/` and contain
       `StudentLessonProgress`, `POST /api/lessons/[id]/read`, updated completion flow)
 - [x] Old `LessonCompletion` aggregate removed
 - [x] Build / test / lint / typecheck passing on `module-4-architect`
+- [x] `.github/workflows/ci.yml` with lint / typecheck / unit tests / build gates
+- [x] `context/foundation/ci.md` documenting pipeline and deployment decision
 - [x] Branch pushed to origin

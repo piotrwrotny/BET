@@ -17,8 +17,11 @@ All three documents follow the local M4L5 prompts in `.omp/prompts/` and contain
 
 ## Deliverables
 
-- [ ] `context/domain/01-domain-distillation.md`
-- [ ] `context/domain/02-invariant-aggregate-refactor.md`
-- [ ] `context/domain/03-anti-corruption-layer.md`
-- [ ] Build / test / lint / typecheck passing on `module-4-architect`
-- [ ] Branch pushed to origin
+- [x] `context/domain/01-domain-distillation.md`
+- [x] `context/domain/02-invariant-aggregate-refactor.md`
+- [x] `context/domain/03-anti-corruption-layer.md`
+- [x] Server-side reading confirmation implemented (`lesson_reading_confirmations`,
+      `StudentLessonProgress`, `POST /api/lessons/[id]/read`, updated completion flow)
+- [x] Old `LessonCompletion` aggregate removed
+- [x] Build / test / lint / typecheck passing on `module-4-architect`
+- [x] Branch pushed to origin

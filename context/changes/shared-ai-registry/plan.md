@@ -312,24 +312,24 @@ Ponieważ konsumentem testowym jest samo repo BET, aktualizacja pakietu polega n
 
 #### Automatyczne
 
-- [ ] 3.1 Tag `v0.1.0` wypchnięty
-- [ ] 3.2 Pakiet widoczny w GitHub Packages
-- [ ] 3.3 `npx @piotrwrotny/ai-toolkit install` kończy się kodem 0
-- [ ] 3.4 Manifest `.claude/.ai-toolkit-manifest.json` istnieje
+- [x] 3.1 Tag `v0.1.1` wypchnięty — 219a9c9
+- [x] 3.2 Pakiet widoczny w GitHub Packages — 219a9c9
+- [x] 3.3 `npx @piotrwrotny/ai-toolkit install` kończy się kodem 0 — 219a9c9
+- [x] 3.4 Manifest `.claude/.ai-toolkit-manifest.json` istnieje — 219a9c9
 
 #### Ręczne
 
-- [ ] 3.5 Weryfikacja bloku reguł w `AGENTS.md`
-- [ ] 3.6 Test deinstalacji
-- [ ] 3.7 Zrzut zakładki Packages
+- [x] 3.5 Weryfikacja bloku reguł w `AGENTS.md` — 219a9c9
+- [x] 3.6 Test deinstalacji — 219a9c9
+- [x] 3.7 Zrzut zakładki Packages — 219a9c9
 
 ### Faza 4: Dokumentacja i dowody
 
 #### Automatyczne
 
-- [ ] 4.1 `npm run lint` czyste
+- [x] 4.1 `npm run lint` czyste — 219a9c9
 
 #### Ręczne
 
-- [ ] 4.2 Zrzuty / logi dla 10xChampion zebrane
-- [ ] 4.3 README konsumenta kompletne
+- [x] 4.2 Zrzuty / logi dla 10xChampion zebrane — 219a9c9
+- [x] 4.3 README konsumenta kompletne — 219a9c9

@@ -171,20 +171,20 @@ Wypchnięcie brancha `module-5-l5` i obserwacja nowego workflow w Actions.
 
 #### Automatyczne
 
-- [x] 2.1 Usunięto trigger `pull_request` z `publish-ai-toolkit.yml`
-- [x] 2.2 `npm run lint` przechodzi
+- [x] 2.1 Usunięto trigger `pull_request` z `publish-ai-toolkit.yml` — a96b144
+- [x] 2.2 `npm run lint` przechodzi — a96b144
 
 #### Ręczne
 
-- [x] 2.3 Przegląd diffu
+- [x] 2.3 Przegląd diffu — a96b144
 
 ### Faza 3: Weryfikacja w repozytorium
 
 #### Automatyczne
 
-- [ ] 3.1 Branch wypchnięty
+- [x] 3.1 Branch wypchnięty — a96b144
 
 #### Ręczne
 
-- [ ] 3.2 Workflow widoczny w Actions
-- [ ] 3.3 Run zakończony sukcesem
+- [x] 3.2 Workflow widoczny w Actions — a96b144
+- [x] 3.3 Run zakończony sukcesem — a96b144

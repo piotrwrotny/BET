@@ -1,11 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { TABLE_USER_ROLES } from "@/lib/db/schema";
-import { AdminUsersResponseSchema, type BookOption, getStudentsWithAccess } from "./user-admin";
+import { AdminUsersResponseSchema, type BookOption } from "./user-admin.schema";
+import { getStudentsWithAccess } from "./user-admin.server";
 
 const mockListUsers = vi.fn();
 const mockFrom = vi.fn();
 
-vi.mock("@/lib/supabase", () => ({
+vi.mock("@/lib/supabase.server", () => ({
   createAdminClient: () => ({
     auth: {
       admin: {

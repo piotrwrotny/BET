@@ -3,7 +3,7 @@ import { z } from "zod";
 import { CONFLICT_USER_BOOK_ACCESS, TABLE_USER_BOOK_ACCESS, TABLE_USER_ROLES } from "@/lib/db/schema";
 import { requireAdminApi, requireSameOrigin } from "@/lib/guards";
 import { logServerError } from "@/lib/logger";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase.server";
 import { uuidSchema } from "@/lib/utils";
 
 const ParamsSchema = z.object({

@@ -1,7 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { TABLE_USER_ROLES } from "@/lib/db/schema";
 import { requireAdminPage } from "@/lib/guards";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase.server";
 
 const PROTECTED_ROUTES = ["/dashboard", "/lessons", "/admin", "/student"];
 

@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from "react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { AdminUsersResponseSchema, type BookOption, type UserWithAccess } from "@/lib/services/user-admin";
+import { AdminUsersResponseSchema, type BookOption, type UserWithAccess } from "@/lib/services/user-admin.schema";
 
 interface UsersTableProps {
   users: UserWithAccess[];

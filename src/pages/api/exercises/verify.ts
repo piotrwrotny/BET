@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createAdminClient, createClient } from "@/lib/supabase";
+import { createAdminClient, createClient } from "@/lib/supabase.server";
 import { uuidSchema } from "@/lib/utils";
 import { verifyExercise } from "@/lib/verify-exercise";
 

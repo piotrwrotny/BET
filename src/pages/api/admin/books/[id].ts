@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase.server";
 import { uuidSchema } from "@/lib/utils";
 
 const UpdateBookSchema = z.object({

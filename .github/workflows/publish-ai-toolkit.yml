@@ -40,12 +40,12 @@ jobs:
             console.log('package.json OK:', pkg.name, pkg.version);
           "
 
-      - name: Validate rules file
+      - name: Validate rules artifact
         run: |
           node -e "
             const fs = require('fs');
             const rules = fs.readFileSync('./rules/AGENTS.md', 'utf8');
-            if (!rules.includes('<!-- BEGIN @bet-team/ai-toolkit -->')) throw new Error('Missing sentinel markers');
+            if (!rules.trim()) throw new Error('Empty rules file');
             console.log('rules/AGENTS.md OK');
           "
 

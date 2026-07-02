@@ -158,14 +158,14 @@ Wypchnięcie brancha `module-5-l5` i obserwacja nowego workflow w Actions.
 
 #### Automatyczne
 
-- [x] 1.1 Utworzono `.github/workflows/pr-validate-ai-toolkit.yml`
-- [x] 1.2 `npm run lint` przechodzi
-- [x] 1.3 `npm test` w paczce przechodzi
-- [x] 1.4 `npm pack --dry-run` w paczce przechodzi
+- [x] 1.1 Utworzono `.github/workflows/pr-validate-ai-toolkit.yml` — 1cc40d4
+- [x] 1.2 `npm run lint` przechodzi — 1cc40d4
+- [x] 1.3 `npm test` w paczce przechodzi — 1cc40d4
+- [x] 1.4 `npm pack --dry-run` w paczce przechodzi — 1cc40d4
 
 #### Ręczne
 
-- [x] 1.5 Przegląd nowego workflow
+- [x] 1.5 Przegląd nowego workflow — 1cc40d4
 
 ### Faza 2: Oczyszczenie workflowu publikacji
 

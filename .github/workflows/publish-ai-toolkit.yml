@@ -49,6 +49,9 @@ jobs:
             console.log('rules/AGENTS.md OK');
           "
 
+      - name: Run unit tests
+        run: npm test
+
       - name: Dry-run pack
         run: npm pack --dry-run
 

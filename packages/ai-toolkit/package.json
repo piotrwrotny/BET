@@ -15,7 +15,8 @@
     "README.md"
   ],
   "scripts": {
-    "postinstall": "node install.js"
+    "postinstall": "node install.js",
+    "test": "node --test test/**/*.test.js"
   },
   "bin": {
     "ai-toolkit": "./install.js"

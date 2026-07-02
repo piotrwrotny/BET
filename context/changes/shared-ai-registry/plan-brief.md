@@ -5,7 +5,7 @@
 
 ## Co i dlaczego
 
-Budujemy minimalny pakiet npm `@bet-team/ai-toolkit` publikowany do GitHub Packages, który będzie jednym źródłem prawdy dla reguł zespołowych i konfiguracji narzędzi. W wersji 0.1.0 pakiet dystrybuuje reguły z `AGENTS.md` oraz szablony konfiguracji; skille dodamy w kolejnej wersji.
+Budujemy minimalny pakiet npm `@piotrwrotny/ai-toolkit` publikowany do GitHub Packages, który będzie jednym źródłem prawdy dla reguł zespołowych i konfiguracji narzędzi. W wersji 0.1.0 pakiet dystrybuuje reguły z `AGENTS.md` oraz szablony konfiguracji; skille dodamy w kolejnej wersji.
 
 ## Punkt wyjścia
 
@@ -25,11 +25,11 @@ Budujemy minimalny pakiet npm `@bet-team/ai-toolkit` publikowany do GitHub Packa
 | Decyzja | Wybór | Dlaczego | Źródło |
 |---|---|---|---|
 | Model dystrybucji | GitHub Packages | Najniższy próg wejścia; zespół korzysta z GitHuba. | Badania |
-| Scope/nazwa | `@bet-team/ai-toolkit` | Zgodne z wyborem użytkownika; krótkie i czytelne. | Użytkownik |
+| Scope/nazwa | `@piotrwrotny/ai-toolkit` | Zgodne z wyborem użytkownika; krótkie i czytelne. | Użytkownik |
 | Artefakty w 0.1.0 | Reguły + konfiguracja | Szybsze do zweryfikowania; skille w wersji 0.2.0. | Użytkownik |
 | Źródło prawdy | `packages/ai-toolkit/` w BET | Oszczędza zakładanie nowego repo w MVP. | Plan |
 | Konsument testowy | Samo repo BET | Można od razu zweryfikować instalację. | Użytkownik |
-| Tryb instalacji | `npx @bet-team/ai-toolkit install` | Nie wymaga zmian w `package.json` konsumenta. | Użytkownik |
+| Tryb instalacji | `npx @piotrwrotny/ai-toolkit install` | Nie wymaga zmian w `package.json` konsumenta. | Użytkownik |
 | Wersjonowanie | Ręczne tagi semver | Pełna kontrola; pasuje do małej częstotliwości zmian. | Użytkownik |
 | Target reguł | `AGENTS.md` | BET używa `AGENTS.md`, nie `CLAUDE.md`. | Badania |
 
@@ -64,7 +64,7 @@ Budujemy minimalny pakiet npm `@bet-team/ai-toolkit` publikowany do GitHub Packa
            ▼
 ┌─────────────────────────────┐
 │  GitHub Packages            │
-│  @bet-team/ai-toolkit@0.1.0 │
+│  @piotrwrotny/ai-toolkit@0.1.0 │
 └──────────┬──────────────────┘
            │ npx install
            ▼
@@ -95,7 +95,7 @@ Budujemy minimalny pakiet npm `@bet-team/ai-toolkit` publikowany do GitHub Packa
 
 ## Kryteria sukcesu (podsumowanie)
 
-- Pakiet `@bet-team/ai-toolkit@0.1.0` opublikowany w GitHub Packages.
+- Pakiet `@piotrwrotny/ai-toolkit@0.1.0` opublikowany w GitHub Packages.
 - Workflow publikacji zielony dla tagu `v0.1.0`.
-- `npx @bet-team/ai-toolkit install` w BET tworzy zarządzany blok reguł i manifest.
+- `npx @piotrwrotny/ai-toolkit install` w BET tworzy zarządzany blok reguł i manifest.
 - Zebrane dowody dla 10xChampion: repo/rejestr, definicja paczki, lista wersji.

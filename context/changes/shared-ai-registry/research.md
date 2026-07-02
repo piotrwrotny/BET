@@ -4,7 +4,7 @@ researcher: AI Assistant
 git_commit: 32b80f1
 branch: module-5
 repository: piotrwrotny/BET
-topic: "Identify team AI artifacts to package into @bet-team/ai-toolkit and define install targets"
+topic: "Identify team AI artifacts to package into @piotrwrotny/ai-toolkit and define install targets"
 tags: [research, ai-toolkit, github-packages, team-rules, config]
 status: complete
 last_updated: 2026-07-02
@@ -21,7 +21,7 @@ last_updated_by: AI Assistant
 
 ## Pytanie badawcze
 
-Jakie artefakty AI w repozytorium BET nadają się do spakowania w zespołowy pakiet `@bet-team/ai-toolkit` publikowany do GitHub Packages i gdzie powinny być zainstalowane w repo konsumenta?
+Jakie artefakty AI w repozytorium BET nadają się do spakowania w zespołowy pakiet `@piotrwrotny/ai-toolkit` publikowany do GitHub Packages i gdzie powinny być zainstalowane w repo konsumenta?
 
 ## Podsumowanie
 
@@ -88,7 +88,7 @@ W repo dostępne są gotowe specyfikacje i szablony:
 - `.omp/configs/m5l4-github-packages-consumer.npmrc.template`
 
 Te szablony będą punktem wyjścia, ale muszą zostać dostosowane:
-- Scope zmieniony na `@bet-team`.
+- Scope zmieniony na `@piotrwrotny`.
 - Instalator docelowy plik reguł: `AGENTS.md` (nie `CLAUDE.md`), ponieważ BET używa `AGENTS.md`.
 - Dodanie konfiguracji edytora do paczki.
 
@@ -118,14 +118,14 @@ Te szablony będą punktem wyjścia, ale muszą zostać dostosowane:
 ## Otwarte pytania
 
 1. Czy pakiet powinien być publikowany z każdym push do `master`/`dev`, czy tylko ręcznie/z tagiem?
-2. Czy konsument testowy (BET) powinien instalować pakiet jako zwykłą zależność `devDependencies`, czy przez `npx @bet-team/ai-toolkit install`?
+2. Czy konsument testowy (BET) powinien instalować pakiet jako zwykłą zależność `devDependencies`, czy przez `npx @piotrwrotny/ai-toolkit install`?
 3. Czy do pakietu dołączyć również skille (np. `code-review`) od razu, czy zacząć od reguł i konfiguracji?
 
 ## Rekomendacja
 
 Przejść do `/10x-plan shared-ai-registry` z następującymi założeniami:
-- Scope: `@bet-team`
-- Nazwa pakietu: `@bet-team/ai-toolkit`
+- Scope: `@piotrwrotny`
+- Nazwa pakietu: `@piotrwrotny/ai-toolkit`
 - Lokalizacja źródła prawdy: `packages/ai-toolkit/` w repo BET.
 - Konsument testowy: samo repo BET.
 - Artefakty startowe: reguły zespołowe (`AGENTS.md`) + konfiguracja edytora/skryptów (`package.json` helpers).

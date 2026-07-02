@@ -28,7 +28,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           registry-url: "https://npm.pkg.github.com"
-          scope: "@bet-team"
+          scope: "@piotrwrotny"
 
       - name: Validate package metadata
         run: |
@@ -68,7 +68,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           registry-url: "https://npm.pkg.github.com"
-          scope: "@bet-team"
+          scope: "@piotrwrotny"
 
       - name: Verify tag matches package version
         run: |

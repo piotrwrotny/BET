@@ -1,8 +1,8 @@
-# Plan wdrożenia — Shared AI Registry: @bet-team/ai-toolkit
+# Plan wdrożenia — Shared AI Registry: @piotrwrotny/ai-toolkit
 
 ## Przegląd
 
-Wdrażamy minimalny pakiet npm `@bet-team/ai-toolkit` publikowany do GitHub Packages, który dystrybuuje reguły zespołowe i konfigurację narzędzi z jednego źródła prawdy. Pakiet zostanie opublikowany ręcznie przez tag semver `v0.1.0`, a następnie przetestowany jako instalacja w repo BET (konsumencie).
+Wdrażamy minimalny pakiet npm `@piotrwrotny/ai-toolkit` publikowany do GitHub Packages, który dystrybuuje reguły zespołowe i konfigurację narzędzi z jednego źródła prawdy. Pakiet zostanie opublikowany ręcznie przez tag semver `v0.1.0`, a następnie przetestowany jako instalacja w repo BET (konsumencie).
 
 ## Analiza stanu obecnego
 
@@ -16,14 +16,14 @@ Wdrażamy minimalny pakiet npm `@bet-team/ai-toolkit` publikowany do GitHub Pack
 - `AGENTS.md:7-60` zawiera twarde zasady, które powinny trafić do zarządzanego bloku w konsumencie.
 - `context/foundation/lessons.md` zawiera lekcje zespołowe, które warto dołączyć do pakietu jako część reguł.
 - BET używa `AGENTS.md`, a nie `CLAUDE.md`, więc instalator musi targetować `AGENTS.md`.
-- Manualne `npx @bet-team/ai-toolkit install` wymaga, aby instalator domyślnie używał `process.cwd()` lub zmiennej `PROJECT_ROOT`.
+- Manualne `npx @piotrwrotny/ai-toolkit install` wymaga, aby instalator domyślnie używał `process.cwd()` lub zmiennej `PROJECT_ROOT`.
 
 ## Pożądany stan końcowy
 
 - `packages/ai-toolkit/` w repo BET zawiera źródło pakietu.
 - `.github/workflows/publish-ai-toolkit.yml` publikuje pakiet do GitHub Packages po pushu tagu `v*.*.*`.
-- Pakiet `@bet-team/ai-toolkit@0.1.0` jest widoczny w rejestrze GitHub Packages.
-- W BET powstał zarządzany blok reguł między znacznikami `<!-- BEGIN @bet-team/ai-toolkit -->` i `<!-- END @bet-team/ai-toolkit -->` w `AGENTS.md`.
+- Pakiet `@piotrwrotny/ai-toolkit@0.1.0` jest widoczny w rejestrze GitHub Packages.
+- W BET powstał zarządzany blok reguł między znacznikami `<!-- BEGIN @piotrwrotny/ai-toolkit -->` i `<!-- END @piotrwrotny/ai-toolkit -->` w `AGENTS.md`.
 - W `.claude/.ai-toolkit-manifest.json` zapisano manifest instalacji.
 - Dostępne są zrzuty / logi potwierdzające spełnienie kryteriów 10xChampion.
 
@@ -44,7 +44,7 @@ Zaczynamy od minimalnego, działającego pakietu:
 
 Instalator będzie obsługiwał dwa tryby:
 - `postinstall` przy instalacji jako zależność — wykrywa katalog projektu jako rodzica `node_modules`.
-- manualne `npx @bet-team/ai-toolkit install` — używa `process.cwd()` (lub `PROJECT_ROOT`).
+- manualne `npx @piotrwrotny/ai-toolkit install` — używa `process.cwd()` (lub `PROJECT_ROOT`).
 
 ## Faza 1: Szkielet pakietu i instalator
 
@@ -58,10 +58,10 @@ Utworzenie folderu `packages/ai-toolkit/` z metadanymi pakietu, regułami zespo�
 
 **Plik**: `packages/ai-toolkit/package.json`
 
-**Cel**: Zdefiniować pakiet `@bet-team/ai-toolkit@0.1.0`, wskazać rejestr GitHub Packages, pliki do publikacji oraz skrypt `postinstall`.
+**Cel**: Zdefiniować pakiet `@piotrwrotny/ai-toolkit@0.1.0`, wskazać rejestr GitHub Packages, pliki do publikacji oraz skrypt `postinstall`.
 
 **Kontrakt**:
-- `name`: `@bet-team/ai-toolkit`
+- `name`: `@piotrwrotny/ai-toolkit`
 - `version`: `0.1.0`
 - `publishConfig.registry`: `https://npm.pkg.github.com`
 - `files`: `["rules/", "config-templates/", "install.js", "uninstall.js", "README.md"]`
@@ -92,7 +92,7 @@ Utworzenie folderu `packages/ai-toolkit/` z metadanymi pakietu, regułami zespo�
 
 **Kontrakt**:
 - Wykrywa root projektu: jeśli ścieżka skryptu zawiera `node_modules`, używa rodzica `node_modules`; w przeciwnym razie `process.cwd()` lub `PROJECT_ROOT`.
-- Kopiuje `rules/AGENTS.md` między znaczniki `<!-- BEGIN @bet-team/ai-toolkit -->` / `<!-- END @bet-team/ai-toolkit -->` w istniejącym `AGENTS.md` konsumenta; tworzy plik, jeśli nie istnieje.
+- Kopiuje `rules/AGENTS.md` między znaczniki `<!-- BEGIN @piotrwrotny/ai-toolkit -->` / `<!-- END @piotrwrotny/ai-toolkit -->` w istniejącym `AGENTS.md` konsumenta; tworzy plik, jeśli nie istnieje.
 - Kopiuje szablony konfiguracji tylko gdy plik docelowy nie istnieje.
 - Zapisuje manifest `.claude/.ai-toolkit-manifest.json` z listą zainstalowanych plików.
 - Obsługuje argument `install` (domyślnie) oraz `uninstall` (deleguje do `uninstall.js`).
@@ -146,7 +146,7 @@ Dodanie workflow GitHub Actions, który waliduje i publikuje pakiet do GitHub Pa
 **Kontrakt**:
 - Trigger: `push` tagów `v*.*.*`.
 - Uprawnienia: `contents: read`, `packages: write`.
-- `actions/setup-node@v4` z `registry-url: https://npm.pkg.github.com`, `scope: "@bet-team"`.
+- `actions/setup-node@v4` z `registry-url: https://npm.pkg.github.com`, `scope: "@piotrwrotny"`.
 - Kroki walidacji: `package.json` ma `name`, `version`, `publishConfig.registry`; `npm pack --dry-run` przechodzi.
 - Publikacja: `npm publish` z `NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}`.
 - Opcjonalnie: sprawdzenie, że tag odpowiada `version` z `package.json`.
@@ -182,9 +182,9 @@ Opublikowanie wersji 0.1.0 i przetestowanie instalacji w repo BET.
 
 **Plik**: lokalne `.npmrc` (tymczasowe, nie commitowane)
 
-**Cel**: Umożliwić `npx @bet-team/ai-toolkit install` odczyt z prywatnego rejestru.
+**Cel**: Umożliwić `npx @piotrwrotny/ai-toolkit install` odczyt z prywatnego rejestru.
 
-**Kontrakt**: Użytkownik lokalnie loguje się przez `npm login --scope=@bet-team --registry=https://npm.pkg.github.com` lub ustawia `GH_PKG_TOKEN`.
+**Kontrakt**: Użytkownik lokalnie loguje się przez `npm login --scope=@piotrwrotny --registry=https://npm.pkg.github.com` lub ustawia `GH_PKG_TOKEN`.
 
 #### 3.3. Instalacja w BET
 
@@ -192,21 +192,21 @@ Opublikowanie wersji 0.1.0 i przetestowanie instalacji w repo BET.
 
 **Cel**: Zweryfikować, że pakiet działa w prawdziwym repo konsumenta.
 
-**Kontrakt**: Po `npx @bet-team/ai-toolkit install` w root BET pojawia się zarządzany blok reguł, a manifest zawiera listę plików.
+**Kontrakt**: Po `npx @piotrwrotny/ai-toolkit install` w root BET pojawia się zarządzany blok reguł, a manifest zawiera listę plików.
 
 ### Kryteria sukcesu:
 
 #### Weryfikacja automatyczna:
 
-- Pakiet `@bet-team/ai-toolkit@0.1.0` jest dostępny w GitHub Packages (API zwraca wersję).
-- `npx @bet-team/ai-toolkit install` kończy się kodem 0.
+- Pakiet `@piotrwrotny/ai-toolkit@0.1.0` jest dostępny w GitHub Packages (API zwraca wersję).
+- `npx @piotrwrotny/ai-toolkit install` kończy się kodem 0.
 - `cat .claude/.ai-toolkit-manifest.json` zawiera `version: 0.1.0` i listę plików.
 
 #### Weryfikacja ręczna:
 
 - Sprawdzenie w zakładce Packages w repozytorium piotrwrotny/BET, że wersja 0.1.0 istnieje.
 - Wizualna weryfikacja bloku reguł w `AGENTS.md`.
-- Test deinstalacji: `npx @bet-team/ai-toolkit uninstall` usuwa blok i manifest.
+- Test deinstalacji: `npx @piotrwrotny/ai-toolkit uninstall` usuwa blok i manifest.
 
 ## Faza 4: Dokumentacja i dowody dla 10xChampion
 
@@ -255,8 +255,8 @@ Zebranie zrzutów ekranu / logów i aktualizacja dokumentów projektowych.
 ### Kroki testowania ręcznego:
 
 1. Upewnić się, że root `AGENTS.md` ma zarządzany blok reguł.
-2. Uruchomić `npx @bet-team/ai-toolkit install` i sprawdzić manifest.
-3. Uruchomić `npx @bet-team/ai-toolkit uninstall` i sprawdzić, że blok zniknął.
+2. Uruchomić `npx @piotrwrotny/ai-toolkit install` i sprawdzić manifest.
+3. Uruchomić `npx @piotrwrotny/ai-toolkit uninstall` i sprawdzić, że blok zniknął.
 4. Zweryfikować pakiet w zakładce Packages na GitHub.
 
 ## Uwagi dotyczące wydajności
@@ -268,7 +268,7 @@ Pakiet jest mały (< 100 KB); instalacja i publikacja są szybkie.
 Ponieważ konsumentem testowym jest samo repo BET, aktualizacja pakietu polega na:
 1. Zmianie `version` w `packages/ai-toolkit/package.json`.
 2. Push tagu `v0.2.0`.
-3. `npx @bet-team/ai-toolkit install` w root BET.
+3. `npx @piotrwrotny/ai-toolkit install` w root BET.
 
 ## Referencje
 
@@ -301,12 +301,12 @@ Ponieważ konsumentem testowym jest samo repo BET, aktualizacja pakietu polega n
 
 #### Automatyczne
 
-- [x] 2.1 Utworzono `.github/workflows/publish-ai-toolkit.yml`
-- [x] 2.2 Workflow przechodzi walidację (dry-run)
+- [x] 2.1 Utworzono `.github/workflows/publish-ai-toolkit.yml` — 4b17c3b
+- [x] 2.2 Workflow przechodzi walidację (dry-run) — 4b17c3b
 
 #### Ręczne
 
-- [x] 2.3 Sprawdzenie triggera na tagi
+- [x] 2.3 Sprawdzenie triggera na tagi — 4b17c3b
 
 ### Faza 3: Publikacja i instalacja konsumencka
 
@@ -314,7 +314,7 @@ Ponieważ konsumentem testowym jest samo repo BET, aktualizacja pakietu polega n
 
 - [ ] 3.1 Tag `v0.1.0` wypchnięty
 - [ ] 3.2 Pakiet widoczny w GitHub Packages
-- [ ] 3.3 `npx @bet-team/ai-toolkit install` kończy się kodem 0
+- [ ] 3.3 `npx @piotrwrotny/ai-toolkit install` kończy się kodem 0
 - [ ] 3.4 Manifest `.claude/.ai-toolkit-manifest.json` istnieje
 
 #### Ręczne

@@ -3,31 +3,20 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const PACKAGE_NAME = "@piotrwrotny/ai-toolkit";
+const PACKAGE_NAME = "@twoj-zespol/ai-toolkit";
 const PACKAGE_VERSION = "0.1.0";
 const BEGIN = `<!-- BEGIN ${PACKAGE_NAME} -->`;
 const END = `<!-- END ${PACKAGE_NAME} -->`;
 const MANIFEST = ".ai-toolkit-manifest.json";
-const CONFIG_DIR = ".claude";
 
 function findProjectRoot() {
-  if (process.env.PROJECT_ROOT) {
-    return path.resolve(process.env.PROJECT_ROOT);
-  }
+  if (process.env.PROJECT_ROOT) return process.env.PROJECT_ROOT;
 
-  // When installed as a dependency, __dirname sits inside node_modules.
-  // Walk up to the parent of node_modules.
   let dir = __dirname;
-  let prev;
-  do {
-    if (path.basename(dir) === "node_modules") {
-      return path.dirname(dir);
-    }
-    prev = dir;
+  while (dir !== path.dirname(dir)) {
+    if (path.basename(dir) === "node_modules") return path.dirname(dir);
     dir = path.dirname(dir);
-  } while (dir !== prev);
-
-  // For manual npx / standalone runs, default to cwd.
+  }
   return process.cwd();
 }
 
@@ -40,7 +29,7 @@ function copyDir(source, target, installedFiles, root) {
       copyDir(src, dst, installedFiles, root);
     } else {
       fs.copyFileSync(src, dst);
-      installedFiles.push(path.relative(root, dst).replace(/\\/g, "/"));
+      installedFiles.push(path.relative(root, dst));
     }
   }
 }
@@ -49,7 +38,7 @@ function installSkills(projectRoot, installedFiles) {
   const source = path.join(__dirname, "skills");
   if (!fs.existsSync(source)) return;
 
-  const targetRoot = path.join(projectRoot, CONFIG_DIR, "skills");
+  const targetRoot = path.join(projectRoot, ".claude", "skills");
   fs.mkdirSync(targetRoot, { recursive: true });
 
   for (const skill of fs.readdirSync(source, { withFileTypes: true })) {
@@ -73,46 +62,18 @@ function applyRulesBlock(existing, teamRules) {
 }
 
 function installRules(projectRoot, installedFiles) {
-  const rulesFile = path.join(__dirname, "rules", "AGENTS.md");
+  const rulesFile = path.join(__dirname, "rules", "CLAUDE.md");
   if (!fs.existsSync(rulesFile)) return;
 
-  const target = path.join(projectRoot, "AGENTS.md");
+  const target = path.join(projectRoot, "CLAUDE.md");
   const existing = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : "";
   const teamRules = fs.readFileSync(rulesFile, "utf8");
   fs.writeFileSync(target, applyRulesBlock(existing, teamRules));
-
-  if (!installedFiles.includes("AGENTS.md")) {
-    installedFiles.push("AGENTS.md");
-  }
-}
-
-function installConfigs(projectRoot, installedFiles) {
-  const sourceRoot = path.join(__dirname, "config-templates");
-  if (!fs.existsSync(sourceRoot)) return;
-
-  for (const entry of fs.readdirSync(sourceRoot, { withFileTypes: true })) {
-    const src = path.join(sourceRoot, entry.name);
-    const dst = path.join(projectRoot, entry.name);
-
-    if (entry.isDirectory()) {
-      for (const child of fs.readdirSync(src, { withFileTypes: true })) {
-        const childSrc = path.join(src, child.name);
-        const childDst = path.join(dst, child.name);
-        if (fs.existsSync(childDst)) continue;
-        fs.mkdirSync(dst, { recursive: true });
-        fs.copyFileSync(childSrc, childDst);
-        installedFiles.push(path.relative(projectRoot, childDst).replace(/\\/g, "/"));
-      }
-    } else {
-      if (fs.existsSync(dst)) continue;
-      fs.copyFileSync(src, dst);
-      installedFiles.push(path.relative(projectRoot, dst).replace(/\\/g, "/"));
-    }
-  }
+  installedFiles.push("CLAUDE.md");
 }
 
 function writeManifest(projectRoot, installedFiles) {
-  const manifestDir = path.join(projectRoot, CONFIG_DIR);
+  const manifestDir = path.join(projectRoot, ".claude");
   fs.mkdirSync(manifestDir, { recursive: true });
   fs.writeFileSync(
     path.join(manifestDir, MANIFEST),
@@ -121,7 +82,7 @@ function writeManifest(projectRoot, installedFiles) {
         package: PACKAGE_NAME,
         version: PACKAGE_VERSION,
         installedAt: new Date().toISOString(),
-        files: [...new Set(installedFiles)],
+        files: installedFiles,
       },
       null,
       2,
@@ -129,39 +90,19 @@ function writeManifest(projectRoot, installedFiles) {
   );
 }
 
-function install() {
+function main() {
   const projectRoot = findProjectRoot();
   const installedFiles = [];
 
   installSkills(projectRoot, installedFiles);
   installRules(projectRoot, installedFiles);
-  installConfigs(projectRoot, installedFiles);
   writeManifest(projectRoot, installedFiles);
 
-  console.log(`${PACKAGE_NAME}: installed ${installedFiles.length} file(s) into ${projectRoot}`);
-}
-
-function uninstall() {
-  const uninstallScript = path.join(__dirname, "uninstall.js");
-  require(uninstallScript);
-}
-
-function main() {
-  const command = process.argv[2] || "install";
-
-  if (command === "uninstall") {
-    uninstall();
-  } else if (command === "install") {
-    install();
-  } else {
-    console.warn(`${PACKAGE_NAME}: unknown command "${command}". Use "install" or "uninstall".`);
-    process.exit(1);
-  }
+  console.log(`${PACKAGE_NAME}: installed ${installedFiles.length} file(s)`);
 }
 
 try {
   main();
 } catch (error) {
   console.warn(`${PACKAGE_NAME}: postinstall warning: ${error.message}`);
-  // Never fail the host npm install.
 }

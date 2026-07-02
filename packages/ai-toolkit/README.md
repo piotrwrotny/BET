@@ -1,4 +1,4 @@
-# @bet-team/ai-toolkit
+# @piotrwrotny/ai-toolkit
 
 Team AI artifacts distributed through GitHub Packages.
 
@@ -13,13 +13,13 @@ Team AI artifacts distributed through GitHub Packages.
 1. Add the GitHub Packages registry mapping to `.npmrc` (commit this line):
 
    ```
-   @bet-team:registry=https://npm.pkg.github.com
+   @piotrwrotny:registry=https://npm.pkg.github.com
    ```
 
 2. Authenticate locally:
 
    ```bash
-   npm login --scope=@bet-team --registry=https://npm.pkg.github.com
+   npm login --scope=@piotrwrotny --registry=https://npm.pkg.github.com
    ```
 
    Or set a `GH_PKG_TOKEN` environment variable with `read:packages` scope.
@@ -27,7 +27,7 @@ Team AI artifacts distributed through GitHub Packages.
 3. Run the installer:
 
    ```bash
-   npx @bet-team/ai-toolkit install
+   npx @piotrwrotny/ai-toolkit install
    ```
 
 The installer is idempotent: running it again updates the managed block instead of duplicating it.
@@ -35,7 +35,7 @@ The installer is idempotent: running it again updates the managed block instead 
 ## Uninstall
 
 ```bash
-npx @bet-team/ai-toolkit uninstall
+npx @piotrwrotny/ai-toolkit uninstall
 ```
 
 This removes the managed block from `AGENTS.md`, deletes installed templates, and removes the manifest.

@@ -26,4 +26,5 @@ All three documents follow the local M4L5 prompts in `.omp/prompts/` and contain
 - [x] Build / test / lint / typecheck passing on `module-4-architect`
 - [x] `.github/workflows/ci.yml` with lint / typecheck / unit tests / build gates
 - [x] `context/foundation/ci.md` documenting pipeline and deployment decision
+- [x] API contract tests for reading confirmation and lesson completion
 - [x] Branch pushed to origin

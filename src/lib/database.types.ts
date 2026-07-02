@@ -221,6 +221,32 @@ export type Database = {
           },
         ]
       }
+      lesson_reading_confirmations: {
+        Row: {
+          confirmed_at: string
+          lesson_id: string
+          user_id: string
+        }
+        Insert: {
+          confirmed_at?: string
+          lesson_id: string
+          user_id: string
+        }
+        Update: {
+          confirmed_at?: string
+          lesson_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_reading_confirmations_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           chapter_id: string

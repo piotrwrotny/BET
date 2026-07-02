@@ -1,9 +1,8 @@
 import type { User } from "@supabase/supabase-js";
-import { z } from "zod";
 import { logServerError } from "@/lib/logger";
 import { TABLE_USER_BOOK_ACCESS, TABLE_USER_ROLES } from "@/lib/db/schema";
-import { createAdminClient } from "@/lib/supabase";
-import { uuidSchema } from "@/lib/utils";
+import { createAdminClient } from "@/lib/supabase.server";
+import type { GetStudentsOptions, GetStudentsResult, UserBookAccess, UserWithAccess } from "./user-admin.schema";
 
 interface UserRoleRow {
   user_id: string;
@@ -22,46 +21,6 @@ interface UserBookAccessRow {
   books: AccessBookRow | AccessBookRow[] | null;
 }
 
-export interface UserBookAccess {
-  book_id: string;
-  title: string;
-  granted_at: string;
-}
-
-export interface UserWithAccess {
-  id: string;
-  email: string;
-  role: "admin" | "student";
-  created_at: string;
-  books: UserBookAccess[];
-}
-
-export interface BookOption {
-  id: string;
-  title: string;
-}
-
-const UserBookAccessSchema = z.object({
-  book_id: uuidSchema,
-  title: z.string(),
-  granted_at: z.string(),
-});
-
-const UserWithAccessSchema = z.object({
-  id: uuidSchema,
-  email: z.email(),
-  role: z.enum(["admin", "student"]),
-  created_at: z.string(),
-  books: z.array(UserBookAccessSchema),
-});
-
-export const AdminUsersResponseSchema = z.object({
-  users: z.array(UserWithAccessSchema),
-  page: z.number().int().positive(),
-  perPage: z.number().int().positive(),
-  hasNextPage: z.boolean(),
-});
-
 function chunk<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
@@ -72,21 +31,10 @@ function chunk<T>(items: T[], size: number): T[][] {
 
 const ID_CHUNK_SIZE = 200;
 
-interface GetStudentsOptions {
-  page?: number;
-  perPage?: number;
-}
-
-interface GetStudentsResult {
-  users: UserWithAccess[];
-  hasNextPage: boolean;
-}
-
 export async function getStudentsWithAccess(options: GetStudentsOptions = {}): Promise<GetStudentsResult> {
   const { page = 1, perPage = 20 } = options;
   const supabaseAdmin = createAdminClient();
 
-  // Fetch one extra page to determine if there is a next page.
   const { data, error } = await supabaseAdmin.auth.admin.listUsers({
     page,
     perPage: perPage + 1,

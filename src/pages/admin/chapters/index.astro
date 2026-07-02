@@ -2,7 +2,7 @@
 import AdminLayout from "@/layouts/AdminLayout.astro";
 import DeleteButton from "@/components/admin/DeleteButton.astro";
 import { ServerError } from "@/components/auth/ServerError";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase.server";
 
 export const prerender = false;
 

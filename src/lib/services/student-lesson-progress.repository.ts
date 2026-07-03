@@ -1,5 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
+import {
+  TABLE_EXERCISES,
+  TABLE_EXERCISE_SUBMISSIONS,
+  TABLE_LESSONS,
+  TABLE_LESSON_PROGRESS,
+  TABLE_LESSON_READING_CONFIRMATIONS,
+} from "@/lib/db/schema";
 import { StudentLessonProgress, type LessonCompletionResult } from "@/lib/domain/student-lesson-progress";
 import { LessonNotAccessibleError } from "@/lib/errors/student-lesson-progress";
 
@@ -13,7 +20,7 @@ export async function loadStudentLessonProgress(
   lessonId: string,
 ): Promise<StudentLessonProgress> {
   const { data: lesson, error: lessonError } = await supabase
-    .from("lessons")
+    .from(TABLE_LESSONS)
     .select("id")
     .eq("id", lessonId)
     .maybeSingle();
@@ -23,7 +30,7 @@ export async function loadStudentLessonProgress(
   }
 
   const { data: exercises, error: exercisesError } = await supabase
-    .from("exercises")
+    .from(TABLE_EXERCISES)
     .select("id, type")
     .eq("lesson_id", lessonId);
 
@@ -36,7 +43,7 @@ export async function loadStudentLessonProgress(
   let solvedExerciseIds = new Set<string>();
   if (closedExerciseIds.length > 0) {
     const { data: submissions, error: submissionsError } = await supabase
-      .from("exercise_submissions")
+      .from(TABLE_EXERCISE_SUBMISSIONS)
       .select("exercise_id")
       .eq("user_id", userId)
       .in("exercise_id", closedExerciseIds);
@@ -50,12 +57,17 @@ export async function loadStudentLessonProgress(
 
   const [{ data: readingRow }, { data: progressRow }] = await Promise.all([
     supabase
-      .from("lesson_reading_confirmations")
+      .from(TABLE_LESSON_READING_CONFIRMATIONS)
       .select("lesson_id")
       .eq("user_id", userId)
       .eq("lesson_id", lessonId)
       .maybeSingle(),
-    supabase.from("lesson_progress").select("lesson_id").eq("user_id", userId).eq("lesson_id", lessonId).maybeSingle(),
+    supabase
+      .from(TABLE_LESSON_PROGRESS)
+      .select("lesson_id")
+      .eq("user_id", userId)
+      .eq("lesson_id", lessonId)
+      .maybeSingle(),
   ]);
 
   return new StudentLessonProgress(
@@ -70,7 +82,7 @@ export async function loadStudentLessonProgress(
 }
 
 export async function saveReadingConfirmation(supabase: Supabase, userId: string, lessonId: string): Promise<void> {
-  const { error } = await supabase.from("lesson_reading_confirmations").insert({
+  const { error } = await supabase.from(TABLE_LESSON_READING_CONFIRMATIONS).insert({
     user_id: userId,
     lesson_id: lessonId,
   });
@@ -81,7 +93,7 @@ export async function saveReadingConfirmation(supabase: Supabase, userId: string
 }
 
 export async function saveLessonCompletion(supabase: Supabase, result: LessonCompletionResult): Promise<void> {
-  const { error } = await supabase.from("lesson_progress").insert({
+  const { error } = await supabase.from(TABLE_LESSON_PROGRESS).insert({
     user_id: result.user_id,
     lesson_id: result.lesson_id,
     completed_at: result.completed_at.toISOString(),

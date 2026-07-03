@@ -299,9 +299,9 @@ Each phase is an independent commit (or set of commits). If a phase breaks the b
 ### Phase 4 — Fix seed data (P2)
 
 #### Automated
-- [ ] 4.1 Add `user_book_access` seed row for the test student and book.
-- [ ] 4.2 Replace fake `fill_in_blank` seed row with a real `fill_in_blank` exercise and keys.
-- [ ] 4.3 Run `npx supabase db reset`.
+- [x] 4.1 Add `user_book_access` seed row for the test student and book. — b15b09f
+- [x] 4.2 Replace fake `fill_in_blank` seed row with a real `fill_in_blank` exercise and keys. — b15b09f
+- [x] 4.3 Run `npx supabase db reset`. — b15b09f
 
 ### Phase 5 — Complete schema constants rollout (P2)
 

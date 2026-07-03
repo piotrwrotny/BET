@@ -290,11 +290,11 @@ Each phase is an independent commit (or set of commits). If a phase breaks the b
 ### Phase 3 — Re-enable strict book/lesson access control (P1)
 
 #### Automated
-- [ ] 3.1 Create `supabase/migrations/20260703120000_restore_book_access_rls.sql`.
-- [ ] 3.2 Run `npx supabase db reset`.
+- [x] 3.1 Create `supabase/migrations/20260703120000_restore_book_access_rls.sql`. — d4f8e83
+- [x] 3.2 Run `npx supabase db reset`. — d4f8e83
 
 #### Manual
-- [ ] M.2 Confirm student without `user_book_access` rows sees no books/lessons.
+- [x] M.2 Confirm student without `user_book_access` rows sees no books/lessons. — d4f8e83
 
 ### Phase 4 — Fix seed data (P2)
 

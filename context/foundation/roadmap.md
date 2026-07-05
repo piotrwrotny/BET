@@ -164,7 +164,7 @@ Fundamenty poniżej zakładają, że są one obecne i NIE odbudowują ich.
 - **Blokady:** —
 - **Status:** done
 
-> `open_ended` istnieje w schemacie i seedzie, ale wyświetla się jako placeholder z wzorcową odpowiedzią do samodzielnej oceny; nie ma interaktywnego UI. `sentence_transformation` nie ma komponentu.
+> `open_ended` istnieje w schemacie i seedzie oraz wyświetla się z wzorcową odpowiedzią do samodzielnej oceny. `sentence_transformation` ma komponent (`src/components/lesson/SentenceTransformationExercise.tsx`) i jest weryfikowane przez listę wariantów z `exercise_keys`. Serwerowe ukończenie lekcji wymaga dodatkowo potwierdzenia przeczytania (FR-015) — realizowane przez `POST /api/lessons/[id]/read` przed `POST /api/lessons/[id]/complete`.
 
 ## Przekazanie do backlogu
 

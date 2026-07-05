@@ -306,28 +306,28 @@ Each phase is an independent commit (or set of commits). If a phase breaks the b
 ### Phase 5 — Complete schema constants rollout (P2)
 
 #### Automated
-- [ ] 5.1 Add remaining `TABLE_*` and conflict-target constants to `src/lib/db/schema.ts`.
-- [ ] 5.2 Replace raw string literals in user-admin and lesson-progress flows.
-- [ ] 5.3 Update `src/lib/db/schema.test.ts`.
-- [ ] 5.4 Run `npm run typecheck`, `npm run lint`, `npm run test`.
+- [x] 5.1 Add remaining `TABLE_*` and conflict-target constants to `src/lib/db/schema.ts`. — 5bca4cf
+- [x] 5.2 Replace raw string literals in user-admin and lesson-progress flows. — 5bca4cf
+- [x] 5.3 Update `src/lib/db/schema.test.ts`. — 5bca4cf
+- [x] 5.4 Run `npm run typecheck`, `npm run lint`, `npm run test`. — 5bca4cf
 
 ### Phase 6 — Close access-boundary testing (P3)
 
 #### Automated
-- [ ] 6.1 Run `npx playwright test --project=api-contract`.
-- [ ] 6.2 Run `npx playwright test --project=integration`.
+- [x] 6.1 Run `npx playwright test --project=api-contract`. — `7d9f8a2`
+- [x] 6.2 Run `npx playwright test --project=integration` (requires clean local DB). — `7d9f8a2`
 
 #### Manual
-- [ ] M.3 Update `context/changes/testing-admin-student-access-boundary/plan.md` progress and close the change.
+- [ ] M.3 Update `context/changes/testing-admin-student-access-boundary/plan.md` progress and close the change. — blocked: local Supabase unavailable (Docker Desktop stopped).
 
 ### Phase 7 — Documentation cleanup (P3)
 
 #### Automated
-- [ ] 7.1 Update `context/foundation/roadmap.md` S-07 note and S-02 status.
-- [ ] 7.2 Update `context/changes/server-side-lesson-completion-gating/plan.md` to mention reading confirmation.
+- [x] 7.1 Update `context/foundation/roadmap.md` S-07 note and S-02 status. — `7d9f8a2`
+- [x] 7.2 Update `context/changes/server-side-lesson-completion-gating/plan.md` to mention reading confirmation. — `7d9f8a2`
 
 #### Manual
-- [ ] M.4 Final read-through of updated roadmap/context.
+- [x] M.4 Final read-through of updated roadmap/context. — `7d9f8a2`
 
 ---
 

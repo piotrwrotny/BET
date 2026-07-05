@@ -103,9 +103,10 @@ npm run typecheck
 - [x] 4.1 Add integration spec for `POST /api/lessons/[id]/complete` gating
 - [x] 5.1 Update `context/foundation/test-plan.md` §6 cookbook
 - [x] 6.1 Run lint + typecheck + unit tests green
-- [ ] 6.2 Run Playwright contract + integration tests green (blocked: local Supabase Docker unavailable in this environment)
+- [x] 6.2 Run Playwright contract + integration tests green — verified during `dev-slice-recovery` (`83c5ac9`, `e580b63`) after starting Docker Desktop
+- [x] 6.3 Run full `npx playwright test` suite green — verified during `dev-slice-recovery` (`003d3aa`)
 
 ### Manual
 
 - [x] M.1 Review that no real email addresses or secrets are used in seeded test data
-- [ ] M.2 Confirm contract tests run green against a fresh dev server + clean DB seed (blocked: local Supabase Docker unavailable)
+- [x] M.2 Confirm contract tests run green against a fresh dev server + clean DB seed — verified during `dev-slice-recovery`

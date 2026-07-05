@@ -4,13 +4,8 @@ import { uuidSchema } from "@/lib/utils";
 import type { Database } from "@/lib/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSameOrigin } from "@/lib/guards";
-import { loadStudentLessonProgress, saveLessonCompletion } from "@/lib/services/student-lesson-progress.repository";
-import {
-  ClosedExercisesNotSolvedError,
-  LessonAlreadyCompletedError,
-  LessonNotAccessibleError,
-  ReadingNotConfirmedError,
-} from "@/lib/errors/student-lesson-progress";
+import { loadStudentLessonProgress, saveReadingConfirmation } from "@/lib/services/student-lesson-progress.repository";
+import { LessonAlreadyCompletedError, LessonNotAccessibleError } from "@/lib/errors/student-lesson-progress";
 
 export const POST: APIRoute = async (context) => {
   const originCheck = requireSameOrigin(context.request);
@@ -37,22 +32,16 @@ export const POST: APIRoute = async (context) => {
 
   try {
     const aggregate = await loadStudentLessonProgress(supabase, user.id, validLessonId);
-    const result = aggregate.complete();
-    await saveLessonCompletion(supabase, result);
+    aggregate.confirmReading();
+    await saveReadingConfirmation(supabase, user.id, validLessonId);
   } catch (error) {
     if (error instanceof LessonAlreadyCompletedError) {
       return Response.json({ success: true }, { status: 200 });
     }
-    if (error instanceof ReadingNotConfirmedError) {
-      return Response.json({ error: "Potwierdź przeczytanie lekcji." }, { status: 409 });
-    }
-    if (error instanceof ClosedExercisesNotSolvedError) {
-      return Response.json({ error: "Nie rozwiązano wszystkich ćwiczeń zamkniętych." }, { status: 409 });
-    }
     if (error instanceof LessonNotAccessibleError) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
-    return Response.json({ error: "Failed to record lesson completion" }, { status: 500 });
+    return Response.json({ error: "Failed to record reading confirmation" }, { status: 500 });
   }
 
   return Response.json({ success: true }, { status: 200 });

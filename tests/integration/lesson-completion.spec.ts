@@ -30,24 +30,52 @@ async function signInStudent(): Promise<APIRequestContext> {
 
 test.describe.configure({ mode: "serial" });
 
+const SAME_ORIGIN_HEADERS = {
+  Origin: BASE_URL,
+  Referer: BASE_URL,
+};
+
 test.describe("lesson completion gating", () => {
-  test("reading-only lesson can be completed without exercises", async () => {
+  test("reading-only lesson can be completed after reading confirmation", async () => {
     const studentContext = await signInStudent();
-    const response = await studentContext.post(`/api/lessons/${LESSON_READING_ONLY}/complete`);
-    expect(response.status()).toBe(200);
-    const body = (await response.json()) as { success?: boolean };
+    const readResponse = await studentContext.post(`/api/lessons/${LESSON_READING_ONLY}/read`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
+    expect(readResponse.status()).toBe(200);
+
+    const completeResponse = await studentContext.post(`/api/lessons/${LESSON_READING_ONLY}/complete`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
+    expect(completeResponse.status()).toBe(200);
+    const body = (await completeResponse.json()) as { success?: boolean };
     expect(body.success).toBe(true);
     await studentContext.dispose();
   });
 
-  test("lesson with closed + open exercises cannot be completed without solving", async () => {
+  test("lesson with closed + open exercises cannot be completed without reading confirmation", async () => {
     const studentContext = await signInStudent();
-    const response = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`);
+    const response = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
     expect(response.status()).toBe(409);
     await studentContext.dispose();
   });
 
-  test("lesson can be completed after solving closed exercise", async () => {
+  test("server rejects completion when closed exercises are unsolved even after reading confirmation", async () => {
+    const studentContext = await signInStudent();
+    const readResponse = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/read`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
+    expect(readResponse.status()).toBe(200);
+
+    const response = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
+    expect(response.status()).toBe(409);
+    await studentContext.dispose();
+  });
+
+  test("lesson can be completed after solving closed exercise and confirming reading", async () => {
     const studentContext = await signInStudent();
     const verifyResponse = await studentContext.post("/api/exercises/verify", {
       data: {
@@ -63,7 +91,14 @@ test.describe("lesson completion gating", () => {
     const verifyBody = (await verifyResponse.json()) as { correct?: boolean };
     expect(verifyBody.correct).toBe(true);
 
-    const completeResponse = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`);
+    const readResponse = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/read`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
+    expect(readResponse.status()).toBe(200);
+
+    const completeResponse = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
     expect(completeResponse.status()).toBe(200);
     const completeBody = (await completeResponse.json()) as { success?: boolean };
     expect(completeBody.success).toBe(true);
@@ -72,17 +107,14 @@ test.describe("lesson completion gating", () => {
 
   test("completion is idempotent", async () => {
     const studentContext = await signInStudent();
-    const first = await studentContext.post(`/api/lessons/${LESSON_READING_ONLY}/complete`);
-    expect(first.status()).toBe(200);
-    const second = await studentContext.post(`/api/lessons/${LESSON_READING_ONLY}/complete`);
-    expect(second.status()).toBe(200);
-    await studentContext.dispose();
-  });
-
-  test("server rejects completion when closed exercises are unsolved", async () => {
-    const studentContext = await signInStudent();
-    const response = await studentContext.post(`/api/lessons/${LESSON_CLOSED_PLUS_OPEN}/complete`);
-    expect(response.status()).toBe(409);
+    const firstComplete = await studentContext.post(`/api/lessons/${LESSON_READING_ONLY}/complete`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
+    expect(firstComplete.status()).toBe(200);
+    const secondComplete = await studentContext.post(`/api/lessons/${LESSON_READING_ONLY}/complete`, {
+      headers: SAME_ORIGIN_HEADERS,
+    });
+    expect(secondComplete.status()).toBe(200);
     await studentContext.dispose();
   });
 });

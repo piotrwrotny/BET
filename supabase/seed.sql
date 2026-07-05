@@ -176,8 +176,8 @@ Two exercises here:
 -- Section 3: Exercises + exercise_keys (covers 5 of 6 types from FR-018..023)
 -- =========================================================================
 -- Matching (FR-019) intentionally omitted from seed — added in S-06 when the
--- admin UI for that type lands. Seed covers MC (FR-022), fill-in-blank
--- (FR-018), true/false (FR-023), sentence transformation (FR-020), and
+-- admin UI for that type lands. Seed covers fill-in-blank (FR-018), MC
+-- (FR-022), true/false (FR-023), sentence transformation (FR-020), and
 -- open-ended (FR-021).
 -- =========================================================================
 
@@ -190,12 +190,12 @@ insert into public.exercises (id, lesson_id, type, prompt, payload, ord) values
    '{"options": ["A: went", "B: gone", "C: going", "D: go"]}'::jsonb,
    0),
 
-  -- 3.2 Multiple-choice (FR-022) — lesson_1_2
+  -- 3.2 Fill-in-the-blank (FR-018) — lesson_1_2
   ('00000000-0000-0000-0000-000000000041',
    '00000000-0000-0000-0000-000000000031',
-   'multiple_choice',
-   'Complete the sentence.',
-   '{"options": ["went", "have gone", "go", "going"]}'::jsonb,
+   'fill_in_blank',
+   'I ______ to Paris last summer. (go)',
+   '{}'::jsonb,
    0),
 
   -- 3.3 True/false (FR-023) — lesson_2_1
@@ -229,10 +229,13 @@ insert into public.exercise_keys (id, exercise_id, key_text, key_metadata, ord) 
    '00000000-0000-0000-0000-000000000040',
    'A: went', null, 0),
 
-  -- 3.2 MC: single correct option
+  -- 3.2 FIB: acceptable variants
   ('00000000-0000-0000-0000-000000000051',
    '00000000-0000-0000-0000-000000000041',
    'went', null, 0),
+  ('00000000-0000-0000-0000-000000000058',
+   '00000000-0000-0000-0000-000000000041',
+   'did go', null, 1),
   ('00000000-0000-0000-0000-000000000054',
    '00000000-0000-0000-0000-000000000042',
    'true', null, 0),
@@ -250,9 +253,3 @@ insert into public.exercise_keys (id, exercise_id, key_text, key_metadata, ord) 
    '00000000-0000-0000-0000-000000000044',
    'Sample model answer for self-assessment.', '{"is_reference_only": true}'::jsonb, 0);
 
--- Exercise submissions: seeded correct answer for the closed sentence_transformation
--- exercise in lesson 034, so integration tests can verify the positive completion path.
-insert into public.exercise_submissions (user_id, exercise_id, answer, is_correct) values
-  ('00000000-0000-0000-0000-000000000002',
-   '00000000-0000-0000-0000-000000000043',
-   'She has too little money.', true);

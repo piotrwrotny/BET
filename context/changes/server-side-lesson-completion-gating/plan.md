@@ -324,6 +324,15 @@ Podłączamy agregat pod endpoint ukończenia i aktualizujemy UI, aby obsługiwa
 - `context/foundation/test-plan.md` — ryzyko #6
 - `context/foundation/prd.md` — FR-015, guardrails
 
+## Uwaga dotycząca późniejszej zmiany (dev-slice-recovery)
+
+W ramach odzyskiwania stanu gałęzi `dev` do planu został dodany warunek potwierdzenia przeczytania lekcji (FR-015). Endpoint `POST /api/lessons/[id]/complete` wymaga teraz:
+
+1. Potwierdzenia przeczytania (`readingConfirmed = true`) — zapisanego wcześniej przez `POST /api/lessons/[id]/read`.
+2. Rozwiązania wszystkich ćwiczeń zamkniętych — jak wcześniej.
+
+Agregat `StudentLessonProgress` (z `module-4-architect`, commit `2fa9873`) zastąpił opisany tu `LessonCompletion` i rozszerzył go o stan `readingConfirmed`. Szczegóły techniczne oraz zaktualizowane testy integracyjne znajdują się w `context/changes/dev-slice-recovery/plan.md`.
+
 ## Postęp
 
 ### Faza 1: Migracja i model danych

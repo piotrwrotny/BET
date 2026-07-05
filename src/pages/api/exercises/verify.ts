@@ -1,6 +1,12 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createAdminClient, createClient } from "@/lib/supabase";
+import {
+  CONFLICT_EXERCISE_SUBMISSIONS,
+  TABLE_EXERCISES,
+  TABLE_EXERCISE_KEYS,
+  TABLE_EXERCISE_SUBMISSIONS,
+} from "@/lib/db/schema";
+import { createAdminClient, createClient } from "@/lib/supabase.server";
 import { uuidSchema } from "@/lib/utils";
 import { verifyExercise } from "@/lib/verify-exercise";
 
@@ -37,10 +43,10 @@ export const POST: APIRoute = async (context) => {
   }
 
   // Fetch exercise type + keys. RLS enforces has_exercise_access; keys never reach the client.
-  const { data: exercise } = await supabase.from("exercises").select("type").eq("id", exercise_id).single();
+  const { data: exercise } = await supabase.from(TABLE_EXERCISES).select("type").eq("id", exercise_id).single();
 
   const { data: keys } = await supabase
-    .from("exercise_keys")
+    .from(TABLE_EXERCISE_KEYS)
     .select("key_text, key_metadata")
     .eq("exercise_id", exercise_id)
     .overrideTypes<{ key_text: string; key_metadata: unknown }[], { merge: false }>();
@@ -61,14 +67,14 @@ export const POST: APIRoute = async (context) => {
   if (correct && exerciseType !== "open_ended") {
     try {
       const adminClient = createAdminClient();
-      const { error: submissionError } = await adminClient.from("exercise_submissions").upsert(
+      const { error: submissionError } = await adminClient.from(TABLE_EXERCISE_SUBMISSIONS).upsert(
         {
           user_id: user.id,
           exercise_id,
           answer,
           is_correct: true,
         },
-        { onConflict: "user_id,exercise_id", ignoreDuplicates: false },
+        { onConflict: CONFLICT_EXERCISE_SUBMISSIONS, ignoreDuplicates: false },
       );
       if (submissionError) {
         return Response.json({ error: "Failed to record submission" }, { status: 500 });

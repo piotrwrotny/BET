@@ -1,7 +1,7 @@
 ---
 import { marked } from "marked";
 import Layout from "@/layouts/Layout.astro";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase.server";
 import { sanitizeHtml } from "@/lib/markdown";
 import { uuidSchema } from "@/lib/utils";
 import LessonInteractive from "@/components/lesson/LessonInteractive";

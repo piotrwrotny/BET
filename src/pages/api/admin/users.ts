@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { requireAdminApi, requireSameOrigin } from "@/lib/guards";
 import { logServerError } from "@/lib/logger";
-import { getStudentsWithAccess } from "@/lib/services/user-admin";
+import { getStudentsWithAccess } from "@/lib/services/user-admin.server";
 
 export const prerender = false;
 

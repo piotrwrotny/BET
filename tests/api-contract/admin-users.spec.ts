@@ -27,7 +27,9 @@ async function signInStudent(): Promise<APIRequestContext> {
 
 test.describe("admin user access boundary", () => {
   test("admin can list students", async ({ request }) => {
-    const response = await request.get("/api/admin/users");
+    const response = await request.get("/api/admin/users", {
+      headers: { Origin: BASE_URL, Referer: BASE_URL },
+    });
     expect(response.status()).toBe(200);
     const body = (await response.json()) as { users?: unknown[] };
     expect(body.users).toBeDefined();
@@ -62,6 +64,7 @@ test.describe("admin user access boundary", () => {
   test("grant rejects invalid UUID param", async ({ request }) => {
     const response = await request.post("/api/admin/users/not-a-uuid/grant", {
       data: { book_id: BOOK_ID },
+      headers: { Origin: BASE_URL, Referer: BASE_URL },
     });
     expect(response.status()).toBe(400);
   });
@@ -69,6 +72,7 @@ test.describe("admin user access boundary", () => {
   test("grant rejects missing book_id", async ({ request }) => {
     const response = await request.post(`/api/admin/users/${STUDENT_ID}/grant`, {
       data: {},
+      headers: { Origin: BASE_URL, Referer: BASE_URL },
     });
     expect(response.status()).toBe(400);
   });
@@ -76,6 +80,7 @@ test.describe("admin user access boundary", () => {
   test("grant rejects admin target user", async ({ request }) => {
     const response = await request.post(`/api/admin/users/${ADMIN_ID}/grant`, {
       data: { book_id: BOOK_ID },
+      headers: { Origin: BASE_URL, Referer: BASE_URL },
     });
     expect(response.status()).toBe(403);
     const body = (await response.json()) as { error?: string };
@@ -83,17 +88,23 @@ test.describe("admin user access boundary", () => {
   });
 
   test("revoke rejects invalid UUID param", async ({ request }) => {
-    const response = await request.delete("/api/admin/users/not-a-uuid/revoke?book_id=" + BOOK_ID);
+    const response = await request.delete("/api/admin/users/not-a-uuid/revoke?book_id=" + BOOK_ID, {
+      headers: { Origin: BASE_URL, Referer: BASE_URL },
+    });
     expect(response.status()).toBe(400);
   });
 
   test("revoke rejects missing book_id", async ({ request }) => {
-    const response = await request.delete(`/api/admin/users/${STUDENT_ID}/revoke`);
+    const response = await request.delete(`/api/admin/users/${STUDENT_ID}/revoke`, {
+      headers: { Origin: BASE_URL, Referer: BASE_URL },
+    });
     expect(response.status()).toBe(400);
   });
 
   test("revoke rejects admin target user", async ({ request }) => {
-    const response = await request.delete(`/api/admin/users/${ADMIN_ID}/revoke?book_id=${BOOK_ID}`);
+    const response = await request.delete(`/api/admin/users/${ADMIN_ID}/revoke?book_id=${BOOK_ID}`, {
+      headers: { Origin: BASE_URL, Referer: BASE_URL },
+    });
     expect(response.status()).toBe(403);
     const body = (await response.json()) as { error?: string };
     expect(body.error).toBe("Target user is not a student");

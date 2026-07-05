@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from "react";
 import { ServerError } from "@/components/auth/ServerError";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { AdminUsersResponseSchema, type BookOption, type UserWithAccess } from "@/lib/services/user-admin";
+import { AdminUsersResponseSchema, type BookOption, type UserWithAccess } from "@/lib/services/user-admin.schema";
 
 interface UsersTableProps {
   users: UserWithAccess[];
@@ -95,6 +95,8 @@ export function UsersTable({ users, books }: UsersTableProps) {
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
+          Origin: window.location.origin,
+          Referer: window.location.href,
         },
         body: JSON.stringify({ book_id: bookId }),
       });
@@ -157,6 +159,10 @@ export function UsersTable({ users, books }: UsersTableProps) {
       const response = await fetch(`/api/admin/users/${user.id}/revoke?book_id=${encodeURIComponent(bookId)}`, {
         method: "DELETE",
         credentials: "same-origin",
+        headers: {
+          Origin: window.location.origin,
+          Referer: window.location.href,
+        },
       });
 
       if (!response.ok) {

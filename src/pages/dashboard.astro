@@ -2,7 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import { ServerError } from "@/components/auth/ServerError";
 import SafeImage from "@/components/ui/SafeImage.astro";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase.server";
 
 const { user } = Astro.locals;
 const supabase = createClient(Astro.request.headers, Astro.cookies);

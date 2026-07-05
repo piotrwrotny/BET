@@ -9,9 +9,28 @@ test.use({ storageState: "playwright/.auth/admin.json" });
 test.setTimeout(60000);
 
 const CHAPTER_ID = "00000000-0000-0000-0000-000000000020";
+const BOOK_ID = "00000000-0000-0000-0000-000000000010";
+const STUDENT_ID = "00000000-0000-0000-0000-000000000002";
 
 let lessonId = "";
 let lessonTitle = "";
+
+test.beforeAll(async ({ browser }) => {
+  const adminContext = await browser.newContext({ storageState: "playwright/.auth/admin.json" });
+  try {
+    const res = await adminContext.request.post(`/api/admin/users/${STUDENT_ID}/grant`, {
+      data: { book_id: BOOK_ID },
+      headers: {
+        "Content-Type": "application/json",
+        Origin: "http://localhost:4321",
+        Referer: "http://localhost:4321/admin/users",
+      },
+    });
+    expect([200, 409].includes(res.status())).toBe(true);
+  } finally {
+    await adminContext.close();
+  }
+});
 
 test.afterEach(async ({ browser }) => {
   if (!lessonId) return;

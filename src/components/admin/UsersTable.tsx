@@ -95,6 +95,8 @@ export function UsersTable({ users, books }: UsersTableProps) {
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
+          Origin: window.location.origin,
+          Referer: window.location.href,
         },
         body: JSON.stringify({ book_id: bookId }),
       });
@@ -157,6 +159,10 @@ export function UsersTable({ users, books }: UsersTableProps) {
       const response = await fetch(`/api/admin/users/${user.id}/revoke?book_id=${encodeURIComponent(bookId)}`, {
         method: "DELETE",
         credentials: "same-origin",
+        headers: {
+          Origin: window.location.origin,
+          Referer: window.location.href,
+        },
       });
 
       if (!response.ok) {

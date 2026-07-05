@@ -17,11 +17,43 @@ const LESSON_IDS = [
 
 test.describe.configure({ mode: "serial" });
 
+const SEED_CLOSED_ANSWERS: Record<string, { exerciseId: string; answer: string }[]> = {
+  "00000000-0000-0000-0000-000000000030": [{ exerciseId: "00000000-0000-0000-0000-000000000040", answer: "A: went" }],
+  "00000000-0000-0000-0000-000000000031": [{ exerciseId: "00000000-0000-0000-0000-000000000041", answer: "went" }],
+  "00000000-0000-0000-0000-000000000033": [{ exerciseId: "00000000-0000-0000-0000-000000000042", answer: "true" }],
+  "00000000-0000-0000-0000-000000000034": [
+    { exerciseId: "00000000-0000-0000-0000-000000000043", answer: "She has too little money." },
+  ],
+};
+
 async function completeLesson(page: Page, lessonId: string) {
-  const result = await page.evaluate(async (id) => {
-    const response = await fetch(`/api/lessons/${id}/complete`, { method: "POST" });
-    return { status: response.status, body: await response.text() };
-  }, lessonId);
+  const origin = "http://localhost:4321";
+  const exercises = SEED_CLOSED_ANSWERS[lessonId] ?? [];
+  const result = await page.evaluate<
+    { status: number; body: string },
+    { id: string; origin: string; exercises: { exerciseId: string; answer: string }[] }
+  >(
+    async ({ id, origin: o, exercises: exs }) => {
+      const headers = { Origin: o, Referer: o };
+      for (const { exerciseId, answer } of exs) {
+        const verifyResponse = await fetch("/api/exercises/verify", {
+          method: "POST",
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify({ exercise_id: exerciseId, answer }),
+        });
+        if (!verifyResponse.ok) {
+          return { status: verifyResponse.status, body: await verifyResponse.text() };
+        }
+      }
+      const readResponse = await fetch(`/api/lessons/${id}/read`, { method: "POST", headers });
+      if (!readResponse.ok && readResponse.status !== 409) {
+        return { status: readResponse.status, body: await readResponse.text() };
+      }
+      const completeResponse = await fetch(`/api/lessons/${id}/complete`, { method: "POST", headers });
+      return { status: completeResponse.status, body: await completeResponse.text() };
+    },
+    { id: lessonId, origin, exercises },
+  );
   expect(result.status).toBe(200);
 }
 

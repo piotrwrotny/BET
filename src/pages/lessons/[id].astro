@@ -29,8 +29,7 @@ const { data: lesson, error: lessonError } = await supabase
   .from("lessons")
   .select(
     `
-    id, title, content, ord,
-    chapters ( id, title, book_id, ord ),
+    id, title, content, ord, chapter_id,
     exercises ( id, type, prompt, payload, ord )
   `,
   )
@@ -39,6 +38,19 @@ const { data: lesson, error: lessonError } = await supabase
 
 if (lessonError || !lesson) {
   return Astro.redirect("/dashboard?error=Nie udało się załadować lekcji.");
+}
+
+// Fetch the owning chapter separately to avoid Supabase embedded-relation
+// typing/runtime mismatches (the generator types it as an array even
+// though PostgREST returns a single object for a many-to-one FK).
+const { data: chapter, error: chapterError } = await supabase
+  .from("chapters")
+  .select("id, title, book_id, ord")
+  .eq("id", lesson.chapter_id)
+  .single();
+
+if (chapterError || !chapter) {
+  return Astro.redirect("/dashboard?error=Nie udało się załadować rozdziału.");
 }
 
 // Parse Markdown → HTML and sanitize before injection
@@ -100,10 +112,6 @@ if (openEndedIds.length > 0) {
     }
   }
 }
-
-// Chapter info for breadcrumb
-const chapter =
-  ((lesson.chapters as { id: string; title: string; book_id: string; ord: number }[] | null) ?? [])[0] ?? null;
 
 // --- S-05: Sequential navigation ---
 // Fetch all lessons in this chapter to determine prev/next within chapter

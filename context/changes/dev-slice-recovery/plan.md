@@ -318,6 +318,8 @@ Each phase is an independent commit (or set of commits). If a phase breaks the b
 - [x] 6.2 Run `npx playwright test --project=integration` (requires clean local DB). — `e580b63`
 - [x] 6.3 Run full `npx playwright test` suite. — `003d3aa`
 
+> Note: the suite passes with `workers=1` (current default because `CI=1` in this environment). Running with multiple workers fails because several E2E and integration tests share the seeded student account and mutate the same local database. Making the suite parallel-safe would require per-test user/lesson isolation or per-worker DB snapshots and is out of scope for this recovery change.
+
 #### Manual
 - [x] M.3 Update `context/changes/testing-admin-student-access-boundary/plan.md` progress and close the change. — tracked in `003d3aa`; the test suite now passes.
 

@@ -2,8 +2,8 @@
 project: BET
 change_id: dev-slice-recovery
 title: Dev branch slice recovery audit and plan
-status: completed
-updated: 2026-07-03
+status: archived
+updated: 2026-07-05
 created: 2026-07-03
 ---
 

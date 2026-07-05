@@ -28,4 +28,4 @@ The `dev` branch contains all archived slice plans marked `done`, but the curren
 - Schema constants completed and raw table-name literals replaced in user-admin and lesson-progress flows.
 - API contract and integration tests updated for the new read/complete flow and same-origin CSRF guard.
 - Documentation updated: recovery plan, roadmap S-07 note, and server-side completion gating plan.
-- Verification: `npm run typecheck`, `npm run lint`, `npm run test` (84 passed), and `npm run build` are green. `npx playwright test --project=api-contract` and `--project=integration` pass with a clean local database. Full E2E run was blocked by local Docker Desktop not running.
+- Verification: `npm run typecheck`, `npm run lint`, `npm run test` (84 passed), and `npm run build` are green. Full `npx playwright test` suite (33 tests) passes with a clean local database after starting Docker Desktop.

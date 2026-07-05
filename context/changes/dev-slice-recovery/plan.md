@@ -314,11 +314,12 @@ Each phase is an independent commit (or set of commits). If a phase breaks the b
 ### Phase 6 — Close access-boundary testing (P3)
 
 #### Automated
-- [x] 6.1 Run `npx playwright test --project=api-contract`. — `7d9f8a2`
-- [x] 6.2 Run `npx playwright test --project=integration` (requires clean local DB). — `7d9f8a2`
+- [x] 6.1 Run `npx playwright test --project=api-contract`. — `83c5ac9`
+- [x] 6.2 Run `npx playwright test --project=integration` (requires clean local DB). — `e580b63`
+- [x] 6.3 Run full `npx playwright test` suite. — `003d3aa`
 
 #### Manual
-- [ ] M.3 Update `context/changes/testing-admin-student-access-boundary/plan.md` progress and close the change. — blocked: local Supabase unavailable (Docker Desktop stopped).
+- [x] M.3 Update `context/changes/testing-admin-student-access-boundary/plan.md` progress and close the change. — tracked in `003d3aa`; the test suite now passes.
 
 ### Phase 7 — Documentation cleanup (P3)
 

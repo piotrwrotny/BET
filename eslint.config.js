@@ -72,7 +72,7 @@ const astroConfig = tseslint.config({
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
-  { ignores: ["src/lib/database.types.ts"] },
+  { ignores: ["src/lib/database.types.ts", "packages/ai-toolkit/**"] },
   baseConfig,
   {
     files: ["scripts/**/*.ts", "tests/e2e/**/*.ts"],

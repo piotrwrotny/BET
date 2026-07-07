@@ -1,0 +1,27 @@
+{
+  "name": "@piotrwrotny/ai-toolkit",
+  "version": "0.1.1",
+  "description": "Team AI artifacts distributed through GitHub Packages",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "rules/",
+    "config-templates/",
+    "install.js",
+    "uninstall.js",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node install.js",
+    "test": "node --test test/**/*.test.js"
+  },
+  "bin": {
+    "ai-toolkit": "./install.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

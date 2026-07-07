@@ -21,6 +21,7 @@
     "db:gen-types": "supabase gen types typescript --local > src/lib/database.types.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.3",
     "@astrojs/check": "^0.9.8",
     "@astrojs/cloudflare": "^13.5.0",
     "@astrojs/react": "^5.0.4",
@@ -33,6 +34,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "ai": "^7.0.11",
     "astro": "^6.3.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -54,6 +56,7 @@
     "@playwright/test": "^1.61.1",
     "@vitest/coverage-v8": "^4.1.9",
     "dependency-cruiser": "^18.0.0",
+    "dotenv": "^17.4.2",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^1.7.0",
@@ -67,7 +70,9 @@
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "0.14.1",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "promptfoo": "^0.121.17",
     "supabase": "^2.23.4",
+    "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
     "vitest": "^4.1.9",

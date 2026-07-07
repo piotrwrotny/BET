@@ -1,0 +1,39 @@
+description: AI code review evaluation
+
+prompts:
+  - file://prompts/review.txt
+
+providers:
+  # Gemma 4 31B does not emit reasoning text, so it reliably returns the
+  # requested JSON. This is the green provider for the eval gate.
+  - id: openai:chat:google/gemma-4-31B
+    config:
+      apiBaseUrl: http://gemma4-31b.llm.ai.asseco.pl/v1
+      apiKey: "{{env.GEMMA_API_KEY}}"
+      temperature: 0
+      response_format:
+        type: json_object
+  # Comparison providers (uncomment when you want to benchmark):
+  # - openrouter:anthropic/claude-haiku-4.5
+  # - openrouter:openai/gpt-5-mini
+  # Note: Kimi K2.7-Code always emits reasoning text and cannot be cleanly
+  # parsed by the simple transform below; keep it out of the green path.
+
+tests:
+  - description: React 16 -> 19 migration with XSS, missing tests, and unsafe HTML
+    options:
+      # Anchor extraction on the known first key so reasoning text with stray
+      # braces (e.g. "Start with { end with }") does not break parsing.
+      transform: output.match(/(\{\s*\\\"implementationCorrectness\\\"[\s\S]*\})/)?.[1] ?? output
+    vars:
+      diff: file://tests/evals/fixtures/react-migration.diff
+    assert:
+      - type: is-json
+      - type: javascript
+        value: JSON.parse(output).verdict === 'fail'
+      - type: javascript
+        value: JSON.parse(output).securitySafety <= 5
+      - type: javascript
+        value: JSON.parse(output).testRiskCoverage <= 5
+      - type: javascript
+        value: JSON.parse(output).implementationCorrectness <= 6

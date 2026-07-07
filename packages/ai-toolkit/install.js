@@ -1,0 +1,156 @@
+#!/usr/bin/env node
+
+const fs = require("node:fs");
+const path = require("node:path");
+
+const PACKAGE_NAME = "@piotrwrotny/ai-toolkit";
+const PACKAGE_VERSION = "0.1.1";
+const BEGIN = `<!-- BEGIN ${PACKAGE_NAME} -->`;
+const END = `<!-- END ${PACKAGE_NAME} -->`;
+const MANIFEST = ".ai-toolkit-manifest.json";
+const CONFIG_DIR = ".claude";
+
+function findProjectRoot() {
+  if (process.env.PROJECT_ROOT) {
+    return path.resolve(process.env.PROJECT_ROOT);
+  }
+
+  // npm sets INIT_CWD to the project root during postinstall and npx.
+  // Fall back to the current working directory for standalone runs.
+  return process.env.INIT_CWD ? path.resolve(process.env.INIT_CWD) : process.cwd();
+}
+
+function copyDir(source, target, installedFiles, root) {
+  fs.mkdirSync(target, { recursive: true });
+  for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
+    const src = path.join(source, entry.name);
+    const dst = path.join(target, entry.name);
+    if (entry.isDirectory()) {
+      copyDir(src, dst, installedFiles, root);
+    } else {
+      fs.copyFileSync(src, dst);
+      installedFiles.push(path.relative(root, dst).replace(/\\/g, "/"));
+    }
+  }
+}
+
+function installSkills(projectRoot, installedFiles) {
+  const source = path.join(__dirname, "skills");
+  if (!fs.existsSync(source)) return;
+
+  const targetRoot = path.join(projectRoot, CONFIG_DIR, "skills");
+  fs.mkdirSync(targetRoot, { recursive: true });
+
+  for (const skill of fs.readdirSync(source, { withFileTypes: true })) {
+    if (!skill.isDirectory()) continue;
+    const target = path.join(targetRoot, skill.name);
+    fs.rmSync(target, { recursive: true, force: true });
+    copyDir(path.join(source, skill.name), target, installedFiles, projectRoot);
+  }
+}
+
+function applyRulesBlock(existing, teamRules) {
+  const block = `${BEGIN}\n${teamRules.trim()}\n${END}`;
+  const start = existing.indexOf(BEGIN);
+  const end = existing.indexOf(END);
+
+  if (start !== -1 && end !== -1 && end > start) {
+    return existing.slice(0, start) + block + existing.slice(end + END.length);
+  }
+
+  return existing.trimEnd() + "\n\n" + block + "\n";
+}
+
+function installRules(projectRoot, installedFiles) {
+  const rulesFile = path.join(__dirname, "rules", "AGENTS.md");
+  if (!fs.existsSync(rulesFile)) return;
+
+  const target = path.join(projectRoot, "AGENTS.md");
+  const existing = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : "";
+  const teamRules = fs.readFileSync(rulesFile, "utf8");
+  fs.writeFileSync(target, applyRulesBlock(existing, teamRules));
+
+  if (!installedFiles.includes("AGENTS.md")) {
+    installedFiles.push("AGENTS.md");
+  }
+}
+
+function installConfigs(projectRoot, installedFiles) {
+  const sourceRoot = path.join(__dirname, "config-templates");
+  if (!fs.existsSync(sourceRoot)) return;
+
+  for (const entry of fs.readdirSync(sourceRoot, { withFileTypes: true })) {
+    const src = path.join(sourceRoot, entry.name);
+    const dst = path.join(projectRoot, entry.name);
+
+    if (entry.isDirectory()) {
+      for (const child of fs.readdirSync(src, { withFileTypes: true })) {
+        const childSrc = path.join(src, child.name);
+        const childDst = path.join(dst, child.name);
+        if (fs.existsSync(childDst)) continue;
+        fs.mkdirSync(dst, { recursive: true });
+        fs.copyFileSync(childSrc, childDst);
+        installedFiles.push(path.relative(projectRoot, childDst).replace(/\\/g, "/"));
+      }
+    } else {
+      if (fs.existsSync(dst)) continue;
+      fs.copyFileSync(src, dst);
+      installedFiles.push(path.relative(projectRoot, dst).replace(/\\/g, "/"));
+    }
+  }
+}
+
+function writeManifest(projectRoot, installedFiles) {
+  const manifestDir = path.join(projectRoot, CONFIG_DIR);
+  fs.mkdirSync(manifestDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(manifestDir, MANIFEST),
+    JSON.stringify(
+      {
+        package: PACKAGE_NAME,
+        version: PACKAGE_VERSION,
+        installedAt: new Date().toISOString(),
+        files: [...new Set(installedFiles)],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+}
+
+function install() {
+  const projectRoot = findProjectRoot();
+  const installedFiles = [];
+
+  installSkills(projectRoot, installedFiles);
+  installRules(projectRoot, installedFiles);
+  installConfigs(projectRoot, installedFiles);
+  writeManifest(projectRoot, installedFiles);
+
+  console.log(`${PACKAGE_NAME}: installed ${installedFiles.length} file(s) into ${projectRoot}`);
+}
+
+function uninstall() {
+  const uninstallScript = path.join(__dirname, "uninstall.js");
+  require(uninstallScript);
+}
+
+function main() {
+  const command = process.argv[2] || "install";
+
+  if (command === "uninstall") {
+    uninstall();
+  } else if (command === "install") {
+    install();
+  } else {
+    console.warn(`${PACKAGE_NAME}: unknown command "${command}". Use "install" or "uninstall".`);
+    process.exit(1);
+  }
+}
+
+try {
+  main();
+} catch (error) {
+  console.warn(`${PACKAGE_NAME}: postinstall warning: ${error.message}`);
+  // Never fail the host npm install.
+}

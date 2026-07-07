@@ -1,0 +1,67 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    branches: [master, dev]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        # npm ci fails across npm-version lock mismatches; install is safe for
+        # a non-build review job and keeps the agent runnable.
+        run: npm install --no-audit --no-fund
+
+      - name: Compute diff
+        id: diff
+        run: |
+          base="${{ github.base_ref }}"
+          if [ -z "$base" ]; then
+            range="HEAD~1...HEAD"
+          else
+            range="origin/${base}...HEAD"
+          fi
+          raw=$(git diff "$range" -- \
+            ':!package-lock.json' \
+            ':!*.lock' \
+            ':!node_modules/**' \
+            ':!dist/**' \
+            ':!.omp/**' \
+            ':!context/archive/**')
+          # GitHub Models enforces an 8k-token request limit; truncate to leave
+          # room for the system prompt and JSON response.
+          max_chars=22000
+          diff_value=$(printf '%s' "$raw" | head -c "$max_chars")
+          echo "value<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$diff_value" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Run AI reviewer
+        uses: ./.github/actions/ai-reviewer
+        with:
+          provider: ${{ vars.LLM_PROVIDER || 'github' }}
+          base-url: ${{ vars.LLM_BASE_URL }}
+          model: ${{ vars.LLM_MODEL || 'openai/gpt-4.1' }}
+          api-key: ${{ secrets.LLM_API_KEY }}
+          pr-title: ${{ github.event.pull_request.title }}
+          pr-body: ${{ github.event.pull_request.body }}
+          diff: ${{ steps.diff.outputs.value }}
